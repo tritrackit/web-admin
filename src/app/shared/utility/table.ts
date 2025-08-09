@@ -1,0 +1,56 @@
+export class ColumnDefinition {
+  name: string;
+  label: string;
+  apiNotation?: string;
+  sticky?: boolean;
+  style?: ColumnStyle;
+  controls?: boolean;
+  disableSorting?: boolean;
+  format?: {
+    type: "currency" | "date" | "date-time" | "number" | "custom" | "image";
+    custom: string;
+  };
+  hide?: boolean;
+  type?: "string" | "boolean" | "date" | "number" = "string";
+  filterOptions: ColumnDefinitionFilterOptions;
+  urlPropertyName?: string;
+  filter: any;
+}
+
+export class ColumnDefinitionFilterOptions {
+  placeholder?: string;
+  enable?: boolean;
+  type?: "text" | "option" | "option-yes-no" | "date" | "date-range" | "number" | "number-range" | "precise";
+};
+export class ColumnStyle {
+  width: string;
+  left: string;
+}
+
+export class TableColumnBase {
+  menu: any[] = [];
+}
+
+export class EmployeeUsersTableColumn {
+  employeeUserCode?: string;
+  userName?: string;
+  name?: string;
+  email?: string;
+  enable?: boolean;
+  role?: string;
+  url?: string;
+}
+
+export class EmployeeUserTableColumn {
+  employeeUserCode?: string;
+  name?: string;
+  mobileNumber?: string;
+  userProfilePic?: string;
+}
+
+export class RolesTableColumn {
+  roleId: string;
+  roleCode: string;
+  name?: string;
+  url?: string;
+}

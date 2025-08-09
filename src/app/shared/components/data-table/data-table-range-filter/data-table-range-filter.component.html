@@ -1,0 +1,42 @@
+
+<div class="readonly">
+  <mat-form-field (click)="click()" floatLabel="never" appearance="outline" >
+    <input matInput [(ngModel)]="value" readonly="true"/>
+  </mat-form-field>
+</div>
+<ng-template #rangeFormDialog>
+  <h4 mat-dialog-title>Select range</h4>
+
+<div mat-dialog-content >
+  <div style="box-sizing: border-box;display: flex;flex-direction:column;width: 100%!important; margin-top: 10px!important;">
+    <mat-form-field appearance="outline" style="max-width: 200px;">
+        <mat-label>Max</mat-label>
+        <mat-select #maxRange [formControl]="maxRangeCtrl" (selectionChange)="toValueRef.value = $event.value;toValue = $event.value;toValueCtrl.setValue($event.value)">
+            <mat-option value="1000">1000</mat-option>
+            <mat-option value="10000">10000</mat-option>
+            <mat-option value="100000">100000</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <h3 mat-dialog-title>{{fromValueRef.value}} - {{toValueRef.value}}</h3>
+    <mat-slider max="{{maxRange.value}}" [step]="1">
+      <input #fromValueRef [formControl]="fromValueCtrl" value="{{fromValue}}" matSliderStartThumb>
+      <input #toValueRef [formControl]="toValueCtrl" value="{{toValue}}" matSliderEndThumb>
+    </mat-slider>
+  </div>
+
+</div>
+
+<div mat-dialog-actions>
+  <div>
+    <button
+      mat-flat-button
+      color="primary"
+      type="submit"
+      (click)="close()">
+      Ok
+    </button>
+  </div>
+</div>
+
+</ng-template>
+

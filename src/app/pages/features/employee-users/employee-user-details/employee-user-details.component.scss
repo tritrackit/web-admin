@@ -1,0 +1,16 @@
+
+  ::ng-deep {
+    .hidden {
+      display: none!important;
+    }
+  }
+
+  @mixin object-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  $circleSize: 165px;
+  $radius: 100px;
+  $fontColor: rgb(250,250,250);

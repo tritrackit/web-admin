@@ -1,0 +1,36 @@
+
+<div class="inner-content">
+  <form
+  [formGroup]="form"
+  fxLayout="row wrap"
+  id="form"
+  [ngClass]="{'readonly' : isReadOnly}">
+  <fieldset fxFlex="100" fxLayout="row wrap" style="row-gap: 16px">
+    <mat-form-field
+      fxFlex="100"
+      fxLayout="column"
+      appearance="outline"
+    >
+      <mat-label>Role name</mat-label>
+      <input
+        matInput
+        placeholder="Role name"
+        formControlName="name"
+      />
+      <mat-error
+        *ngIf="getError('name') !== null && getError('name') !== undefined"
+        >{{
+          (getError("name") &&
+          getError("name")["required"]
+            ? "Please enter role name"
+            : "") ||
+            (getError("name") &&
+            getError("name")["pattern"]
+              ? "Invalid input"
+              : "")
+        }}</mat-error
+      >
+    </mat-form-field>
+  </fieldset>
+  </form>
+</div>

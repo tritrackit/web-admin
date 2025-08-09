@@ -1,0 +1,85 @@
+::ng-deep {
+
+  input {
+    display: none;
+  }
+  .image-upload-dialog {
+    padding-left: 16px!important;
+    padding-right: 16px!important;
+    width: auto;
+  }
+  .mat-mdc-dialog-content {
+    overflow: hidden;
+    padding-bottom: 0px!important;
+    .image-upload-content-holder {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      display: flex;
+      max-height: inherit;
+      box-sizing: border-box;
+      .image-upload-content {
+        overflow: auto;
+        padding-bottom: 16px;
+        max-width: 100%!important;
+        max-height: 500px!important;
+        width: 500px;
+        image-cropper {
+          box-sizing: border-box;
+        }
+
+        .webcam-holder {
+          position: relative;
+          webcam {
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+            .webcam-wrapper {
+              display: flex;
+              flex-direction: column;
+              background-color: rgba($color: #000000, $alpha: 0.3);
+              video {
+                width: 100%!important;
+              }
+              .camera-switch {
+                display: none!important;
+              }
+            }
+          }
+          .webcam-controls {
+            position: absolute;
+            width: 100%;
+            bottom: 10px;
+            display: flex;
+            flex-direction: row;
+            gap: 10px!important;
+            justify-content: center;
+            button {
+
+            }
+          }
+        }
+
+        .image-upload-options {
+          display: flex;
+          flex-direction: column;
+          row-gap: 30px;
+          margin: 10px;
+          .image-upload-options-item {
+            flex-grow: 1;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            flex-direction: column;
+          }
+        }
+      }
+      .image-upload-footer {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+      }
+    }
+  }
+
+}

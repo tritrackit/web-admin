@@ -1,0 +1,85 @@
+
+<section>
+  <table class="table-admin-access" mat-table [dataSource]="accessPagesDataSource">
+    <!-- Page Column -->
+    <ng-container matColumnDef="page" sticky>
+      <th mat-header-cell *matHeaderCellDef>Page</th>
+      <td mat-cell *matCellDef="let element">{{ element.page }}</td>
+    </ng-container>
+
+    <!-- View Column -->
+    <ng-container matColumnDef="view">
+      <th mat-header-cell *matHeaderCellDef>
+        <mat-checkbox
+          [matTooltip]="accessPagesCheckBox.view.all ? 'Disable view access for all page' : 'Enable view access for all page'"
+          (click)="$event.stopPropagation()"
+          (change)="$event ? accessPagesCheckBox.view.changeAll(accessPagesCheckBox.view.all ? false : true) : null;"
+          [indeterminate]="!accessPagesCheckBox.view.all ? accessPagesCheckBox.view.indeterminate : false"
+          [checked]="accessPagesCheckBox.view.all"
+          *ngIf="!isReadOnly">
+        </mat-checkbox>
+        View
+      </th>
+      <td mat-cell *matCellDef="let element">
+        <mat-checkbox
+          [disabled]="isReadOnly"
+          [matTooltip]="(element.view ? 'Disable' : 'Enable') + ' view access for ' + element.page"
+          (click)="$event.stopPropagation()"
+          (change)="$event ? (element.view = !element.view) : null;element.view ? element.modify = false:false;!element.view ? element.rights = [] : false;accessGridChange.emit(accessPagesData)"
+          [checked]="element.view">
+        </mat-checkbox>
+      </td>
+    </ng-container>
+
+    <!-- Modify number Column -->
+    <ng-container matColumnDef="modify">
+      <th mat-header-cell *matHeaderCellDef>
+        <mat-checkbox
+          #modifyAll
+          [matTooltip]="accessPagesCheckBox.modify.all ? 'Disable modify access for all page' : 'Enable modify access for all page'"
+          (click)="$event.stopPropagation()"
+          (change)="$event ? accessPagesCheckBox.modify.changeAll(modifyAll.checked) : null"
+          [indeterminate]="!accessPagesCheckBox.modify.all ? accessPagesCheckBox.modify.indeterminate : false"
+          [checked]="accessPagesCheckBox.modify.all"
+          *ngIf="!isReadOnly"
+          [disabled]="!accessPagesCheckBox.view.all && !accessPagesCheckBox.view.indeterminate">
+        </mat-checkbox>
+        Modify
+      </th>
+      <td mat-cell *matCellDef="let element">
+        <mat-checkbox
+          [disabled]="!element.view || isReadOnly"
+          [matTooltip]="(element.modify ? 'Disable' : 'Enable') + ' modify access for ' + element.page"
+          (click)="$event.stopPropagation()"
+          (change)="$event ? (element.modify = !element.modify) : null;accessGridChange.emit(accessPagesData)"
+          [checked]="element.modify">
+        </mat-checkbox>
+      </td>
+    </ng-container>
+
+    <!-- Rights Column -->
+    <ng-container matColumnDef="rights">
+      <th mat-header-cell *matHeaderCellDef >Rights</th>
+      <td mat-cell *matCellDef="let element">
+        <mat-select
+          *ngIf="!isReadOnly && rightsOptions(element.page).length > 0 && element.view;else rightsReadOnly"
+          multiple #rights [(ngModel)]="element.rights" [(value)]="element.rights"
+          (selectionChange)="element.rights = rights.value ? rights.value : element.rights;accessGridChange.emit(accessPagesData) "
+          placeholder="Select rights">
+          <mat-option [value]="right" *ngFor="let right of rightsOptions(element.page)">
+            {{ right }}
+          </mat-option>
+        </mat-select>
+        <ng-template #rightsReadOnly>
+          {{element?.rights && element?.rights?.toString() !== '' ? element.rights.toString() : (rightsOptions(element.page).length > 0 ? 'NA' : '')}}
+        </ng-template>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+  <div class="table-no-data" *ngIf="accessPagesDataSource.data.length === 0">
+    <span>No access available</span>
+  </div>
+</section>

@@ -1,0 +1,39 @@
+
+.radio-card-group {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 800px) and (max-width: 900px) {
+  .radio-card-group {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.radio-card {
+  border-radius: 8px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  cursor: pointer;
+  min-width: 0!important;
+  border-width: 2px;
+  &.disabled {
+    pointer-events: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.radio-card.selected {
+  border-color:#0D47A1;
+}
+
+.radio-card-content {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.radio-card mat-radio-button {
+  pointer-events: none;
+}

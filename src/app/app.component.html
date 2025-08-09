@@ -1,0 +1,18 @@
+
+<div class="loader" *ngIf="showLoader"><mat-spinner></mat-spinner></div>
+<router-outlet></router-outlet>
+
+<ng-template #accessFormDialog>
+  <h4 mat-dialog-title>Session Expiring</h4>
+
+  <div mat-dialog-content>
+    <p>Your session is about to expire due to inactivity.</p>
+    <p>Do you want to continue? Logging out in {{ countdown }}s...</p>
+  </div>
+  <div mat-dialog-actions>
+    <button mat-button color="primary">Resume</button>
+    <button mat-button color="warn" >Logout</button>
+  </div>
+
+</ng-template>
+

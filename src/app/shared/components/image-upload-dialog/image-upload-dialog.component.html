@@ -1,0 +1,80 @@
+
+<h4 mat-dialog-title>Change profile picture</h4>
+<div mat-dialog-content>
+  <div class="image-upload-content-holder">
+    <div fxFlex="100" fxLayout="column" class="image-upload-content">
+      <div class="webcam-holder">
+        <webcam *ngIf="showWebCam" [trigger]="invokeObservable" (imageCapture)="captureImg($event)"></webcam>
+        <div class="webcam-controls">
+          <button (click)="showWebCam = false;" mat-fab aria-label="Close" matTooltip="Close">
+            <mat-icon>close</mat-icon>
+          </button>
+          <button (click)="switchCamera()" mat-fab aria-label="Switch camera" matTooltip="Switch camera">
+            <mat-icon>switch_camera</mat-icon>
+          </button>
+          <button (click)="getSnapshot()" mat-fab aria-label="Capture" matTooltip="Capture">
+            <mat-icon>photo_camera</mat-icon>
+          </button>
+        </div>
+      </div>
+      <input #profilePictureInput id="profilePictureInput" type="file" (change)="fileChangeEvent($event)" accept="image/bmp, image/jpeg, image/x-png, image/png"/>
+      <image-cropper
+        [style.display]="showCropper ? null : 'none'"
+        [maintainAspectRatio]="true"
+        [aspectRatio]="1"
+        format="png"
+        output="base64"
+        [imageURL]="imageSource"
+        (imageCropped)="imageCropped($event)"
+        (imageLoaded)="imageLoaded($event)"
+        (cropperReady)="cropperReady()"
+        (loadImageFailed)="loadImageFailed()"
+        ></image-cropper>
+
+      <div class="image-upload-options" *ngIf="!imageSource && !showWebCam && !showCropper">
+        <div class="image-upload-options-item">
+          <button mat-fab aria-label="Open web cam" (click)="showWebCam = true;showCropper = false;imageChangedEvent = null;" matTooltip="Open web cam">
+            <mat-icon>photo_camera</mat-icon>
+          </button>
+          <h4><p>Open web cam</p></h4>
+        </div>
+        <div class="image-upload-options-item">
+          <button mat-fab aria-label="Select from computer" (click)="profilePictureInput.click()" matTooltip="Select from computer">
+            <mat-icon>image_search</mat-icon>
+          </button>
+          <h4><p>Select from computer</p></h4>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="image-upload-footer">
+    </div> -->
+  </div>
+</div>
+
+<div mat-dialog-actions>
+  <div>
+    <button
+      mat-flat-button
+      cdkFocusInitial
+      mat-dialog-close
+      *ngIf="!showWebCam">
+      Cancel
+    </button>
+    <button
+      *ngIf="(imageSource && !showWebCam) || (imageSource && !showCropper)"
+      color="primary"
+      type="submit"
+      mat-stroked-button
+      (click)="imageSource = null;imageChangedEvent = null;showWebCam = false;showCropper = false">
+      Reset
+    </button>
+    <button
+      *ngIf="(imageSource && !showWebCam) || (imageSource && !showCropper)"
+      mat-flat-button
+      color="primary"
+      type="submit"
+      (click)="doneSelection()">
+      Save
+    </button>
+  </div>
+</div>

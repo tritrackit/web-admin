@@ -1,0 +1,24 @@
+<mat-form-field color="accent" appearance="outline">
+    <mat-select [formControl]="multiSelectCtrl" 
+                [placeholder]="selectPlaceholder" 
+                [multiple]="true" >  <!-- Use compareWith -->
+  
+      <mat-option>
+        <ngx-mat-select-search [toggleAllCheckboxChecked]="selectAllActive" 
+                               [placeholderLabel]="searchPlaceholder"
+                               [toggleAllCheckboxIndeterminate]="multiSelectCtrl.value ? multiSelectCtrl.value.length >= 1 && !selectAllActive : false"
+                               [showToggleAllCheckbox]="true" 
+                               (toggleAll)="toggleSelectAll($event)" 
+                               [formControl]="multiFilterCtrl"
+                               [toggleAllCheckboxTooltipMessage]="tooltipMessage"
+                               [toggleAllCheckboxTooltipPosition]="'above'">
+        </ngx-mat-select-search>
+      </mat-option>
+  
+      <!-- Bind the option to the full object -->
+      <mat-option *ngFor="let item of filtered" [value]="item[key]">
+        {{ item[text] }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+  

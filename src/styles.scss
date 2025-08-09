@@ -1,0 +1,555 @@
+// Import Angular Material theming using the new @use syntax
+@use "@angular/material" as mat;
+@include mat.core();
+// Define the palettes for your theme using the new `core` namespace
+$tritrackit-web-primary: mat.m2-define-palette(mat.$m2-blue-palette, 900);
+$tritrackit-web-accent: mat.m2-define-palette(mat.$m2-blue-palette);
+$tritrackit-web-warn: mat.m2-define-palette(mat.$m2-red-palette);
+
+// Create the theme object. A theme consists of configurations for individual
+// theming systems such as "color" or "typography".
+$tritrackit-web-theme: mat.m2-define-light-theme((color: (primary: $tritrackit-web-primary,
+        accent: $tritrackit-web-accent,
+        warn: $tritrackit-web-warn )));
+
+// Define custom typography level (if needed)
+$my-custom-level: mat.m2-define-typography-level($font-family: "Roboto",
+    $font-weight: 500,
+    $font-size: 1rem,
+    $line-height: 1,
+    $letter-spacing: normal);
+
+
+// Include theme styles for core and each component used in your app
+@include mat.all-component-themes($tritrackit-web-theme);
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  // font-family: 'Roboto', sans-serif!important;
+  font-family: 'Poppins' !important;
+  background: #fafafa !important;
+}
+
+h1 {
+  font-size: 34pt !important;
+}
+
+h2 {
+  font-size: 26pt !important;
+}
+
+h3 {
+  font-size: 18pt !important;
+}
+
+h4 {
+  font-size: 12pt !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+label,
+input,
+textarea,
+span,
+div,
+button {
+  font-family: 'Poppins' !important;
+  margin: 0;
+}
+
+.mat-toolbar {
+  min-height: 60px !important;
+  max-height: 60px !important;
+  z-index: 9 !important;
+
+  .toolbar-action {
+    display: flex;
+    column-gap: 10px;
+  }
+
+  &.side-bar-open {
+    margin-left: 360px !important;
+    width: calc(100% - 360px) !important;
+  }
+
+  mat-icon {
+    .mat-badge-content {
+      font-size: 12px !important;
+      // font-family: 'arial'!important;
+      font-family: 'Poppins' !important;
+    }
+  }
+}
+
+.toolbar-item-spacer {
+  flex: 1 1 auto;
+}
+
+.app-container {
+  height: 100%;
+  margin: 0;
+  background-color: unset;
+  position: static !important;
+  z-index: 9 !important;
+
+  .mat-sidenav {
+    width: 360px !important;
+    z-index: 999;
+
+    color: #fff !important;
+    background-color: mat.m2-get-color-from-palette($tritrackit-web-primary) !important;
+
+    @media only screen and (max-width: 360px) {
+      width: 100% !important;
+    }
+
+    .sidenav-banner {
+      display: flex;
+      padding: 10px;
+      box-sizing: border-box;
+
+      img {
+        width: 100%;
+      }
+    }
+
+    .mat-mdc-nav-list {
+      padding-left: 10px !important;
+      padding-right: 10px !important;
+      display: flex;
+      flex-direction: column;
+      row-gap: 10px;
+
+      .mat-mdc-list-item {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+        border-radius: 7px !important;
+
+        &:not(.active-link) {
+          .mdc-list-item__primary-text {
+            color: rgba($color: (
+                #fff),
+              $alpha: 1
+              );
+          }
+        }
+
+        &.active-link {
+          background-color: rgba($color: (
+              #F18000),
+            $alpha: 0.9) !important;
+
+            .mdc-list-item__primary-text {
+              color: #fff;
+            }
+          }
+
+          &:hover,
+          &:focus {
+            background-color: rgba($color: (
+                #F18000),
+              $alpha: 1) !important;
+            }
+
+            &.mobile-close-sidenav {
+              width: fit-content !important;
+              align-self: end !important;
+
+              @media only screen and (min-width: 361px) {
+                display: none !important;
+              }
+            }
+
+            // .mat-badge-content {
+            //   left: 95%!important;
+            //   top: 5px;
+            // }
+          }
+
+          .mat-expansion-panel {
+            background-color: transparent;
+
+            --mat-expansion-header-indicator-color: #fff !important;
+            --mat-expansion-container-text-color: #fff !important;
+
+            .mat-content {
+              color: #fff;
+            }
+
+            .mat-expansion-panel-header {
+              padding-left: 10px !important;
+              padding-right: 10px !important;
+              border-radius: 7px !important;
+
+
+              &.mat-expanded {
+                height: var(--mdc-list-list-item-one-line-container-height) !important;
+              }
+
+              .mat-content {
+                display: flex;
+                column-gap: 10px;
+                align-items: center;
+              }
+            }
+
+            .mat-expansion-panel-content {
+              .mat-expansion-panel-body {
+                padding: 0 !important;
+              }
+            }
+          }
+        }
+      }
+
+      .mat-drawer-content {
+        overflow: unset;
+      }
+    }
+
+
+    .app-sidenav-content {
+      display: flex;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .mdc-list-item__primary-text {
+      display: flex;
+      column-gap: 10px;
+
+      span {
+        line-height: 1.6 !important;
+      }
+    }
+
+    #banner {
+      width: 40px;
+      height: 40px;
+    }
+
+    #title {
+      margin-left: 10px !important;
+      margin-right: 10px !important;
+
+      @media only screen and (max-width: 280px) {
+        display: none !important;
+      }
+    }
+
+    app-auth {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      flex-direction: column;
+
+      app-login {
+        display: flex;
+        width: 100%;
+        height: 100%;
+      }
+
+      app-register {
+        display: flex;
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    .layout {
+      height: 100%;
+
+      &.auth {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+      }
+    }
+
+    .page-wrapper {
+      display: flex;
+      width: 100%;
+      box-sizing: border-box;
+      height: 100%;
+
+      .page-container {
+        display: flex;
+        width: 100%;
+
+        &.container-center {
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+        }
+
+        &.container-full {
+          flex-grow: 1;
+          width: 100%;
+          height: 100%;
+        }
+
+        &.details-container {
+          .content {
+            .inner-content {
+              display: flex;
+              flex-direction: column;
+              margin: 0 auto;
+              max-width: 1280px !important;
+              width: 100% !important;
+              row-gap: 15px !important;
+
+              .inner-content-title {
+                margin: 8px 0;
+              }
+            }
+          }
+        }
+      }
+    }
+
+
+    .mdc-snackbar {
+      &.style-error {
+
+        .mat-mdc-snack-bar-label,
+        .mdc-button__label {
+          color: #EF9A9A !important;
+        }
+      }
+    }
+
+    .mat-mdc-snack-bar-container {
+      --mat-mdc-snack-bar-button-color: #ffffff;
+      --mdc-snackbar-supporting-text-color: #ffffff;
+
+      &.app-notification-error {
+        --mdc-snackbar-container-color: #f23a2f;
+      }
+
+      &.app-notification-success {
+        --mdc-snackbar-container-color: #43a446;
+      }
+
+      &.app-notification-primary {
+        --mdc-snackbar-container-color: #7E57C2;
+      }
+    }
+
+
+    ::ng-deep mat-mdc-dialog-container {
+      margin: 20px !important;
+    }
+
+    .mat-mdc-dialog-actions {
+      button {
+        text-transform: uppercase !important;
+      }
+    }
+
+    .inner-content {
+      .mat-form-field {
+        &.isLargeScreen {
+          padding-right: 10px !important;
+        }
+      }
+
+      form {
+        fieldset {
+          padding: 0 !important;
+          margin: 0 !important;
+          border: none !important;
+          min-width: 0 !important;
+
+          input::-webkit-outer-spin-button,
+          input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+          }
+
+          input[type=number] {
+            -moz-appearance: textfield;
+          }
+        }
+      }
+
+      .readonly {
+        .mdc-text-field--disabled {
+          .mdc-floating-label {
+            color: #000 !important;
+          }
+
+          .mdc-text-field__input {
+            color: #000 !important;
+          }
+
+          .mdc-notched-outline__leading {
+            border-color: #0000004d !important;
+          }
+
+          .mdc-notched-outline__notch {
+            border-color: #0000004d !important;
+          }
+
+          .mdc-notched-outline__trailing {
+            border-color: #0000004d !important;
+          }
+
+          .mat-mdc-select-value {
+            color: #000 !important;
+          }
+
+          .mat-mdc-select-arrow {
+            color: #000 !important;
+          }
+        }
+      }
+
+
+      .group-info {
+        align-items: center;
+        column-gap: 10px;
+
+        mat-icon {}
+
+        .group-info-text {
+          margin: 0 !important;
+        }
+      }
+    }
+
+    table {
+      width: 100%;
+    }
+
+    table {
+      thead {
+        th {
+          .mat-cell {
+            word-wrap: break-word !important;
+            white-space: unset !important;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-word;
+            -ms-hyphens: auto;
+            -moz-hyphens: auto;
+            -webkit-hyphens: auto;
+            hyphens: auto;
+          }
+        }
+      }
+
+      tbody {
+        td {
+          .mat-mdc-cell {
+            word-wrap: break-word !important;
+            white-space: unset !important;
+            overflow-wrap: break-word;
+            word-wrap: break-word;
+            word-break: break-word;
+            -ms-hyphens: auto;
+            -moz-hyphens: auto;
+            -webkit-hyphens: auto;
+            hyphens: auto;
+          }
+
+          mat-select {
+            padding: 10px !important;
+            box-sizing: border-box !important;
+            background-color: #00000012 !important;
+            border-radius: 5px !important;
+          }
+        }
+      }
+
+      // .mat-mdc-table-sticky-border-elem-right {
+      //     border-left: 1px solid #e0e0e0;
+      // }
+
+      // .mat-mdc-table-sticky-border-elem-left {
+      //     border-right: 1px solid #e0e0e0;
+      // }
+    }
+
+    .table-no-data {
+      background-color: #eceff1;
+      padding: 20px;
+      color: #424242 !important;
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      span {
+        text-align: center;
+        font-size: 15px !important;
+      }
+    }
+
+    ::ng-deep .mdc-text-field--invalid:not(form) {
+      border: 1px solid red;
+
+      .mat-error {
+        color: red !important;
+      }
+    }
+
+    ::ng-deep .hidden {
+      display: none !important;
+    }
+
+    .mdc-floating-label--float-above {
+      font-size: inherit !important;
+    }
+
+
+    .profile-mat-menu {
+      box-sizing: border-box;
+      position: relative !important;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-wrap: wrap;
+      align-content: center;
+
+      img {
+        width: 80% !important;
+        height: 80% !important;
+        top: 0;
+        position: absolute;
+        left: 0;
+        border-radius: 100px;
+        margin: 10%;
+        align-self: center;
+        justify-self: center;
+      }
+    }
+
+    .loader {
+      position: fixed;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.2
+      );
+
+    mat-spinner {
+      width: 50px !important;
+      height: 50px !important;
+    }
+  }

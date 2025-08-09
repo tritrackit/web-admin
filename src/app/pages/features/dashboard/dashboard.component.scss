@@ -1,0 +1,165 @@
+::ng-deep {
+  .error {
+    padding: 16px 16px 16px 20px;
+    background-color: #e4baba;
+    border: 1px solid #dd6262;
+    color: #000;
+    position: absolute!important;
+    z-index: 999!important;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    gap: 10px;
+    top: 10px;
+    border-radius: 5px!important;
+  }
+  .dashboard {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 20px;
+    padding: 16px;
+    box-sizing: border-box;
+    .card {
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+      &.records {
+        .summary {
+          display: flex;
+          flex-direction: row;
+          width: 100%;
+          gap: 15px;
+          padding: 10px;
+          border: 5px;
+          cursor: pointer;
+          &:hover {
+              background: rgba(0, 0, 0, 0.1);
+          }
+          .summary-icon {
+            border-radius: 5px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            mat-icon {
+              font-size: 30px!important;
+              height: auto;
+              width: auto;
+            }
+          }
+          .summary-content  {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            justify-content: flex-end;
+          }
+          &.clients-registered {
+            .summary-icon {
+              background-color: #B3E5FC;
+              color: #039BE5;
+            }
+          }
+          &.pending-events {
+            .summary-icon {
+              background-color: #FFCCBC;
+              color: #F4511E;
+            }
+          }
+          &.registered-events {
+            .summary-icon {
+              background-color: #B2DFDB;
+              color: #00897B;
+            }
+          }
+          &.open-support-ticket {
+            .summary-icon {
+              background-color: #D1C4E9;
+              color: #5E35B1;
+            }
+          }
+        }
+      }
+    }
+    .year-picker {
+        position: relative!important;
+      .year-picker-calendar {
+        top: 57px!important;
+        left: 0!important;
+        position: absolute!important;
+        display: flex;
+        width: 300px;
+        max-width: 300px;
+        z-index: 99;
+
+        ::ng-deep {
+          .mat-calendar-period-button {
+            display: none!important;
+          }
+        }
+      }
+    }
+  }
+}
+::ng-deep {
+
+  .chart {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-grow: 1;
+    .apexcharts-canvas {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      flex-grow: 1;
+      svg {
+        display: flex;
+        width: 100%;
+        height: 100%;
+        flex-grow: 1;
+      }
+    }
+  }
+
+  mat-card {
+    &.map {
+      .app-map-box {
+        height: 700px!important;
+        min-height: 700px!important;
+      }
+      mat-card-content {
+        position: relative;
+        .map-legend {
+          position: absolute;
+          right: 25px;
+          top: 25px;
+          z-index: 9999;
+          width: 200px;
+          background: #fff;
+          border-radius: 5px;
+          padding: 12px!important;
+          box-sizing: border-box;
+          gap: 16px;
+          display: flex;
+          flex-direction: column;
+          box-shadow:
+            3.4px 3.4px 2.7px rgba(0, 0, 0, 0.025),
+            8.7px 8.7px 6.9px rgba(0, 0, 0, 0.035),
+            17.7px 17.7px 14.2px rgba(0, 0, 0, 0.045),
+            36.5px 36.5px 29.2px rgba(0, 0, 0, 0.055),
+            100px 100px 80px rgba(0, 0, 0, 0.08)
+          ;
+          .map-legend-pins {
+            display: flex;
+            flex-direction: column;
+          }
+        }
+      }
+    }
+
+  }
+}

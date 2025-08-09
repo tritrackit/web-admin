@@ -1,0 +1,310 @@
+{
+  "tableColumns": {
+    "employeeUsers": [
+      {
+        "name": "name",
+        "label": "Name",
+        "apiNotation": "name",
+        "sticky": true,
+        "type": "string",
+        "style": {
+          "width": "100px",
+          "left": "0px"
+        },
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Name"
+        },
+        "urlPropertyName": "url"
+      },
+      {
+        "name": "userName",
+        "label": "Username",
+        "apiNotation": "userName",
+        "type": "string",
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Username"
+        }
+      },
+      {
+        "name": "role",
+        "label": "Role",
+        "apiNotation": "role.name",
+        "type": "string",
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Role"
+        }
+      }
+    ],
+    "roles": [
+      {
+        "name": "roleCode",
+        "label": "Role #",
+        "sticky": true,
+        "apiNotation": "roleCode",
+        "type": "string",
+        "style": {
+          "width": "100px",
+          "left": "0px"
+        },
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Role #"
+        },
+        "urlPropertyName": "url"
+      },
+      {
+        "name": "name",
+        "label": "Role name",
+        "apiNotation": "name",
+        "type": "string",
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Role name"
+        }
+      }
+    ],
+    "customerUser": [
+      {
+        "name": "name",
+        "label": "Name",
+        "apiNotation": "name",
+        "sticky": true,
+        "type": "string",
+        "style": {
+          "width": "100px",
+          "left": "0px"
+        },
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Name"
+        },
+        "urlPropertyName": "url"
+      },
+      {
+        "name": "email",
+        "label": "Email",
+        "apiNotation": "email",
+        "type": "string",
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Email"
+        }
+      }
+    ],
+    "product": [
+      {
+        "name": "sku",
+        "label": "SKU",
+        "apiNotation": "sku",
+        "sticky": true,
+        "type": "string",
+        "style": {
+          "width": "100px",
+          "left": "0px"
+        },
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "SKU"
+        },
+        "urlPropertyName": "url"
+      },
+      {
+        "name": "name",
+        "label": "Name",
+        "apiNotation": "name",
+        "type": "string",
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Name"
+        }
+      },
+      {
+        "name": "price",
+        "label": "Price",
+        "apiNotation": "price",
+        "type": "string",
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Price"
+        }
+      },
+      {
+        "name": "size",
+        "label": "Size",
+        "apiNotation": "size",
+        "type": "string",
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Size"
+        }
+      },
+      {
+        "name": "category",
+        "label": "Category",
+        "apiNotation": "category.name",
+        "type": "string",
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Category"
+        }
+      },
+      {
+        "name": "shortDesc",
+        "label": "Short description",
+        "apiNotation": "shortDesc",
+        "type": "string",
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Short description"
+        }
+      }
+    ],
+    "order": [
+      {
+        "name": "orderCode",
+        "label": "#",
+        "apiNotation": "orderCode",
+        "sticky": true,
+        "type": "string",
+        "style": {
+          "width": "100px",
+          "left": "0px"
+        },
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Order Code"
+        },
+        "urlPropertyName": "url"
+      },
+      {
+        "name": "status",
+        "label": "Status",
+        "apiNotation": "status",
+        "type": "string",
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Status"
+        }
+      },
+      {
+        "name": "createdAt",
+        "label": "Date",
+        "apiNotation": "createdAt",
+        "type": "date",
+        "format": {
+          "type": "date-time",
+          "custom": "MMM dd, yyyy"
+        },
+        "filterOptions": {
+          "enable": true,
+          "type": "date-range",
+          "placeholder": "Date"
+        }
+      },
+      {
+        "name": "name",
+        "label": "Name",
+        "apiNotation": "name",
+        "type": "string",
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Name"
+        }
+      },
+      {
+        "name": "paymentMethod",
+        "label": "Payment Method",
+        "apiNotation": "paymentMethod",
+        "type": "string",
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Payment Method"
+        }
+      },
+      {
+        "name": "deliveryAddress",
+        "label": "Delivery To",
+        "apiNotation": "deliveryAddress",
+        "type": "string",
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Delivery To"
+        }
+      },
+      {
+        "name": "total",
+        "label": "Total Payment",
+        "apiNotation": "total",
+        "type": "number",
+        "format": {
+          "type": "currency"
+        },
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Total Payment",
+          "type": "number-range"
+        }
+      }
+    ],
+    "category": [
+      {
+        "name": "categoryId",
+        "label": "Category Id",
+        "apiNotation": "categoryId",
+        "sticky": true,
+        "type": "string",
+        "style": {
+          "width": "100px",
+          "left": "0px"
+        },
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Category Id"
+        },
+        "urlPropertyName": "url"
+      },
+      {
+        "name": "sequenceId",
+        "label": "Sequence number",
+        "apiNotation": "sequenceId",
+        "type": "string",
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Sequence number"
+        }
+      },
+      {
+        "name": "name",
+        "label": "Name",
+        "apiNotation": "name",
+        "type": "string",
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Name"
+        }
+      },
+      {
+        "name": "desc",
+        "label": "Description",
+        "apiNotation": "desc",
+        "type": "string",
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Description"
+        }
+      },
+      {
+        "name": "productCount",
+        "label": "Products",
+        "apiNotation": "productCount",
+        "type": "string",
+        "filterOptions": {
+          "enable": false
+        }
+      }
+    ]
+  }
+}

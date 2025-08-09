@@ -1,0 +1,98 @@
+:host {
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  z-index: 100;
+  display: none;
+  &.open {
+    display: block!important;
+  }
+}
+
+.notification-panel {
+  position: fixed;
+  z-index: 99;
+  width: 360px;
+  max-width: 360px;
+  right: 10px;
+  top: 50px;
+  box-sizing: border-box;
+  height: calc(90% - 50px);
+  @media only screen and (max-width: 400px) {
+    position: relative;
+    max-width: 100%;
+    width: 100%;
+    right: 0;
+    left: 0;
+    padding: 0 10px;
+  }
+  .notification-panel-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    background: #fff;
+    box-shadow: 0 2px 4px -1px #0003,0 4px 5px #00000024,0 1px 10px #0000001f;
+    .notification-title {
+      font-weight: 500;
+      margin: 0;
+      line-height: 1;
+      padding: 16px;
+    }
+    .notification-list {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      row-gap: 5px;
+      overflow: auto;
+      height: inherit;
+      box-sizing: border-box;
+      ::ng-deep .notification-item {
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+        height: auto;
+        padding: 10px;
+        margin-left: 16px;
+        margin-right: 16px;
+        .mdc-button__label {
+          display: flex;
+          flex-direction: column;
+          width: 100%;
+          * {
+            margin: 0;
+          }
+          .notification-item-desc {
+            font-weight: 200;
+            font-size: 1em;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* number of lines to show */
+                    line-clamp: 2;
+            -webkit-box-orient: vertical;
+          }
+          .notification-item-time {
+            font-weight: 600;
+            font-size: 1em;
+            color: #0D47A1;
+          }
+        }
+        &.isRead {
+          .mdc-button__label {
+            .notification-item-time {
+              font-weight: 200!important;
+              color: #000;
+            }
+          }
+        }
+      }
+    }
+  }
+}

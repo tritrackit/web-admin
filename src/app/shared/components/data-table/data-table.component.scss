@@ -1,0 +1,58 @@
+::ng-deep .table-container {
+    overflow: auto;
+    padding-bottom: 16px;
+    ::ng-deep .table {
+      min-width: 860px !important;
+      .mat-sort-header, .no-sort {
+          height: 30px;
+          width: max-content;
+          flex-direction: row;
+          display: flex;
+          margin: 10px 0!important;
+      }
+      .mat-column-name {
+        flex: 0 0 30% !important;
+        width: 30% !important;
+      }
+      .mat-column-currentDueDate {
+        flex: 0 0 30% !important;
+        width: 100% !important;
+        span {
+          display: flex;
+          width: max-content;
+        }
+      }
+      mat-form-field {
+        width: 100%!important;
+      }
+      .hidden {
+        display: none!important;
+      }
+      .image-cell {
+        display: flex;
+        width: 70px;
+        height: 70px;
+        padding: 4px;
+        position: relative;
+        img {
+          border-radius: 5px;
+          width:100%;
+          height:100%;
+        }
+        .thumbnail-loader {
+          flex-grow: 1;
+          display: flex;
+          width: 100%;
+          height: 100%;
+          position: absolute;
+          align-items: center;
+          justify-content: center;
+          mat-spinner {
+            width: 40px!important;
+            height: 40px!important;
+          }
+        }
+      }
+    }
+  }
+

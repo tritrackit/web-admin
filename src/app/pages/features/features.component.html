@@ -1,0 +1,74 @@
+
+<mat-toolbar [ngClass]="{ 'side-bar-open' : drawerDefaultOpened}">
+    <button mat-icon-button (click)="sidenav.toggle()" matTooltip="Menu" *ngIf="!drawerDefaultOpened">
+        <mat-icon>menu</mat-icon>
+    </button>
+    <span id="title">{{title}}</span>
+    <span class="toolbar-item-spacer"></span>
+    <button class="profile-mat-menu" mat-icon-button matTooltip="My profile" [matMenuTriggerFor]="userAccountMenu">
+        <mat-icon>account_circle</mat-icon>
+    </button>
+    <mat-menu #userAccountMenu [overlapTrigger]="false" yPosition="below">
+        <button mat-menu-item routerLink="/profile/">
+            <mat-icon>person</mat-icon><span>My profile</span>
+        </button>
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="signOut()">
+            <mat-icon>exit_to_app</mat-icon>Logout
+        </button>
+    </mat-menu>
+</mat-toolbar>
+
+<mat-sidenav-container class="app-container" color="primary" >
+    <mat-sidenav #sidenav mode="side" className="mat-elevation-z4" class="custom-sidenav-color" [opened]="drawerDefaultOpened"
+    (openedChange)="onSidenavToggle($event)" [mode]="!drawerDefaultOpened ? 'over': 'side'" style="position: fixed;">
+
+    <div class="sidenav-banner"><img src="../../../assets/img/banner.png" alt="">
+    </div>
+        <mat-nav-list>
+            <mat-list-item (mouseup)="sidenav.close()" class="mobile-close-sidenav">
+                <mat-icon>keyboard_backspace</mat-icon>
+            </mat-list-item>
+            <mat-list-item *ngIf="showMenu('Dashboard')" routerLink="dashboard" (mouseup)="!drawerDefaultOpened ? sidenav.close() : false" routerLinkActive="active-link">
+                <mat-icon>space_dashboard</mat-icon><span>Dashboard</span>
+            </mat-list-item>
+            <mat-list-item *ngIf="showMenu('Reports and Statistics')" routerLink="reports" (mouseup)="!drawerDefaultOpened ? sidenav.close() : false" routerLinkActive="active-link" >
+                <mat-icon>bar_chart</mat-icon><span>Reports and Statistics</span>
+            </mat-list-item>
+            <mat-expansion-panel *ngIf="showGroupMenu(['Roles', 'Employee Users'])" [@.disabled]="disableGroupAnimation" (afterExpand)="disableGroupAnimation = false" [expanded]="expand('User Management')" [ngClass]="{'mat-expansion-active':expand('User Management') }" [class.mat-elevation-z0]="true" >
+              <mat-expansion-panel-header>
+                <mat-icon>supervised_user_circle</mat-icon><span>User Management</span>
+              </mat-expansion-panel-header>
+              <mat-nav-list>
+                <mat-list-item *ngIf="showMenu('Roles')" routerLink="roles" (mouseup)="!drawerDefaultOpened ? sidenav.close() : false" routerLinkActive="active-link">
+                    <mat-icon>lock_open</mat-icon><span>Roles</span>
+                </mat-list-item>
+                <mat-list-item *ngIf="showMenu('Employee Users')" routerLink="employee-users" (mouseup)="!drawerDefaultOpened ? sidenav.close() : false" routerLinkActive="active-link">
+                    <mat-icon>account_circle</mat-icon><span>Employee Users</span>
+                </mat-list-item>
+              </mat-nav-list>
+            </mat-expansion-panel>
+        </mat-nav-list>
+    </mat-sidenav>
+    <mat-sidenav-content>
+        <div class="page-wrapper">
+            <div class="page-container" [ngClass]="{ 'details-container': details }">
+                <router-outlet (activate)="onActivate($event)">
+                </router-outlet>
+            </div>
+          </div>
+    </mat-sidenav-content>
+</mat-sidenav-container>
+<button *ngIf="showMaintenanceButton && maintenanceBadgeCount > 0" class="maintenance-button" matLine
+[matBadge]="maintenanceBadgeCount"
+matBadgeColor="warn"
+routerLink="/maintenance"
+matBadgeOverlap="false" mat-fab aria-label="Maintenance" style="
+    position: fixed;
+    z-index: 999;
+    bottom: 19px;
+    left: 19px;">
+  <mat-icon>error</mat-icon>
+</button>
+
+<app-notification-window #notification (readNotif)="getNotifCount()"></app-notification-window>

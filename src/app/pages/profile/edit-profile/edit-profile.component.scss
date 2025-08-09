@@ -1,0 +1,80 @@
+
+@mixin object-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+$circleSize: 165px;
+$radius: 100px;
+$fontColor: rgb(250,250,250);
+
+.profile-holder {
+  position: relative;
+  .profile-pic {
+    color: transparent;
+    transition: all .3s ease;
+    @include object-center;
+    position: relative;
+    transition: all .3s ease;
+    box-shadow: 0 0 10px 0 rgb(122 122 122 / 46%);
+    width: $circleSize;
+    height: $circleSize;
+    border-radius: $radius;
+    overflow: hidden!important;
+
+    .profile-loader {
+      flex-grow: 1;
+      display: flex;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      align-items: center;
+      justify-content: center;
+      mat-spinner {
+        width: 40px!important;
+        height: 40px!important;
+      }
+    }
+
+
+    img {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      z-index: 0;
+      object-position: center;
+      object-fit: contain;
+    }
+
+    .label {
+      cursor: pointer;
+      height: $circleSize;
+      width: $circleSize;
+    }
+
+    &:hover {
+      .label {
+        @include object-center;
+        background-color: rgba(0,0,0,.8);
+        z-index: 99;
+        color: $fontColor;
+        transition: background-color .2s ease-in-out;
+        border-radius: $radius;
+        margin-bottom: 0;
+      }
+    }
+
+    span {
+      display: inline-flex;
+      padding: .2em;
+      height: 2em;
+    }
+  }
+  .profile-pic-controls {
+    position: absolute;
+    z-index: 100;
+    right: 10px;
+    bottom: 10px;
+  }
+}

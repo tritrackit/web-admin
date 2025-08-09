@@ -1,0 +1,45 @@
+|-- .gitkeep
+|-- config.json
+|-- fonts
+    |-- poppins
+        |-- OFL.txt
+        |-- Poppins-Black.ttf
+        |-- Poppins-BlackItalic.ttf
+        |-- Poppins-Bold.ttf
+        |-- Poppins-BoldItalic.ttf
+        |-- Poppins-ExtraBold.ttf
+        |-- Poppins-ExtraBoldItalic.ttf
+        |-- Poppins-ExtraLight.ttf
+        |-- Poppins-ExtraLightItalic.ttf
+        |-- Poppins-Italic.ttf
+        |-- Poppins-Light.ttf
+        |-- Poppins-LightItalic.ttf
+        |-- Poppins-Medium.ttf
+        |-- Poppins-MediumItalic.ttf
+        |-- Poppins-Regular.ttf
+        |-- Poppins-SemiBold.ttf
+        |-- Poppins-SemiBoldItalic.ttf
+        |-- Poppins-Thin.ttf
+        |-- Poppins-ThinItalic.ttf
+|-- img
+    |-- banner-square.png
+    |-- banner-white.png
+    |-- banner.png
+    |-- bigstock-Happy-volunteer-family-holding-85091345 (1).webp
+    |-- community-events.png
+    |-- event-donation-thumbnail-3.png
+    |-- event-donation-thumbnail.png
+    |-- event-help-thumbnail-2.png
+    |-- event-help-thumbnail-3.png
+    |-- event-help-thumbnail.png
+    |-- event-pin-location.png
+    |-- event-thumbnail-2.png
+    |-- event-thumbnail-3.png
+    |-- event-thumbnail.png
+    |-- intro-waving.png
+    |-- person-female.png
+    |-- person.png
+    |-- pin-location.gif
+    |-- pin-location.png
+    |-- thumbnail.png
+    |-- volunteers-donating-to-charity.jpg

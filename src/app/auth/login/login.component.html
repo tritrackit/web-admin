@@ -1,0 +1,41 @@
+<div class="page-container container-center container-full">
+  <div class="form-holder">
+    <form [formGroup]="logInForm" (ngSubmit)="onSubmit()" class="form">
+      <fieldset [disabled]="isProcessing" class="fieldset">
+        <span class="title">Log In</span>
+        <span class="desc">Please enter your details</span>
+        <mat-form-field appearance="outline">
+          <mat-label>Username</mat-label>
+          <input matInput placeholder="Enter your  username:" formControlName="userName">
+          <mat-error *ngIf="logInForm.controls['userName']?.errors">
+            {{
+            ( logInForm.controls['userName'].errors['required'] ? 'Enter your  username:' : '') ||
+            (logInForm.controls['userName'].errors['not_found'] ? error : '')
+            }}
+            </mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <input #password matInput type="password" placeholder="Enter your  password" formControlName="password">
+          <mat-icon class="icon-right" (click)="password.type = (password.type === 'password' ? 'text' : 'password')"
+            style="cursor: pointer;" matSuffix>{{ password.type === 'password' ? 'visibility' : 'visibility_off'
+            }}</mat-icon>
+          <mat-error *ngIf="logInForm.controls['password'].errors">
+            {{ (logInForm.controls.password.errors && logInForm.controls.password.errors['required'] ? 'Please enter your Password' : '') }}
+            {{ (logInForm.controls.password.errors && logInForm.controls.password.errors['incorrect'] ? 'Incorrect password' : '') }}
+          </mat-error>
+        </mat-form-field>
+        <div class="forgot-password">
+          <span>
+            <!-- <a [routerLink]="'/auth/forgot-password'">Forgot password?</a> -->
+          </span>
+        </div>
+        <button mat-raised-button color="primary" type="submit" [disabled]="isProcessing">Log in</button>
+      </fieldset>
+    </form>
+    <!-- RIGHT: image -->
+    <aside class="art-panel" aria-hidden="true">
+      <img class="art" src="../../../assets/img/login-bg.png" alt="">
+    </aside>
+  </div>
+</div>

@@ -1,0 +1,102 @@
+.page-container {
+  display: flex;
+  flex-direction: column;
+
+  .form-holder {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    justify-content: space-between;
+
+    .form {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      box-sizing: border-box;
+      padding: 0 !important;
+      margin: 0 !important;
+      width: 100%;
+      align-items: center;
+
+      .fieldset {
+        border: none;
+        width: 100%;
+        min-width: 0 !important;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+        row-gap: 10px;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-width: 400px;
+
+        .title {
+          font-size: 2rem;
+          text-align: center;
+          font-weight: 500;
+        }
+        .desc {
+          font-size: 1rem;
+          text-align: center;
+          margin-bottom: 20px;
+        }
+        .forgot-password {
+          display: flex;
+          width: 100%;
+          flex-grow: 1;
+          flex-direction: column;
+          align-items: flex-end;
+          row-gap: 10px;
+          margin-bottom: 10px !important;
+        }
+
+        .mdc-button {
+          min-height: 56px;
+          height: 56px;
+        }
+
+        button {
+          font-size: 1rem !important;
+        }
+      }
+    }
+
+    /* Right art panel */
+    .art-panel {
+      height: 100%;
+      width: 100%;
+    }
+
+    .art {
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    @media only screen and (max-width: 360px) {}
+  }
+}
+
+::ng-deep {
+  mat-form-field {
+    margin-bottom: 15px;
+
+    .mat-mdc-form-field-subscript-wrapper {
+      display: flex;
+      flex-direction: column;
+
+      &::before {
+        height: 0px !important;
+      }
+
+      .mat-mdc-form-field-error-wrapper {
+        position: relative !important;
+        padding: 0 !important;
+      }
+    }
+  }
+}

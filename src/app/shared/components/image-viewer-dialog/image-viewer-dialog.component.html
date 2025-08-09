@@ -1,0 +1,26 @@
+<div mat-dialog-content>
+  <div class="image-viewer-content-holder">
+    <div fxFlex="100" fxLayout="row" class="image-viewer-content">
+      <img [src]="imageSource" [ngClass]="{ 'error': imageError }" (load)="this.imageError = false" (error)="profilePicErrorHandler($event)" />
+    </div>
+    <div fxFlex="100" fxLayout="row" class="image-viewer-controls">
+      <button *ngIf="canChange" (click)="onChange()" color="primary" mat-icon-button aria-label="Change profile picture" matTooltip="Change profile picture">
+        <mat-icon>photo_camera</mat-icon>
+      </button>
+      <button (click)="close()" color="primary" mat-icon-button aria-label="Close" matTooltip="Close">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+</div>
+<!--
+<div mat-dialog-actions>
+  <div>
+    <button
+      mat-flat-button
+      cdkFocusInitial
+      mat-dialog-close>
+      Cancel
+    </button>
+  </div>
+</div> -->

@@ -1,0 +1,31 @@
+<mat-nav-list *ngIf="isUserAccount">
+  <a mat-list-item>
+    <span matListItemTitle>My Account</span>
+  </a>
+
+  <a mat-list-item>
+    <span matListItemTitle>Settings</span>
+  </a>
+
+  <a mat-list-item>
+    <span matListItemTitle>Help</span>
+  </a>
+
+  <a mat-list-item (click)="confirmLogOut.emit()">
+    <span matListItemTitle>Logout</span>
+  </a>
+</mat-nav-list>
+<mat-nav-list *ngIf="isConfirmYesNoCancel">
+    <a mat-list-item (click)="confirmYesNoCancel.emit('yes')">
+      <span matListItemTitle>Yes</span>
+    </a>
+  
+    <a mat-list-item (click)="confirmYesNoCancel.emit('no')">
+      <span matListItemTitle>No</span>
+    </a>
+
+    <a mat-list-item (click)="confirmYesNoCancel.emit('cancel')">
+      <span matListItemTitle>Cancel</span>
+    </a>
+  </mat-nav-list>
+  

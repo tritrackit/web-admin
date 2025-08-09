@@ -1,0 +1,22 @@
+::ng-deep .ngx-mat-select-search-toggle-all-tooltip {
+    font-size: 0.8em;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.select-selected-value-container {
+    display: flex;
+    width: 100%;
+    position: relative;
+    .select-selected-value-display {
+        text-overflow: ellipsis;
+        overflow: hidden;
+    }
+    .select-selected-value-remaining {
+        position: absolute;
+        right: 0;
+
+    }
+}

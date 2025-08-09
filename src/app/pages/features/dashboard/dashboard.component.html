@@ -1,0 +1,20 @@
+<div class="content">
+  <div class="inner-content dashboard">
+    <div class="error" *ngIf="error && error !== ''">
+      <br>
+      {{error}}
+      <button mat-icon-button aria-label="Clear" (click)="error=null">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+    <div fxFlex="100" fxLayout="column" fxLayoutGap="16px">
+    </div>
+    <div fxFlex="100" fxLayout="column" fxLayoutGap="16px">
+      <div fxFlex="100" fxLayout="column" fxLayoutGap="16px">
+        <mat-card fxFlex="100" class="map">
+        </mat-card>
+      </div>
+    </div>
+    <br>
+  </div>
+</div>

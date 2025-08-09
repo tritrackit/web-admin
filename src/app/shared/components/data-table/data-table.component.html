@@ -1,0 +1,151 @@
+
+<section class="table-container">
+    <table class="table" mat-table matSort [dataSource]="dataSource">
+      <ng-container *ngFor="let colDef of columnDefs">
+        <ng-container [sticky]="colDef.sticky" [stickyEnd]="colDef.sticky ? false : colDef.stickyEnd" [matColumnDef]="colDef.name">
+            <th mat-header-cell *matHeaderCellDef [ngStyle]="colDef.style" [ngClass]="{ 'hidden': colDef.hide }">
+                <!-- sort header text -->
+                <ng-container *ngIf="!colDef.disableSorting; else noSorting">
+                  <span mat-sort-header *ngIf="!colDef.controls">{{colDef.label}}</span>
+                </ng-container>
+                <ng-template #noSorting>
+                  <span class="no-sort" *ngIf="!colDef.controls">{{colDef.label}}</span>
+                </ng-template>
+
+
+                <!-- end header text -->
+                <!-- filter -->
+                <!-- display filter when colDef.label & colDef.filterOptions is not null or empty -->
+                <ng-container *ngIf="colDef.label && colDef.label !== '' && colDef.filterOptions && colDef.filterOptions.enable && !colDef.controls; else noFilter">
+                    <ng-container *ngIf="colDef.filterOptions.type ==='date-range';else yesNoFilter">
+                        <mat-form-field appearance="outline">
+                            <mat-label>Enter a date range</mat-label>
+                            <mat-date-range-input [rangePicker]="pickerRange">
+                                <input matStartDate placeholder="Start date" [value]="dateFromDefault" #dateFrom (dateChange)="colDef.filter = formatDateRange(dateFrom.value, dateTo.value); filterTable()">
+                                <input matEndDate placeholder="End date" [value]="dateToDefault" #dateTo (dateChange)="colDef.filter = formatDateRange(dateFrom.value, dateTo.value); filterTable()">
+                            </mat-date-range-input>
+                            <mat-datepicker-toggle matIconSuffix [for]="pickerRange"></mat-datepicker-toggle>
+                            <mat-date-range-picker #pickerRange></mat-date-range-picker>
+                        </mat-form-field>
+                    </ng-container>
+                    <!-- show dropdown yes no if filterOptions type is option-yes-no -->
+                    <ng-template #yesNoFilter>
+                        <ng-container *ngIf="colDef.filterOptions.type ==='option-yes-no'; else numberRange" >
+                            <mat-form-field appearance="outline">
+                                <mat-label>{{colDef.filterOptions.placeholder}}</mat-label>
+                                <mat-select [(value)]="colDef.filter" (selectionChange)="filterTable()">
+                                    <mat-option value=""></mat-option>
+                                    <mat-option value="Yes">Yes</mat-option>
+                                    <mat-option value="No">No</mat-option>
+                                </mat-select>
+                              </mat-form-field>
+                        </ng-container>
+                    </ng-template>
+                    <!-- show dropdown yes no if filterOptions type is option-yes-no -->
+                    <ng-template #numberRange>
+                        <ng-container *ngIf="colDef.filterOptions.type ==='number-range'; else textFilter" >
+                          <app-data-table-range-filter (valueChange)="colDef.filter = $event;filterTable()"></app-data-table-range-filter>
+                        </ng-container>
+                    </ng-template>
+                    <!-- default filter field is text input -->
+                    <ng-template #textFilter>
+                        <mat-form-field floatLabel="never" appearance="outline" >
+                            <input #filterInput matInput placeholder="{{colDef.filterOptions.enable ? colDef.filterOptions.placeholder : colDef.label}}" (input)="colDef.filter = filterInput.value" (keyup.enter)="filterTable()" />
+                        </mat-form-field>
+                    </ng-template>
+                </ng-container>
+                <!-- no filter -->
+                <!-- when filterOptions is empty or label is blank -->
+                <ng-template #noFilter>
+                  <div style="height: 76px!important;" [ngStyle]="colDef.style">
+                    <mat-checkbox
+                    (change)="booleanHeaderControlChange(colDef.name, checkAll.checked)"
+                    [indeterminate]="booleanHeaderControlValue(colDef.name, 'indeterminate')"
+                    [checked]="booleanHeaderControlValue(colDef.name, 'all')"
+                    *ngIf="colDef.controls && colDef.type === 'boolean'"
+                    [ngStyle]="colDef.style"
+                    #checkAll>{{colDef.label}}</mat-checkbox>
+                  </div>
+                </ng-template>
+                <!-- end no filter-->
+                <!-- end filter -->
+            </th>
+            <td mat-cell *matCellDef="let element" [ngStyle]="colDef.style" [ngClass]="{ 'hidden': colDef.hide }">
+              <ng-container *ngIf="!colDef.controls; else controlsRow">
+                <ng-container *ngIf="colDef.urlPropertyName && colDef.urlPropertyName!=='';else textCell">
+                    <a matTooltip="Open new tab" [href]="element[colDef.urlPropertyName]" >{{element[colDef.name]}}</a>
+                </ng-container>
+                <ng-template #textCell>
+                    <span *ngIf="colDef.type === 'boolean'; else nonBoolean">{{element[colDef.name].toString().toLowerCase() === "true" ? 'Yes' : 'No'}}</span>
+                    <ng-template #nonBoolean>
+                      <ng-container *ngIf="colDef.type !== 'boolean' && colDef.type !== 'image' && colDef.format && colDef.format.type !== ''; else image">
+                        <span *ngIf="colDef.format.type === 'currency' && (!colDef.format.custom || colDef.format.custom === '')">{{element[colDef.name] | currency: 'PHP'}}</span>
+                        <span *ngIf="colDef.format.type === 'currency' && (colDef.format.custom && colDef.format.custom !== '')">{{element[colDef.name] | currency: colDef.format.custom }}</span>
+                        <span *ngIf="colDef.format.type === 'date' && (!colDef.format.custom || colDef.format.custom === '')">{{element[colDef.name] | date: 'MMM dd, yyyy'}}</span>
+                        <span *ngIf="colDef.format.type === 'date' && (colDef.format.custom && colDef.format.custom !== '')">{{element[colDef.name] | date: colDef.format.custom }}</span>
+                        <span *ngIf="colDef.format.type === 'date-time' && (!colDef.format.custom || colDef.format.custom === '')">{{element[colDef.name] | date: 'MMM dd, yyyy h:mm a'}}</span>
+                        <span *ngIf="colDef.format.type === 'date-time' && (colDef.format.custom && colDef.format.custom !== '')">{{element[colDef.name] | date: colDef.format.custom}}</span>
+                        <span *ngIf="colDef.format.type === 'number'">{{element[colDef.name] | number }}</span>
+                      </ng-container>
+                    </ng-template>
+                    <ng-template #image>
+                      <ng-container *ngIf="colDef.type === 'image'; else noFormat">
+                        <div class="image-cell">
+                          <div class="thumbnail-loader" *ngIf="!element['isThumbnailLoaded']">
+                            <mat-spinner></mat-spinner>
+                          </div>
+                          <img [hidden]="!element['isThumbnailLoaded']" src="{{element[colDef.name]}}" (error)="imageErrorHandler($event)" (load)="element['isThumbnailLoaded'] = true" />
+                        </div>
+                      </ng-container>
+                    </ng-template>
+                    <ng-template #noFormat>
+                      <span>{{element[colDef.name]}}</span>
+                    </ng-template>
+                </ng-template>
+              </ng-container>
+              <ng-template #controlsRow>
+                <ng-container *ngIf="colDef.controls && colDef.type === 'boolean'; else menuCell">
+                  <mat-checkbox
+                    #controlsRowValue
+                    (change)="booleanRowControlChange()"
+                    [(ngModel)]="element[colDef.name]"></mat-checkbox>
+                </ng-container>
+                <ng-template #menuCell>
+                  <div *ngIf="colDef.controls && (!colDef.type || colDef.type === '')" [ngStyle]="colDef.style">
+                    <button mat-icon-button matTooltip="Menu" [matMenuTriggerFor]="userAccountMenu">
+                        <mat-icon>more_vert</mat-icon>
+                    </button>
+                    <mat-menu #userAccountMenu [overlapTrigger]="false" yPosition="below">
+                      <ng-container *ngIf="!colDef.custom; else custom">
+                        <button mat-menu-item *ngFor="let menuItem of colDef.controlsMenu" (click)="controlMenuItemSelected.emit({type: menuItem.name, data: element})">
+                          {{menuItem.label}}
+                        </button>
+                      </ng-container>
+                      <ng-template #custom>
+                        <button mat-menu-item *ngFor="let menuItem of element['menu']" (click)="controlMenuItemSelected.emit({type: menuItem.name, data: element})">
+                          {{menuItem.label}}
+                        </button>
+                      </ng-template>
+                    </mat-menu>
+                  </div>
+                </ng-template>
+              </ng-template>
+            </td>
+        </ng-container>
+      </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns" ></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+</section>
+<mat-paginator
+    [style]="{'display': dataSource.data.length === 0 ? 'none!important' : ''}"
+    #paginator
+    [pageSizeOptions]="[10, 20, 50, 100]"
+    showFirstLastButtons
+    [length]="total"
+    aria-label="Select page of periodic elements">
+</mat-paginator>
+<div class="table-no-data" *ngIf="dataSource.data.length === 0">
+  <span>No data available</span>
+</div>

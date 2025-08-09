@@ -1,0 +1,55 @@
+
+<div class="component-floating-actions vertical-actions">
+  <button mat-fab color="primary" aria-label="New Staff Access" matTooltip="New Staff Access" (click)="showAddDialog()">
+    <mat-icon>add</mat-icon>
+  </button>
+</div>
+<div class="content">
+<div class="inner-content">
+  <mat-card [ngClass]="{ 'hidden': isLoading }">
+      <mat-card-content fxLayout="column" >
+        <app-data-table
+        [isLoading]="isLoading"
+        [dataSource]="dataSource"
+        [columnDefs]="appConfig.config.tableColumns.roles"
+        [total]="total"
+        (pageChange)="pageChange($event)"
+        (sortChange)="sortChange($event)"
+        (filterChange)="filterChange($event)"
+        ></app-data-table>
+      </mat-card-content>
+  </mat-card>
+  </div>
+</div>
+
+<ng-template #roleFormDialog>
+  <h4 mat-dialog-title>New Staff Access</h4>
+
+<div mat-dialog-content>
+  <app-staff-access-form #roleForm></app-staff-access-form>
+</div>
+
+<div mat-dialog-actions>
+  <div>
+    <button
+      mat-flat-button
+      cdkFocusInitial
+      (click)="closeNewStaffAccessDialog()"
+    >
+      Cancel
+    </button>
+    <button
+      mat-flat-button
+      [disabled]="!roleForm.valid || !roleForm.ready"
+      color="primary"
+      form="roleForm"
+      type="submit"
+      (click)="saveNewStaffAccess(roleForm.getFormData)"
+    >
+      Save
+    </button>
+  </div>
+</div>
+
+</ng-template>
+

@@ -1,0 +1,49 @@
+<mat-toolbar color="primary" [ngClass]="{ 'side-bar-open' : drawerDefaultOpened}">
+  <button mat-icon-button (click)="sidenav.toggle()" matTooltip="Menu" *ngIf="!drawerDefaultOpened">
+      <mat-icon>menu</mat-icon>
+  </button>
+  <img id="banner" src="../assets/img/banner-white.png">
+  <span id="title">{{title}}</span>
+  <span class="toolbar-item-spacer"></span>
+  <button class="profile-mat-menu" mat-icon-button matTooltip="My Account" [matMenuTriggerFor]="userAccountMenu">
+    <mat-icon>account_circle</mat-icon>
+  </button>
+  <mat-menu #userAccountMenu [overlapTrigger]="false" yPosition="below">
+      <button mat-menu-item routerLink="/">
+          <mat-icon>map</mat-icon><span>Back to Main</span>
+      </button>
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="signOut()">
+          <mat-icon>exit_to_app</mat-icon>Logout
+      </button>
+  </mat-menu>
+</mat-toolbar>
+
+<mat-sidenav-container class="app-container" >
+  <mat-sidenav #sidenav mode="side" className="mat-elevation-z4" [opened]="drawerDefaultOpened" [mode]="!drawerDefaultOpened ? 'over': 'side'" style="position: fixed;">
+      <mat-nav-list>
+          <mat-list-item (mouseup)="sidenav.close()" class="mobile-close-sidenav">
+              <mat-icon>keyboard_backspace</mat-icon>
+          </mat-list-item>
+          <mat-list-item routerLink="/" (mouseup)="!drawerDefaultOpened ? sidenav.close() : false" routerLinkActive="active-link">
+              <mat-icon>map</mat-icon><span>Back to Main</span>
+          </mat-list-item>
+          <mat-list-item routerLink="/profile/edit" (mouseup)="!drawerDefaultOpened ? sidenav.close() : false" routerLinkActive="active-link">
+              <mat-icon>account_circle</mat-icon><span>Edit profile</span>
+          </mat-list-item>
+          <mat-list-item routerLink="/profile/change-password" (mouseup)="!drawerDefaultOpened ? sidenav.close() : false" routerLinkActive="active-link">
+              <mat-icon>lock</mat-icon><span>Change Password</span>
+          </mat-list-item>
+      </mat-nav-list>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <div class="page-wrapper">
+      <div class="page-container" [ngClass]="{ 'details-container': details }">
+          <router-outlet (activate)="onActivate($event)">
+          </router-outlet>
+      </div>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
+
+<app-notification-window #notification (readNotif)="getNotifCount()"></app-notification-window>
