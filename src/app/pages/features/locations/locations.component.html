@@ -1,0 +1,54 @@
+
+<div class="component-floating-actions vertical-actions">
+  <button mat-fab color="primary" aria-label="New location" matTooltip="New location" (click)="showAddDialog()">
+    <mat-icon>add</mat-icon>
+  </button>
+</div>
+<div class="content">
+<div class="inner-content">
+  <mat-card [ngClass]="{ 'hidden': isLoading }">
+      <mat-card-content fxLayout="column" >
+        <app-data-table
+        [isLoading]="isLoading"
+        [dataSource]="dataSource"
+        [columnDefs]="appConfig.config.tableColumns.locations"
+        [total]="total"
+        (pageChange)="pageChange($event)"
+        (sortChange)="sortChange($event)"
+        (filterChange)="filterChange($event)"
+        ></app-data-table>
+      </mat-card-content>
+  </mat-card>
+  </div>
+</div>
+
+<ng-template #locationFormDialog>
+  <h4 mat-dialog-title>New location</h4>
+
+<div mat-dialog-content>
+  <app-location-form #locationForm></app-location-form>
+</div>
+
+<div mat-dialog-actions>
+  <div>
+    <button
+      mat-flat-button
+      cdkFocusInitial
+      (click)="closeNewLocationsDialog()"
+    >
+      Cancel
+    </button>
+    <button
+      mat-flat-button
+      [disabled]="!locationForm.valid || !locationForm.ready"
+      color="primary"
+      type="submit"
+      (click)="saveNewLocations(locationForm.getFormData)"
+    >
+      Save
+    </button>
+  </div>
+</div>
+
+</ng-template>
+

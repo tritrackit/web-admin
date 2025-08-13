@@ -39,7 +39,7 @@ export class ProfileComponent {
       });
   }
   async ngOnInit(): Promise<void> {
-    await this.getNotifCount();
+    // await this.getNotifCount();
   }
 
   get unReadNotificationCount() {

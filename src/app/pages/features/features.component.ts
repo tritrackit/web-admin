@@ -60,8 +60,9 @@ export class FeaturesComponent {
 
     console.log(this.route.snapshot.data);
     this.onResize();
-    this.routeService.data$.subscribe((res: { title: string; admin: boolean; details: boolean; access: AccessPages }) => {
+    this.routeService.data$.subscribe((res: { title: string; admin: boolean; details: boolean; access: AccessPages; group: string }) => {
       this.title = res.title;
+      this.currentGroup = res.group;
       this.details = res.details;
     });
     const logsChannel = this.pusher.init(`room`);

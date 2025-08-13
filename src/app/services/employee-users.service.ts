@@ -44,8 +44,8 @@ export class EmployeeUsersService implements IServices {
     );
   }
 
-  updateProfile(employeeUserCode: string, data: any): Observable<ApiResponse<EmployeeUsers>> {
-    return this.http.put<any>(environment.apiBaseUrl + "/employee-users/updateProfile/" + employeeUserCode, data)
+  updateProfile(data: any): Observable<ApiResponse<EmployeeUsers>> {
+    return this.http.put<any>(environment.apiBaseUrl + "/employee-users/updateProfile", data)
     .pipe(
       tap(_ => this.log('employee-users')),
       catchError(this.handleError('employee-users', []))
@@ -68,8 +68,8 @@ export class EmployeeUsersService implements IServices {
     );
   }
 
-  profileResetPassword(employeeUserCode: string, data: any): Observable<ApiResponse<EmployeeUsers>> {
-    return this.http.put<any>(environment.apiBaseUrl + "/employee-users/profileResetPassword/" + employeeUserCode , data)
+  updatePassword(employeeUserCode: string, data: any): Observable<ApiResponse<EmployeeUsers>> {
+    return this.http.put<any>(environment.apiBaseUrl + "/employee-users/update-password/" + employeeUserCode , data)
     .pipe(
       tap(_ => this.log('employee-users')),
       catchError(this.handleError('employee-users', []))

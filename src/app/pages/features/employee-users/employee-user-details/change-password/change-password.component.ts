@@ -106,7 +106,7 @@ export class ChangePasswordComponent {
       try {
         const params = this.formData;
         this.isProcessing = true;
-        const res = await this.employeeUsersService.updateUserPassword(this.employeeUserCode, params).toPromise();
+        const res = await this.employeeUsersService.updatePassword(this.employeeUserCode, params).toPromise();
 
         if (res.success) {
           this.snackBar.open('Password updated!', 'close', {

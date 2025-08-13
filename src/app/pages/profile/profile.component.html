@@ -25,7 +25,7 @@
           <mat-list-item (mouseup)="sidenav.close()" class="mobile-close-sidenav">
               <mat-icon>keyboard_backspace</mat-icon>
           </mat-list-item>
-          <mat-list-item routerLink="/" (mouseup)="!drawerDefaultOpened ? sidenav.close() : false" routerLinkActive="active-link">
+          <mat-list-item routerLink="/" (mouseup)="!drawerDefaultOpened ? sidenav.close() : false" >
               <mat-icon>map</mat-icon><span>Back to Main</span>
           </mat-list-item>
           <mat-list-item routerLink="/profile/edit" (mouseup)="!drawerDefaultOpened ? sidenav.close() : false" routerLinkActive="active-link">

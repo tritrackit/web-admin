@@ -26,6 +26,12 @@
                 |-- login.component.spec.ts
                 |-- login.component.ts
                 |-- login.module.ts
+            |-- verify
+                |-- verify.component.html
+                |-- verify.component.scss
+                |-- verify.component.spec.ts
+                |-- verify.component.ts
+                |-- verify.module.ts
         |-- constant
             |-- date.ts
         |-- guard
@@ -36,12 +42,28 @@
         |-- model
             |-- api-response.model.ts
             |-- employee-users.model.ts
-            |-- files.model.ts
-            |-- maintenance.model.ts
+            |-- file.model.ts
+            |-- locations.model.ts
+            |-- model.model.ts
             |-- notifications.model.ts
             |-- roles.model.ts
+            |-- scanner.model.ts
+            |-- status.model.ts
+            |-- unit-logs.model.ts
+            |-- units.model.ts
         |-- pages
             |-- features
+                |-- cbu
+                    |-- cbu-details
+                        |-- cbu-details.component.html
+                        |-- cbu-details.component.scss
+                        |-- cbu-details.component.spec.ts
+                        |-- cbu-details.component.ts
+                    |-- cbu.component.html
+                    |-- cbu.component.scss
+                    |-- cbu.component.spec.ts
+                    |-- cbu.component.ts
+                    |-- cbu.module.ts
                 |-- dashboard
                     |-- dashboard.component.html
                     |-- dashboard.component.scss
@@ -68,6 +90,38 @@
                 |-- features.component.scss
                 |-- features.component.spec.ts
                 |-- features.component.ts
+                |-- locations
+                    |-- location-details
+                        |-- location-details.component.html
+                        |-- location-details.component.scss
+                        |-- location-details.component.spec.ts
+                        |-- location-details.component.ts
+                    |-- location-form
+                        |-- location-form.component.html
+                        |-- location-form.component.scss
+                        |-- location-form.component.spec.ts
+                        |-- location-form.component.ts
+                    |-- locations.component.html
+                    |-- locations.component.scss
+                    |-- locations.component.spec.ts
+                    |-- locations.component.ts
+                    |-- locations.module.ts
+                |-- model
+                    |-- model-details
+                        |-- model-details.component.html
+                        |-- model-details.component.scss
+                        |-- model-details.component.spec.ts
+                        |-- model-details.component.ts
+                    |-- model-form
+                        |-- model-form.component.html
+                        |-- model-form.component.scss
+                        |-- model-form.component.spec.ts
+                        |-- model-form.component.ts
+                    |-- model.component.html
+                    |-- model.component.scss
+                    |-- model.component.spec.ts
+                    |-- model.component.ts
+                    |-- model.module.ts
                 |-- reports
                     |-- reports.component.html
                     |-- reports.component.scss
@@ -90,6 +144,33 @@
                     |-- roles.component.spec.ts
                     |-- roles.component.ts
                     |-- roles.module.ts
+                |-- scanner
+                    |-- scanner-details
+                        |-- scanner-details.component.html
+                        |-- scanner-details.component.scss
+                        |-- scanner-details.component.spec.ts
+                        |-- scanner-details.component.ts
+                    |-- scanner-form
+                        |-- scanner-form.component.html
+                        |-- scanner-form.component.scss
+                        |-- scanner-form.component.spec.ts
+                        |-- scanner-form.component.ts
+                    |-- scanner.component.html
+                    |-- scanner.component.scss
+                    |-- scanner.component.spec.ts
+                    |-- scanner.component.ts
+                    |-- scanner.module.ts
+                |-- unit-tracker
+                    |-- unit-details
+                        |-- unit-details.component.html
+                        |-- unit-details.component.scss
+                        |-- unit-details.component.spec.ts
+                        |-- unit-details.component.ts
+                    |-- unit-tracker.component.html
+                    |-- unit-tracker.component.scss
+                    |-- unit-tracker.component.spec.ts
+                    |-- unit-tracker.component.ts
+                    |-- unit-tracker.module.ts
             |-- no-access
                 |-- no-access.component.html
                 |-- no-access.component.scss
@@ -132,6 +213,10 @@
                 |-- iservices.ts
             |-- loader.service.spec.ts
             |-- loader.service.ts
+            |-- locations.service.spec.ts
+            |-- locations.service.ts
+            |-- model.service.spec.ts
+            |-- model.service.ts
             |-- notifications.service.spec.ts
             |-- notifications.service.ts
             |-- pusher.service.spec.ts
@@ -142,6 +227,8 @@
             |-- route.service.ts
             |-- storage.service.spec.ts
             |-- storage.service.ts
+            |-- unit.service.spec.ts
+            |-- unit.service.ts
         |-- shared
             |-- components
                 |-- access-pages-table
@@ -241,6 +328,7 @@
             |-- logo.png
             |-- person-female.png
             |-- person.png
+            |-- thumbnail-model.png
             |-- thumbnail.png
     |-- environments
         |-- environment.prod.ts

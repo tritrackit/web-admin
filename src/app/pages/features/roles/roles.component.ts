@@ -43,7 +43,7 @@ export class RolesComponent {
   //   modify: false,
   // };
 
-  @ViewChild('staffAccessFormDialog') staffAccessFormDialogTemp: TemplateRef<any>;
+  @ViewChild('roleFormDialog') roleFormDialogTemp: TemplateRef<any>;
   constructor(
     private roleService: RoleService,
     private snackBar: MatSnackBar,
@@ -136,17 +136,17 @@ export class RolesComponent {
   }
 
   showAddDialog() {
-    this.dialog.open(this.staffAccessFormDialogTemp)
+    this.dialog.open(this.roleFormDialogTemp)
   }
 
-  closeNewStaffAccessDialog() {
+  closeNewRoleDialog() {
     this.dialog.closeAll();
   }
 
-  saveNewStaffAccess(formData) {
+  saveNewRole(formData) {
     const dialogData = new AlertDialogModel();
     dialogData.title = 'Confirm';
-    dialogData.message = 'Save Staff Access?';
+    dialogData.message = 'Save Role?';
     dialogData.confirmButton = {
       visible: true,
       text: 'yes',
@@ -172,7 +172,7 @@ export class RolesComponent {
             panelClass: ['style-success'],
           });
           this.dialog.closeAll();
-          this.router.navigate(['/staff-access/' + res.data.roleCode]);
+          this.router.navigate(['/roles/' + res.data.roleCode]);
           this.isProcessing = false;
           dialogRef.componentInstance.isProcessing = this.isProcessing;
           dialogRef.close();

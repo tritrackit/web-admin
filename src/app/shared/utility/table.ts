@@ -54,3 +54,26 @@ export class RolesTableColumn {
   name?: string;
   url?: string;
 }
+export class LocationsTableColumn {
+  locationId?: string;
+  locationCode?: string;
+  name?: string;
+  url?: string;
+}
+export class CBUTableColumn {
+  unitId?: string;
+  unitCode?: string;
+  chassisNo?: string;
+  model?: string;
+  color?: string;
+  url?: string;
+}
+export class ModelTableColumn {
+  modelId?: string;
+  sequenceId?: string;
+  modelName?: string;
+  description?: string;
+  unitCount?: string;
+  url?: string;
+}
+

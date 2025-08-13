@@ -55,6 +55,14 @@ export class AuthService implements IServices {
     );
   }
 
+  verify(data: any): Observable<ApiResponse<EmployeeUsers>> {
+    return this.http.post<any>(environment.apiBaseUrl + "/auth/verify/", data)
+    .pipe(
+      tap(_ => this.log('verify')),
+      catchError(this.handleError('verify', []))
+    );
+  }
+
   redirectToPage(auth: boolean) {
     this.router.navigate([auth ? 'auth' : '/'], { replaceUrl: true });
   }

@@ -1,0 +1,31 @@
+.verify-wrap {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;          /* centers card vertically & horizontally */
+  padding: 16px;                /* safe padding on small screens */
+  background: #f7f8fb;          /* subtle background (optional) */
+}
+
+.verify-card {
+  width: 100%;
+  max-width: 400px;             /* requested max width */
+  text-align: center;
+  padding: 8px 4px;
+}
+
+.title {
+  margin: 8px 0 20px;
+  font-weight: 700;
+}
+
+.spinner-wrap {
+  display: grid;
+  place-items: center;
+  margin: 12px 0 16px;
+}
+
+.hint {
+  margin: 0;
+  color: #6b7280;               /* gray-500 */
+  font-size: 14px;
+}

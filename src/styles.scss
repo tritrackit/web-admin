@@ -157,9 +157,9 @@ button {
 
           &:hover,
           &:focus {
-            background-color: rgba($color: (
-                #F18000),
-              $alpha: 1) !important;
+              &:not(.active-link) {
+                background: rgba(255, 255, 255, 0.29) !important;
+              }
             }
 
             &.mobile-close-sidenav {
@@ -193,6 +193,10 @@ button {
               border-radius: 7px !important;
 
 
+          &:hover,
+          &:focus {
+                background: rgba(255, 255, 255, 0.29) !important;
+              }
               &.mat-expanded {
                 height: var(--mdc-list-list-item-one-line-container-height) !important;
               }
@@ -207,6 +211,13 @@ button {
             .mat-expansion-panel-content {
               .mat-expansion-panel-body {
                 padding: 0 !important;
+              }
+            }
+            &.mat-expanded {
+              &.mat-expansion-active {
+              .mat-expansion-panel-header {
+                background: rgba(255, 255, 255, 0.29) !important;
+              }
               }
             }
           }

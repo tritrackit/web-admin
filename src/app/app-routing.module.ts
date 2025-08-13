@@ -26,29 +26,45 @@ const routes: Routes = [
             (m) => m.DashboardModule
           ),
       },
-      // {
-      //   path: 'rooms',
-      //   canActivate: [AuthGuard],
-      //   data: { title: 'Rooms', },
-      //   loadChildren: () =>
-      //     import('./pages/features/rooms/rooms.module').then(
-      //       (m) => m.RoomsModule
-      //     ),
-      // },
-      // {
-      //   path: 'rfid',
-      //   canActivate: [AuthGuard],
-      //   data: { title: 'RFID', },
-      //   loadChildren: () =>
-      //     import('./pages/features/rfid/rfid.module').then((m) => m.RFIDModule),
-      // },
-      // {
-      //   path: 'maintenance',
-      //   canActivate: [AuthGuard],
-      //   data: { title: 'Maintenance', },
-      //   loadChildren: () =>
-      //     import('./pages/features/maintenance/maintenance.module').then((m) => m.MaintenanceModule),
-      // },
+      {
+        path: 'unit-tracker',
+        canActivate: [AuthGuard],
+        data: { title: 'Unit Tracker' },
+        loadChildren: () =>
+          import('./pages/features/unit-tracker/unit-tracker.module').then(
+            (m) => m.UnitTrackerModule
+          ),
+      },
+      {
+        path: 'model',
+        canActivate: [AuthGuard],
+        data: { title: 'Model', group: 'Configuration' },
+        loadChildren: () =>
+          import('./pages/features/model/model.module').then(
+            (m) => m.ModelModule
+          ),
+      },
+      {
+        path: 'locations',
+        canActivate: [AuthGuard],
+        data: { title: 'Locations', group: 'Configuration' },
+        loadChildren: () =>
+          import('./pages/features/locations/locations.module').then((m) => m.LocationsModule),
+      },
+      {
+        path: 'scanner',
+        canActivate: [AuthGuard],
+        data: { title: 'RFID Scanner', group: 'Configuration' },
+        loadChildren: () =>
+          import('./pages/features/scanner/scanner.module').then((m) => m.ScannerModule),
+      },
+      {
+        path: 'cbu',
+        canActivate: [AuthGuard],
+        data: { title: 'CBU', group: 'Configuration' },
+        loadChildren: () =>
+          import('./pages/features/cbu/cbu.module').then((m) => m.CbuModule),
+      },
       {
         path: 'reports',
         canActivate: [AuthGuard],
@@ -105,6 +121,12 @@ const routes: Routes = [
         data: { title: 'Login' },
         loadChildren: () =>
           import('./auth/login/login.module').then((m) => m.LoginModule),
+      },
+      {
+        path: 'verify',
+        data: { title: 'Verify' },
+        loadChildren: () =>
+          import('./auth/verify/verify.module').then((m) => m.VerifyModule),
       },
     ],
   },

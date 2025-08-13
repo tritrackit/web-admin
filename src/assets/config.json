@@ -27,7 +27,7 @@
         "rights": ["Assign"]
       },
       {
-        "page": "Location",
+        "page": "Locations",
         "view": true,
         "modify": true,
         "rights": []

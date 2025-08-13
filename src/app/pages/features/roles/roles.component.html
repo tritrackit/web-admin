@@ -1,6 +1,6 @@
 
 <div class="component-floating-actions vertical-actions">
-  <button mat-fab color="primary" aria-label="New Staff Access" matTooltip="New Staff Access" (click)="showAddDialog()">
+  <button mat-fab color="primary" aria-label="New Role" matTooltip="New Role" (click)="showAddDialog()">
     <mat-icon>add</mat-icon>
   </button>
 </div>
@@ -23,10 +23,10 @@
 </div>
 
 <ng-template #roleFormDialog>
-  <h4 mat-dialog-title>New Staff Access</h4>
+  <h4 mat-dialog-title>New Role</h4>
 
 <div mat-dialog-content>
-  <app-staff-access-form #roleForm></app-staff-access-form>
+  <app-role-form #roleForm></app-role-form>
 </div>
 
 <div mat-dialog-actions>
@@ -34,7 +34,7 @@
     <button
       mat-flat-button
       cdkFocusInitial
-      (click)="closeNewStaffAccessDialog()"
+      (click)="closeNewRoleDialog()"
     >
       Cancel
     </button>
@@ -44,7 +44,7 @@
       color="primary"
       form="roleForm"
       type="submit"
-      (click)="saveNewStaffAccess(roleForm.getFormData)"
+      (click)="saveNewRole(roleForm.getFormData)"
     >
       Save
     </button>

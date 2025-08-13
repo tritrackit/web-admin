@@ -1,0 +1,44 @@
+::ng-deep .table-container {
+  overflow: auto;
+  padding-bottom: 16px;
+  .table {
+    min-width: 860px !important;
+    tr {
+      th {
+        padding-right: 20px !important;
+
+        &:last-child {
+          padding-right: 0 !important;
+        }
+        .mat-sort-header {
+          position: relative;
+          height: 30px;
+          display: flex;
+        }
+        mat-form-field {
+          width: 100%;
+        }
+      }
+    }
+
+    tr.mat-row {
+      .mat-cell {
+        padding-right: 20px !important;
+
+        &:last-child {
+          padding-right: 0 !important;
+        }
+      }
+    }
+
+    .mat-column-locationCode {
+      flex: 0 0 5% !important;
+      width: 5% !important;
+    }
+
+    .mat-column-name {
+      flex: 0 0 95% !important;
+      width: 95% !important;
+    }
+  }
+}

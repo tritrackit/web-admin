@@ -79,7 +79,7 @@ export class EditProfileComponent {
 
     this.profileForm = this.formBuilder.group(
       {
-        name: [
+        firstName: [
           this.user.firstName,
           [Validators.required, Validators.pattern('^[a-zA-Z0-9\\-\\s]+$')],
         ],
@@ -93,6 +93,10 @@ export class EditProfileComponent {
             Validators.email,
             Validators.required,
           ],
+        ],
+        contactNo: [
+          this.user.contactNo,
+          [Validators.required],
         ],
       }
     );
@@ -134,7 +138,7 @@ export class EditProfileComponent {
         this.isProcessing = true;
         const params = this.formData;
         this.loaderService.show();
-        const res = await this.employeeUsersService.updateProfile(this.currentUserCode, params).toPromise();
+        const res = await this.employeeUsersService.updateProfile(params).toPromise();
         this.loaderService.hide();
         if (res.success) {
           this.snackBar.open('Saved!', 'close', {

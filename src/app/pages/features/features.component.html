@@ -32,9 +32,31 @@
             <mat-list-item *ngIf="showMenu('Dashboard')" routerLink="dashboard" (mouseup)="!drawerDefaultOpened ? sidenav.close() : false" routerLinkActive="active-link">
                 <mat-icon>space_dashboard</mat-icon><span>Dashboard</span>
             </mat-list-item>
+            <mat-list-item *ngIf="showMenu('Unit Tracker')" routerLink="unit-tracker" (mouseup)="!drawerDefaultOpened ? sidenav.close() : false" routerLinkActive="active-link" >
+                <mat-icon>where_to_vote</mat-icon><span>Unit Tracker</span>
+            </mat-list-item>
             <mat-list-item *ngIf="showMenu('Reports and Statistics')" routerLink="reports" (mouseup)="!drawerDefaultOpened ? sidenav.close() : false" routerLinkActive="active-link" >
                 <mat-icon>bar_chart</mat-icon><span>Reports and Statistics</span>
             </mat-list-item>
+            <mat-expansion-panel *ngIf="showGroupMenu(['Model', 'Locations', 'RFID Scanner', 'CBU'])" [@.disabled]="disableGroupAnimation" (afterExpand)="disableGroupAnimation = false" [expanded]="expand('Configuration')" [ngClass]="{'mat-expansion-active':expand('Configuration') }" [class.mat-elevation-z0]="true" >
+              <mat-expansion-panel-header>
+                <mat-icon>settings</mat-icon><span>Configuration</span>
+              </mat-expansion-panel-header>
+              <mat-nav-list>
+                <mat-list-item *ngIf="showMenu('Model')" routerLink="model" (mouseup)="!drawerDefaultOpened ? sidenav.close() : false" routerLinkActive="active-link">
+                    <mat-icon>bike_scooter</mat-icon><span>Model</span>
+                </mat-list-item>
+                <mat-list-item *ngIf="showMenu('Locations')" routerLink="locations" (mouseup)="!drawerDefaultOpened ? sidenav.close() : false" routerLinkActive="active-link">
+                    <mat-icon>warehouse</mat-icon><span>Locations</span>
+                </mat-list-item>
+                <mat-list-item *ngIf="showMenu('RFID Scanner')" routerLink="scanner" (mouseup)="!drawerDefaultOpened ? sidenav.close() : false" routerLinkActive="active-link">
+                    <mat-icon>barcode_reader</mat-icon><span>RFID Scanner</span>
+                </mat-list-item>
+                <mat-list-item *ngIf="showMenu('CBU')" routerLink="cbu" (mouseup)="!drawerDefaultOpened ? sidenav.close() : false" routerLinkActive="active-link">
+                    <mat-icon>airport_shuttle</mat-icon><span>CBU</span>
+                </mat-list-item>
+              </mat-nav-list>
+            </mat-expansion-panel>
             <mat-expansion-panel *ngIf="showGroupMenu(['Roles', 'Employee Users'])" [@.disabled]="disableGroupAnimation" (afterExpand)="disableGroupAnimation = false" [expanded]="expand('User Management')" [ngClass]="{'mat-expansion-active':expand('User Management') }" [class.mat-elevation-z0]="true" >
               <mat-expansion-panel-header>
                 <mat-icon>supervised_user_circle</mat-icon><span>User Management</span>

@@ -141,7 +141,7 @@ export class ChangePasswordComponent {
           return;
         }
         this.f["currentPassword"].setErrors(null);
-        res = await this.employeeUsersService.profileResetPassword(this.currentUserCode, params).toPromise();
+        res = await this.employeeUsersService.updatePassword(this.currentUserCode, params).toPromise();
 
         if (res.success) {
           this.loaderService.hide();

@@ -1,0 +1,176 @@
+<mat-toolbar color="#fff" class="mat-elevation-z4">
+  <button [disabled]="isLoading" style="margin-right: 10px!important;" mat-icon-button
+    matTooltip="{{ isReadOnly? 'Back' : 'Cancel'}}"
+    [routerLink]="isReadOnly ? '/cbu/' : isNew ? '/cbu/': '/cbu/' + unitCode">
+    <mat-icon>
+      {{
+      isReadOnly? 'keyboard_arrow_left' : 'close'
+      }}
+    </mat-icon>
+  </button>
+  <span id="title">
+    <span [ngStyle.md]="{ 'display': 'none'}" [ngStyle.sm]="{ 'display': 'none'}" [ngStyle.xs]="{ 'display': 'none'}">
+      {{ isNew ? 'New CBU' : '#' + unitCode + ' ' + ( !isLoading ? unit?.model?.modelName : '')}}
+    </span>
+  </span>
+  <span class="toolbar-item-spacer"></span>
+  <div class="toolbar-action">
+    <button *ngIf="!isNew && isReadOnly" mat-raised-button color="primary" matTooltip="Delete"
+      (click)="onDeleteProduct()">
+      Delete
+    </button>
+    <button mat-raised-button color="primary" matTooltip="Edit" *ngIf="!isNew && isReadOnly"
+      routerLink="/cbu/{{unitCode}}/edit" replaceUrl="true">
+      Edit
+    </button>
+    <button *ngIf="!isReadOnly" mat-raised-button color="primary" matTooltip="{{isNew ? 'Save' : 'Update'}}"
+      [disabled]="!formIsReady || !formIsValid" form="unitForm" type="submit">
+      {{isNew ? 'Save' : 'Update'}}
+    </button>
+  </div>
+</mat-toolbar>
+<div class="content">
+  <div class="inner-content">
+    <h4 class="inner-content-title">Product details</h4>
+    <mat-card>
+      <mat-card-content>
+        <div fxLayout="column" fxLayoutGap="16px">
+          <div fxFlex="100" class="content-inner" fxLayout="column">
+            <form [formGroup]="unitForm" fxLayout="row wrap" id="unitForm" (ngSubmit)="onSubmit()"
+              [ngClass]="{'readonly' : isReadOnly}">
+              <fieldset fxFlex="100" fxLayout="row wrap" style="row-gap: 16px">
+                <div *ngIf="!isNew" fxFlex="100" fxLayout="column" fxLayout.gt-sm="row" style="gap: 16px">
+                  <mat-form-field appearance="outline" fxFlex.gt-sm="33.33%" fxFlex="100" class="cell"
+                    [ngClass.gt-sm]="{ isLargeScreen: true }">
+                    <mat-label>Unit Code</mat-label>
+                    <input matInput readonly placeholder="Unit Code" [value]="unit?.unitCode" />
+                  </mat-form-field>
+                </div>
+
+                <div fxLayout="column" fxLayout.gt-sm="row" fxFlex="100" class="content-inner"
+                  [ngClass]="{'readonly' : isReadOnly}">
+                  <mat-form-field class="example-full-width" appearance="outline" fxFlex.gt-sm="33.33%" fxFlex="100"
+                    style="position: relative!important;">
+                    <mat-label>{{isNew ? 'Location' : 'Current location'}}</mat-label>
+                    <input type="text" placeholder="Select location" aria-label="Select location" matInput
+                      [formControl]="locationSearchCtrl" [matAutocomplete]="autoLocation" [readonly]="!isNew"
+                      (focusout)="mapSearchLocation();" #locationSearchInput (input)="isOptionsLocationLoading = true;">
+                    <mat-autocomplete #autocompleteLocation #autoLocation="matAutocomplete"
+                      [displayWith]="displayLocationName"
+                      (optionSelected)="onLocationSelected($event.option.value)">
+                      <mat-option *ngFor="let option of optionsLocation" [value]="option.code">
+                        {{option.name}}
+                      </mat-option>
+                    </mat-autocomplete>
+                    <mat-error *ngIf="getError('locationId') || locationSearchCtrl.errors">
+                      {{
+                      (getError("locationId") && getError("locationId").required
+                      ? "Please select location"
+                      : "") ||
+                      (locationSearchCtrl.errors && locationSearchCtrl.errors.required
+                      ? "Please select location"
+                      : "")
+                      }}
+                    </mat-error>
+                    <mat-spinner *ngIf="isOptionsLocationLoading"></mat-spinner>
+                  </mat-form-field>
+                </div>
+
+                <div fxLayout="column" fxLayout.gt-sm="row" fxFlex="100" class="content-inner"
+                  [ngClass]="{'readonly' : isReadOnly}">
+                  <mat-form-field class="example-full-width" appearance="outline" fxFlex.gt-sm="33.33%" fxFlex="100"
+                    style="position: relative!important;">
+                    <mat-label>Model</mat-label>
+                    <input type="text" placeholder="Select model" aria-label="Select model" matInput
+                      [formControl]="modelSearchCtrl" [matAutocomplete]="autoModel"
+                      (focusout)="mapSearchModel();" #modelSearchInput (input)="isOptionsModelLoading = true;">
+                    <mat-autocomplete #autocompleteModel #autoModel="matAutocomplete"
+                      [displayWith]="displayModelName"
+                      (optionSelected)="onModelSelected($event.option.value)">
+                      <mat-option *ngFor="let option of optionsModel" [value]="option.code">
+                        {{option.name}}
+                      </mat-option>
+                    </mat-autocomplete>
+                    <mat-error *ngIf="getError('modelId') || modelSearchCtrl.errors">
+                      {{
+                      (getError("modelId") && getError("modelId").required
+                      ? "Please select model"
+                      : "") ||
+                      (modelSearchCtrl.errors && modelSearchCtrl.errors.required
+                      ? "Please select model"
+                      : "")
+                      }}
+                    </mat-error>
+                    <mat-spinner *ngIf="isOptionsModelLoading"></mat-spinner>
+                  </mat-form-field>
+                </div>
+
+
+                <div fxFlex="100" fxLayout="column" fxLayout.gt-sm="row" style="gap: 16px">
+                  <mat-form-field appearance="outline" fxFlex.gt-sm="50%" fxFlex="100" class="cell"
+                    [ngClass.gt-sm]="{ isLargeScreen: true }">
+                    <mat-label>RFID</mat-label>
+                    <input matInput placeholder="RFID" formControlName="rfid" />
+                    <mat-error *ngIf="getError('rfid')">{{
+                      (getError("rfid") &&
+                      getError("rfid")["required"]
+                      ? "Please enter rfid"
+                      : "")
+                      }}</mat-error>
+                  </mat-form-field>
+                  <mat-form-field appearance="outline" fxFlex.gt-sm="50%" fxFlex="100" class="cell"
+                    [ngClass.gt-sm]="{ isLargeScreen: true }">
+                    <mat-label>Chassis no</mat-label>
+                    <input matInput placeholder="Chassis no" formControlName="chassisNo" />
+                    <mat-error *ngIf="getError('chassisNo')">{{
+                      (getError("chassisNo") &&
+                      getError("chassisNo")["required"]
+                      ? "Please enter chassis no"
+                      : "")
+                      }}</mat-error>
+                  </mat-form-field>
+                </div>
+                <div fxFlex="100" fxLayout="column" fxLayout.gt-sm="row" style="gap: 16px">
+                  <mat-form-field appearance="outline" fxFlex.gt-sm="100%" fxFlex="100" class="cell"
+                    [ngClass.gt-sm]="{ isLargeScreen: true }">
+                    <mat-label>Color</mat-label>
+                    <input matInput placeholder="Color" formControlName="color" (input)="unitForm.controls['color'].setValue(unitForm.controls['color'].value.toUpperCase())"/>
+                    <mat-error *ngIf="getError('color')">{{
+                      (getError("color") &&
+                      getError("color")["required"]
+                      ? "Please enter color"
+                      : "")
+                      }}</mat-error>
+                  </mat-form-field>
+
+                  <div appearance="outline" fxFlex.gt-sm="33.33%" fxFlex="100" class="cell"
+                    [ngClass.gt-sm]="{ isLargeScreen: true }">
+                  </div>
+
+                  <div appearance="outline" fxFlex.gt-sm="33.33%" fxFlex="100" class="cell"
+                    [ngClass.gt-sm]="{ isLargeScreen: true }">
+                  </div>
+
+                </div>
+                <div fxFlex="100" fxLayout="column" fxLayout.gt-sm="row" style="gap: 16px">
+                  <mat-form-field appearance="outline" fxFlex.gt-sm="100%" fxFlex="100" class="cell"
+                    [ngClass.gt-sm]="{ isLargeScreen: true }">
+                    <mat-label>Description</mat-label>
+                    <textarea matInput placeholder="Description" formControlName="description"></textarea>
+                    <mat-error *ngIf="getError('description')">{{
+                      (getError("description") &&
+                      getError("description")["required"]
+                      ? "Please enter description"
+                      : "")
+                      }}</mat-error>
+                  </mat-form-field>
+                </div>
+              </fieldset>
+            </form>
+
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

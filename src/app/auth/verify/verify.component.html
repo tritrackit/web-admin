@@ -1,0 +1,23 @@
+<div class="verify-wrap">
+  <mat-card class="verify-card">
+    <mat-card-content>
+      <h2 class="title">{{ showLoader ? 'Verifying your account…' : 'Failed to verify your account'}}</h2>
+
+      <!-- Big spinner -->
+      <div class="spinner-wrap">
+        <mat-progress-spinner
+          mode="indeterminate"
+          [diameter]="120"
+          [strokeWidth]="8"
+          color="primary">
+        </mat-progress-spinner>
+      </div>
+
+      <p class="hint">
+        {{
+          showLoader ? 'This may take a few seconds. Please don’t close this window.' : error
+        }}
+      </p>
+    </mat-card-content>
+  </mat-card>
+</div>

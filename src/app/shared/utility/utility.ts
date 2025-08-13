@@ -6,3 +6,8 @@ export const convertNotationToObject = (notation: string, nestedValue):any => {
     });
     return object;
 }
+
+
+export const getImageExtensionByDataURL = (dataUrl) => {
+  return dataUrl.split(';')[0].split('/')[1];
+}

@@ -54,9 +54,9 @@ export class EmployeeUserDetailsComponent implements OnInit {
 
   roleSearchCtrl = new FormControl()
   isOptionsRoleLoading = false;
-  optionsRole: { name: string; code: string}[] = [];
-  @ViewChild('accessPagesTable', { static: true}) accessPagesTable: AccessPagesTableComponent;
-  @ViewChild('roleSearchInput', { static: true}) roleSearchInput: ElementRef<HTMLInputElement>;
+  optionsRole: { name: string; code: string }[] = [];
+  @ViewChild('accessPagesTable', { static: true }) accessPagesTable: AccessPagesTableComponent;
+  @ViewChild('roleSearchInput', { static: true }) roleSearchInput: ElementRef<HTMLInputElement>;
 
   employeeUser: EmployeeUsers;
   userProfilePicSource: any;
@@ -81,8 +81,8 @@ export class EmployeeUserDetailsComponent implements OnInit {
     const profile = this.storageService.getLoginProfile();
     this.currentUserCode = profile["employeeUserCode"];
     this.isReadOnly = !edit && !isNew;
-    if(!isNew && edit && edit !== undefined && this.currentUserCode ===this.employeeUserCode) {
-      this.router.navigate(['/staff-user/' + this.employeeUserCode]);
+    if (!isNew && edit && edit !== undefined && this.currentUserCode === this.employeeUserCode) {
+      this.router.navigate(['/employee-users/' + this.employeeUserCode]);
     }
     if (this.route.snapshot.data) {
       // this.pageAccess = {
@@ -125,13 +125,9 @@ export class EmployeeUserDetailsComponent implements OnInit {
           {
             firstName: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z0-9\\-\\s]+$')]),
             lastName: new FormControl('', [Validators.required, Validators.pattern('^[a-zA-Z0-9\\-\\s]+$')]),
-            email: new FormControl('', [Validators.required]),
+            email: new FormControl('', [Validators.required,
+            Validators.email,]),
             contactNo: new FormControl('', [Validators.required]),
-            userName: new FormControl(
-              '',
-              [
-                Validators.required,
-              ]),
             password: new FormControl(
               '',
               [
@@ -156,21 +152,21 @@ export class EmployeeUserDetailsComponent implements OnInit {
             [
               Validators.required,
             ]),
-            roleCode: new FormControl(),
+          roleCode: new FormControl(),
         });
 
 
         forkJoin([
           this.employeeUsersService.getByCode(this.employeeUserCode).toPromise(),
           this.roleService.getByAdvanceSearch({
-          order: {},
-          columnDef: [],
-          pageIndex: 0,
-          pageSize: 10
-        })
-        ]).subscribe(([user, accessOptions])=> {
-          if(accessOptions.success) {
-            this.optionsRole = accessOptions.data.results.map(x=> {
+            order: {},
+            columnDef: [],
+            pageIndex: 0,
+            pageSize: 10
+          })
+        ]).subscribe(([user, accessOptions]) => {
+          if (accessOptions.success) {
+            this.optionsRole = accessOptions.data.results.map(x => {
               return { name: x.name, code: x.roleCode }
             });
           }
@@ -185,7 +181,7 @@ export class EmployeeUserDetailsComponent implements OnInit {
               accessCode: user.data.role?.roleCode,
             });
             this.employeeUserForm.updateValueAndValidity();
-            if(user.data.role?.accessPages) {
+            if (user.data.role?.accessPages) {
               this.accessPagesTable.setDataSource(user.data.role?.accessPages);
             }
             if (this.isReadOnly) {
@@ -203,24 +199,24 @@ export class EmployeeUserDetailsComponent implements OnInit {
           }
         });
       }
-      this.f['roleCode'].valueChanges.subscribe(async res=> {
+      this.f['roleCode'].valueChanges.subscribe(async res => {
         // this.spinner.show();
         const staffAccess = await this.roleService.getByCode(res).toPromise();
-        if(staffAccess.data && staffAccess.data.accessPages) {
+        if (staffAccess.data && staffAccess.data.accessPages) {
           this.accessPagesTable.setDataSource(staffAccess.data.accessPages)
         }
         // this.spinner.hide();
       })
       this.roleSearchCtrl.valueChanges
-      .pipe(
+        .pipe(
           debounceTime(2000),
           distinctUntilChanged()
-      )
-      .subscribe(async value => {
+        )
+        .subscribe(async value => {
           await this.initRoleOptions();
-      });
+        });
       await this.initRoleOptions();
-    } catch(ex) {
+    } catch (ex) {
       this.isLoading = false;
       this.error = Array.isArray(ex.message) ? ex.message[0] : ex.message;
       this.snackBar.open(this.error, 'close', {
@@ -231,14 +227,14 @@ export class EmployeeUserDetailsComponent implements OnInit {
 
   onShowImageViewer() {
     const dialogRef = this.dialog.open(ImageViewerDialogComponent, {
-        disableClose: true,
-        panelClass: "image-viewer-dialog"
+      disableClose: true,
+      panelClass: "image-viewer-dialog"
     });
     const img: HTMLImageElement = document.querySelector(".profile-pic img");
     dialogRef.componentInstance.imageSource = img?.src;
     dialogRef.componentInstance.canChange = false;
 
-    dialogRef.componentInstance.changed.subscribe(res=> {
+    dialogRef.componentInstance.changed.subscribe(res => {
       this.userProfilePicLoaded = false;
       this.userProfilePicSource = res.base64;
       dialogRef.close();
@@ -261,7 +257,7 @@ export class EmployeeUserDetailsComponent implements OnInit {
       pageIndex: 0,
       pageSize: 10
     }).toPromise();
-    this.optionsRole = res.data.results.map(a=> { return { name: a.name, code: a.roleCode }});
+    this.optionsRole = res.data.results.map(a => { return { name: a.name, code: a.roleCode } });
     this.mapSearchRole();
     this.isOptionsRoleLoading = false;
   }
@@ -271,16 +267,16 @@ export class EmployeeUserDetailsComponent implements OnInit {
   }
 
   mapSearchRole() {
-    if(this.f['roleCode'].value !== this.roleSearchCtrl.value) {
-      this.f['roleCode'].setErrors({ required: true});
-      const selected = this.optionsRole.find(x=>x.code === this.roleSearchCtrl.value);
-      if(selected) {
+    if (this.f['roleCode'].value !== this.roleSearchCtrl.value) {
+      this.f['roleCode'].setErrors({ required: true });
+      const selected = this.optionsRole.find(x => x.code === this.roleSearchCtrl.value);
+      if (selected) {
         this.f["roleCode"].setValue(selected.code);
       } else {
         this.f["roleCode"].setValue(null);
       }
-      if(!this.f["roleCode"].value) {
-        this.f["roleCode"].setErrors({required: true});
+      if (!this.f["roleCode"].value) {
+        this.f["roleCode"].setErrors({ required: true });
       } else {
         this.f['roleCode'].setErrors(null);
         this.f['roleCode'].markAsPristine();
@@ -336,7 +332,7 @@ export class EmployeeUserDetailsComponent implements OnInit {
         this.isProcessing = true;
         const params = this.formData;
         let res;
-        if(this.isNew) {
+        if (this.isNew) {
           res = await this.employeeUsersService.createUser(params).toPromise();
         } else {
           res = await this.employeeUsersService.updateUser(this.employeeUserCode, params).toPromise();
@@ -360,6 +356,11 @@ export class EmployeeUserDetailsComponent implements OnInit {
             panelClass: ['style-error'],
           });
           dialogRef.close();
+          if (res.message.toString().toLowerCase().includes("email") && res.message.toString().toLowerCase().includes("already used")) {
+            this.employeeUserForm.controls["email"].setErrors({
+              exists: true
+            })
+          }
         }
       } catch (e) {
         this.isProcessing = false;
@@ -409,7 +410,7 @@ export class EmployeeUserDetailsComponent implements OnInit {
           this.snackBar.open('User deleted!', 'close', {
             panelClass: ['style-success'],
           });
-          this.router.navigate(['/staff-user/']);
+          this.router.navigate(['/employee-users/']);
           this.isProcessing = false;
           dialogRef.componentInstance.isProcessing = this.isProcessing;
           dialogRef.close();

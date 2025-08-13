@@ -1,0 +1,64 @@
+
+<div class="inner-content">
+  <form
+  [formGroup]="form"
+  fxLayout="row wrap"
+  id="form"
+  [ngClass]="{'readonly' : isReadOnly}">
+  <fieldset fxFlex="100" fxLayout="col wrap" style="row-gap: 16px">
+    <mat-form-field
+      fxFlex="100"
+      fxLayout="column"
+      appearance="outline"
+    >
+      <mat-label>Location code</mat-label>
+      <input
+        matInput
+        placeholder="Location code"
+        formControlName="locationCode"
+      />
+      <mat-error
+        *ngIf="getError('locationCode') !== (null || undefined)"
+        >{{
+          (getError("locationCode") &&
+          getError("locationCode")["required"]
+            ? "Please enter location code"
+            : "") ||
+            (getError("locationCode") &&
+            getError("locationCode")["pattern"]
+              ? "Invalid input"
+              : "") ||
+            (getError("locationCode") &&
+            getError("locationCode")["minlength"]
+              ? "Invalid input"
+              : "") ||
+            (getError("locationCode") &&
+            getError("locationCode")["maxlength"]
+              ? "Invalid input"
+              : "")
+        }}</mat-error>
+    </mat-form-field>
+    <mat-form-field
+      fxFlex="100"
+      fxLayout="column"
+      appearance="outline"
+    >
+      <mat-label>Location name</mat-label>
+      <input
+        matInput
+        placeholder="Location name"
+        formControlName="name"
+      />
+      <mat-error
+        *ngIf="getError('name') !== (null || undefined)"
+        >{{
+          (getError("name") &&
+          getError("name")["required"]
+            ? "Please enter location name"
+            : "")
+        }}</mat-error
+      >
+    </mat-form-field>
+  </fieldset>
+  </form>
+</div>

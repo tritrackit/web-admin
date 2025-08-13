@@ -66,12 +66,12 @@
         }
       }
     ],
-    "customerUser": [
+    "locations": [
       {
-        "name": "name",
-        "label": "Name",
-        "apiNotation": "name",
         "sticky": true,
+        "name": "locationCode",
+        "label": "Location code",
+        "apiNotation": "locationCode",
         "type": "string",
         "style": {
           "width": "100px",
@@ -79,95 +79,27 @@
         },
         "filterOptions": {
           "enable": true,
-          "placeholder": "Name"
-        },
-        "urlPropertyName": "url"
-      },
-      {
-        "name": "email",
-        "label": "Email",
-        "apiNotation": "email",
-        "type": "string",
-        "filterOptions": {
-          "enable": true,
-          "placeholder": "Email"
-        }
-      }
-    ],
-    "product": [
-      {
-        "name": "sku",
-        "label": "SKU",
-        "apiNotation": "sku",
-        "sticky": true,
-        "type": "string",
-        "style": {
-          "width": "100px",
-          "left": "0px"
-        },
-        "filterOptions": {
-          "enable": true,
-          "placeholder": "SKU"
+          "placeholder": "Location code"
         },
         "urlPropertyName": "url"
       },
       {
         "name": "name",
-        "label": "Name",
+        "label": "Location name",
         "apiNotation": "name",
         "type": "string",
         "filterOptions": {
           "enable": true,
-          "placeholder": "Name"
-        }
-      },
-      {
-        "name": "price",
-        "label": "Price",
-        "apiNotation": "price",
-        "type": "string",
-        "filterOptions": {
-          "enable": true,
-          "placeholder": "Price"
-        }
-      },
-      {
-        "name": "size",
-        "label": "Size",
-        "apiNotation": "size",
-        "type": "string",
-        "filterOptions": {
-          "enable": true,
-          "placeholder": "Size"
-        }
-      },
-      {
-        "name": "category",
-        "label": "Category",
-        "apiNotation": "category.name",
-        "type": "string",
-        "filterOptions": {
-          "enable": true,
-          "placeholder": "Category"
-        }
-      },
-      {
-        "name": "shortDesc",
-        "label": "Short description",
-        "apiNotation": "shortDesc",
-        "type": "string",
-        "filterOptions": {
-          "enable": true,
-          "placeholder": "Short description"
+          "placeholder": "Location name"
         }
       }
     ],
-    "order": [
+    "cbu": [
       {
-        "name": "orderCode",
-        "label": "#",
-        "apiNotation": "orderCode",
         "sticky": true,
+        "name": "unitCode",
+        "label": "Unit #",
+        "apiNotation": "unitCode",
         "type": "string",
         "style": {
           "width": "100px",
@@ -175,85 +107,46 @@
         },
         "filterOptions": {
           "enable": true,
-          "placeholder": "Order Code"
+          "placeholder": "Unit #"
         },
         "urlPropertyName": "url"
       },
       {
-        "name": "status",
-        "label": "Status",
-        "apiNotation": "status",
+        "name": "chassisNo",
+        "label": "Chassis No",
+        "apiNotation": "chassisNo",
         "type": "string",
         "filterOptions": {
           "enable": true,
-          "placeholder": "Status"
+          "placeholder": "Chassis No"
         }
       },
       {
-        "name": "createdAt",
-        "label": "Date",
-        "apiNotation": "createdAt",
-        "type": "date",
-        "format": {
-          "type": "date-time",
-          "custom": "MMM dd, yyyy"
-        },
-        "filterOptions": {
-          "enable": true,
-          "type": "date-range",
-          "placeholder": "Date"
-        }
-      },
-      {
-        "name": "name",
-        "label": "Name",
-        "apiNotation": "name",
+        "name": "model",
+        "label": "Model",
+        "apiNotation": "model.modelName",
         "type": "string",
         "filterOptions": {
           "enable": true,
-          "placeholder": "Name"
+          "placeholder": "Model"
         }
       },
       {
-        "name": "paymentMethod",
-        "label": "Payment Method",
-        "apiNotation": "paymentMethod",
+        "name": "color",
+        "label": "Color",
+        "apiNotation": "color",
         "type": "string",
         "filterOptions": {
           "enable": true,
-          "placeholder": "Payment Method"
-        }
-      },
-      {
-        "name": "deliveryAddress",
-        "label": "Delivery To",
-        "apiNotation": "deliveryAddress",
-        "type": "string",
-        "filterOptions": {
-          "enable": true,
-          "placeholder": "Delivery To"
-        }
-      },
-      {
-        "name": "total",
-        "label": "Total Payment",
-        "apiNotation": "total",
-        "type": "number",
-        "format": {
-          "type": "currency"
-        },
-        "filterOptions": {
-          "enable": true,
-          "placeholder": "Total Payment",
-          "type": "number-range"
+          "placeholder": "Color"
         }
       }
     ],
-    "category": [
+    "model": [
       {
-        "name": "categoryId",
-        "label": "Category Id",
-        "apiNotation": "categoryId",
+        "name": "modelId",
+        "label": "Model Id",
+        "apiNotation": "modelId",
         "sticky": true,
         "type": "string",
         "style": {
@@ -262,7 +155,7 @@
         },
         "filterOptions": {
           "enable": true,
-          "placeholder": "Category Id"
+          "placeholder": "Model Id"
         },
         "urlPropertyName": "url"
       },
@@ -277,19 +170,19 @@
         }
       },
       {
-        "name": "name",
-        "label": "Name",
-        "apiNotation": "name",
+        "name": "modelName",
+        "label": "Model name",
+        "apiNotation": "modelName",
         "type": "string",
         "filterOptions": {
           "enable": true,
-          "placeholder": "Name"
+          "placeholder": "Model name"
         }
       },
       {
-        "name": "desc",
+        "name": "description",
         "label": "Description",
-        "apiNotation": "desc",
+        "apiNotation": "description",
         "type": "string",
         "filterOptions": {
           "enable": true,
@@ -297,9 +190,9 @@
         }
       },
       {
-        "name": "productCount",
-        "label": "Products",
-        "apiNotation": "productCount",
+        "name": "unitCount",
+        "label": "Unit count",
+        "apiNotation": "unitCount",
         "type": "string",
         "filterOptions": {
           "enable": false
