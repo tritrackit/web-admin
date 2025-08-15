@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -18,6 +18,9 @@ import { AuthService } from 'src/app/services/auth.service';
 import { ImageViewerDialogComponent } from 'src/app/shared/components/image-viewer-dialog/image-viewer-dialog.component';
 import { Units } from 'src/app/model/units.model';
 import { ModelService } from 'src/app/services/model.service';
+import { Locations } from 'src/app/model/locations.model';
+import { PusherService } from 'src/app/services/pusher.service';
+import { EmployeeUsers } from 'src/app/model/employee-users.model';
 
 @Component({
   selector: 'app-cbu-details',
@@ -28,6 +31,8 @@ import { ModelService } from 'src/app/services/model.service';
   }
 })
 export class CBUDetailsComponent implements OnInit {
+  currentUserProfile: EmployeeUsers;
+  currentChannel: any;
   unitCode;
   isNew = false;
   isReadOnly = true;
@@ -49,13 +54,11 @@ export class CBUDetailsComponent implements OnInit {
   isLoadingRoles = false;
   maxDate = moment(new Date().getFullYear() - 18).format('YYYY-MM-DD');
 
-  locationSearchCtrl = new FormControl()
+  location: Locations;
+
   modelSearchCtrl = new FormControl()
-  isOptionsLocationLoading = false;
   isOptionsModelLoading = false;
-  optionsLocation: { name: string; code: string }[] = [];
   optionsModel: { name: string; code: string }[] = [];
-  @ViewChild('locationSearchInput', { static: true }) locationSearchInput: ElementRef<HTMLInputElement>;
   @ViewChild('modelSearchInput', { static: true }) modelSearchInput: ElementRef<HTMLInputElement>;
 
   unit: Units;
@@ -71,12 +74,43 @@ export class CBUDetailsComponent implements OnInit {
     private route: ActivatedRoute,
     public router: Router,
     private formBuilder: FormBuilder,
-    private authService: AuthService
+    private authService: AuthService,
+    private pusher: PusherService,
+    private cdr: ChangeDetectorRef,
   ) {
     const { isNew, edit } = this.route.snapshot.data;
     this.isNew = isNew ? isNew : false;
     this.unitCode = this.route.snapshot.paramMap.get('unitCode');
     this.isReadOnly = !edit && !isNew;
+
+    this.currentUserProfile = this.storageService.getLoginProfile();
+    if (this.isNew) {
+
+      this.currentChannel = this.pusher.init(`scanner-${this.currentUserProfile?.employeeUserCode}`);
+
+      this.currentChannel.bind('pusher:subscription_succeeded', () => {
+        this.currentChannel.bind('scanner', data => {
+          console.log('pusher received data', data.data);
+          const { employeeUser, location, rfid } = data?.data;
+          if (employeeUser?.employeeUserCode === this.currentUserProfile?.employeeUserCode) {
+            this.unitForm.patchValue({
+              rfid,
+              locationId: location?.locationId,
+            }, {
+              emitEvent: true
+            });
+
+            this.location = location;
+
+            this.cdr.detectChanges();
+            this.snackBar.open('RFID Detected!', 'close', {
+              panelClass: ['style-success'],
+            });
+          }
+
+        });
+      });
+    }
   }
 
   get pageRights() {
@@ -91,10 +125,10 @@ export class CBUDetailsComponent implements OnInit {
     return this.unitForm.controls;
   }
   get formIsValid() {
-    return this.unitForm.valid && this.locationSearchCtrl.valid && this.modelSearchCtrl.valid;
+    return this.unitForm.valid && this.modelSearchCtrl.valid;
   }
   get formIsReady() {
-    return this.unitForm.valid && this.locationSearchCtrl.valid && this.modelSearchCtrl.valid && (this.unitForm.dirty || this.locationSearchCtrl.dirty || this.modelSearchCtrl.dirty);
+    return this.unitForm.valid && this.modelSearchCtrl.valid && (this.unitForm.dirty || this.modelSearchCtrl.dirty);
   }
   get formData() {
     const data = this.unitForm.value;
@@ -102,19 +136,15 @@ export class CBUDetailsComponent implements OnInit {
     return data;
   }
 
+  get isRegistrationValid() {
+    return this.location && this.location?.locationCode && this.formData.locationId && this.formData.rfid && this.formData.rfid.length > 0;
+  }
+
   async ngOnInit(): Promise<void> {
     this.isLoading = true;
     if (!this.isNew) {
       await this.initDetails();
     }
-    this.locationSearchCtrl.valueChanges
-      .pipe(
-        debounceTime(2000),
-        distinctUntilChanged()
-      )
-      .subscribe(async value => {
-        await this.initLocationOptions();
-      });
     this.modelSearchCtrl.valueChanges
       .pipe(
         debounceTime(2000),
@@ -123,7 +153,6 @@ export class CBUDetailsComponent implements OnInit {
       .subscribe(async value => {
         await this.initModelOptions();
       });
-    await this.initLocationOptions();
     await this.initModelOptions();
     this.isLoading = false;
   }
@@ -132,31 +161,15 @@ export class CBUDetailsComponent implements OnInit {
     try {
       forkJoin([
         this.unitService.getByCode(this.unitCode).toPromise(),
-        this.locationsService.getAdvanceSearch({
-          columnDef: [{
-            filter: this.locationSearchInput.nativeElement.value,
-            apiNotation: "name"
-          }],
-          order: {
-            "modelName": "ASC"
-          } as any,
-          pageIndex: 0,
-          pageSize: 0
-        }),
         this.modelService.getAdvanceSearch({
-          keywords: this.modelSearchInput.nativeElement.value,
+          keywords: this.modelSearchInput?.nativeElement?.value,
           order: {
             "modelName": "ASC"
           } as any,
           pageIndex: 0,
           pageSize: 0
         }),
-      ]).subscribe(([unit, locationOptions, modelOptions]) => {
-        if (locationOptions.success) {
-          this.optionsLocation = locationOptions.data.results.map(x => {
-            return { name: x.name, code: x.locationId }
-          });
-        }
+      ]).subscribe(([unit, modelOptions]) => {
         if (modelOptions.success) {
           this.optionsModel = modelOptions.data.results.map(x => {
             return { name: x.modelName, code: x.modelId }
@@ -173,16 +186,12 @@ export class CBUDetailsComponent implements OnInit {
             modelId: unit.data.model?.modelId,
             locationId: unit.data.location?.locationId,
           });
+          this.location = unit.data.location;
           this.unitForm.updateValueAndValidity();
           if (this.isReadOnly) {
             this.unitForm.disable();
             this.modelSearchCtrl.disable();
-            this.locationSearchCtrl.disable();
           }
-          this.locationSearchCtrl.setValue({
-            name: unit.data.location?.name,
-            code: unit.data.location?.locationId
-          });
           this.modelSearchCtrl.setValue({
             name: unit.data.model?.modelName,
             code: unit.data.model?.modelId
@@ -208,28 +217,10 @@ export class CBUDetailsComponent implements OnInit {
     }
   }
 
-  async initLocationOptions() {
-    this.isOptionsLocationLoading = true;
-    const res = await this.locationsService.getAdvanceSearch({
-      columnDef: [{
-        filter: this.locationSearchInput.nativeElement.value,
-        apiNotation: "name"
-      }],
-      order: {
-        "name": "ASC"
-      } as any,
-      pageIndex: 0,
-      pageSize: 10
-    }).toPromise();
-    this.optionsLocation = res.data.results.map(a => { return { name: a.name, code: a.locationId } });
-    this.mapSearchLocation();
-    this.isOptionsLocationLoading = false;
-  }
-
   async initModelOptions() {
     this.isOptionsModelLoading = true;
     const res = await this.modelService.getAdvanceSearch({
-      keywords: this.modelSearchInput.nativeElement.value,
+      keywords: this.modelSearchInput?.nativeElement?.value,
       order: {
         "modelName": "ASC"
       } as any,
@@ -249,33 +240,10 @@ export class CBUDetailsComponent implements OnInit {
     return value?.name ?? '';
   }
 
-  onLocationSelected(value?: number) {
-    const location = this.optionsLocation.find(_ => _.code === value?.toString());
-    this.f['locationId'].setValue(location);
-    this.locationSearchCtrl.setValue(location); // ensure the full object is set for displayWith
-  }
-
   onModelSelected(value?: number) {
     const model = this.optionsModel.find(_ => _.code === value?.toString());
     this.f['modelId'].setValue(model);
     this.modelSearchCtrl.setValue(model); // ensure the full object is set for displayWith
-  }
-
-  mapSearchLocation() {
-    const selected = this.optionsLocation.find(x => x.name === this.locationSearchCtrl.value?.name);
-    if (selected) {
-      this.f['locationId'].setValue(selected.code);
-      this.f['locationId'].setErrors(null);
-      if(this.locationSearchCtrl.value?.code !== selected?.code) {
-        this.locationSearchCtrl.setValue(selected);
-      }
-    } else {
-      this.f['locationId'].setValue(null);
-      this.f['locationId'].setErrors({ required: true });
-    }
-    if(this.f['locationId'].errors) {
-      this.locationSearchCtrl.setErrors(this.f['locationId'].errors);
-    }
   }
 
   mapSearchModel() {
@@ -283,14 +251,14 @@ export class CBUDetailsComponent implements OnInit {
     if (selected) {
       this.f['modelId'].setValue(selected.code);
       this.f['modelId'].setErrors(null);
-      if(this.modelSearchCtrl.value?.code !== selected?.code) {
-      this.modelSearchCtrl.setValue(selected);
+      if (this.modelSearchCtrl.value?.code !== selected?.code) {
+        this.modelSearchCtrl.setValue(selected);
       }
     } else {
       this.f['modelId'].setValue(null);
       this.f['modelId'].setErrors({ required: true });
     }
-    if(this.f['modelId'].errors) {
+    if (this.f['modelId'].errors) {
       this.modelSearchCtrl.setErrors(this.f['modelId'].errors);
     }
   }

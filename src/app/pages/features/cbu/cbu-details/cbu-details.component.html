@@ -31,7 +31,7 @@
 </mat-toolbar>
 <div class="content">
   <div class="inner-content">
-    <h4 class="inner-content-title">Product details</h4>
+    <h4 *ngIf="!isNew" class="inner-content-title">Product details</h4>
     <mat-card>
       <mat-card-content>
         <div fxLayout="column" fxLayoutGap="16px">
@@ -49,46 +49,26 @@
 
                 <div fxLayout="column" fxLayout.gt-sm="row" fxFlex="100" class="content-inner" fxLayoutGap="16px"
                   [ngClass]="{'readonly' : isReadOnly}">
-                  <mat-form-field class="example-full-width" appearance="outline" fxFlex.gt-sm="50%" fxFlex="100"
-                    style="position: relative!important;">
-                    <mat-label>{{isNew ? 'Location' : 'Current location'}}</mat-label>
-                    <input type="text" placeholder="Select location" aria-label="Select location" matInput
-                      [formControl]="locationSearchCtrl" [matAutocomplete]="autoLocation" [readonly]="!isNew"
-                      (focusout)="mapSearchLocation();" #locationSearchInput (input)="isOptionsLocationLoading = true;">
-                    <mat-autocomplete #autocompleteLocation #autoLocation="matAutocomplete"
-                      [displayWith]="displayLocationName"
-                      (optionSelected)="onLocationSelected($event.option.value)">
-                      <mat-option *ngFor="let option of optionsLocation" [value]="option.code">
-                        {{option.name}}
-                      </mat-option>
-                    </mat-autocomplete>
-                    <mat-error *ngIf="getError('locationId') || locationSearchCtrl.errors">
-                      {{
-                      (getError("locationId") && getError("locationId").required
-                      ? "Please select location"
-                      : "") ||
-                      (locationSearchCtrl.errors && locationSearchCtrl.errors.required
-                      ? "Please select location"
-                      : "")
-                      }}
-                    </mat-error>
-                    <mat-spinner *ngIf="isOptionsLocationLoading"></mat-spinner>
+                  <mat-form-field appearance="outline" fxFlex.gt-sm="50%" fxFlex="100" class="cell"
+                    [ngClass.gt-sm]="{ isLargeScreen: true }">
+                    <mat-label>Location</mat-label>
+                    <input readonly matInput [value]="location?.name"/>
                   </mat-form-field>
 
                   <mat-form-field appearance="outline" fxFlex.gt-sm="50%" fxFlex="100" class="cell"
                     [ngClass.gt-sm]="{ isLargeScreen: true }">
                     <mat-label>RFID</mat-label>
-                    <input matInput placeholder="RFID" formControlName="rfid" />
+                    <input readonly matInput placeholder="RFID" formControlName="rfid" />
                     <mat-error *ngIf="getError('rfid')">{{
                       (getError("rfid") &&
                       getError("rfid")["required"]
-                      ? "Please enter rfid"
+                      ? "Please scan RFID"
                       : "")
                       }}</mat-error>
                   </mat-form-field>
                 </div>
 
-                <div fxLayout="column" fxLayout.gt-sm="row" fxFlex="100" class="content-inner"
+                <div *ngIf="isRegistrationValid" fxLayout="column" fxLayout.gt-sm="row" fxFlex="100" class="content-inner"
                   [ngClass]="{'readonly' : isReadOnly}" fxLayoutGap="16px">
                   <mat-form-field class="example-full-width" appearance="outline" fxFlex.gt-sm="50%" fxFlex="100"
                     style="position: relative!important;">
@@ -127,7 +107,7 @@
                       }}</mat-error>
                   </mat-form-field>
                 </div>
-                <div fxFlex="100" fxLayout="column" fxLayout.gt-sm="row" style="gap: 16px">
+                <div *ngIf="isRegistrationValid" fxFlex="100" fxLayout="column" fxLayout.gt-sm="row" style="gap: 16px">
                   <mat-form-field appearance="outline" fxFlex.gt-sm="100%" fxFlex="100" class="cell"
                     [ngClass.gt-sm]="{ isLargeScreen: true }">
                     <mat-label>Color</mat-label>
@@ -149,7 +129,7 @@
                   </div>
 
                 </div>
-                <div fxFlex="100" fxLayout="column" fxLayout.gt-sm="row" style="gap: 16px">
+                <div *ngIf="isRegistrationValid" fxFlex="100" fxLayout="column" fxLayout.gt-sm="row" style="gap: 16px">
                   <mat-form-field appearance="outline" fxFlex.gt-sm="100%" fxFlex="100" class="cell"
                     [ngClass.gt-sm]="{ isLargeScreen: true }">
                     <mat-label>Description</mat-label>

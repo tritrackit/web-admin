@@ -7,7 +7,7 @@ export const environment = {
   apiBaseUrl: "http://localhost:3000/api/v1",
   idleTimeoutMinutes: 30,
   pusher: {
-    key: "370b0f66d94e4674d202",
+    key: "525752a480ad973116be",
     cluster: "ap1",
   }
 };

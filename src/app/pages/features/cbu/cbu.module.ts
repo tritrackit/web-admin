@@ -20,7 +20,7 @@ export const routes: Routes = [
   {
     path: 'add',
     component: CBUDetailsComponent,
-    data: { title: "New CBU", details: true, isNew: true }
+    data: { title: "CBU", details: true, isNew: true }
   },
   {
     path: ':unitCode',
