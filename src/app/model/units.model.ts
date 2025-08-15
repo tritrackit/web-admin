@@ -21,4 +21,5 @@ export class Units {
   model: Model;
   status: Status;
   updatedBy: EmployeeUsers;
+  assignedEmployeeUser: EmployeeUsers;
 }

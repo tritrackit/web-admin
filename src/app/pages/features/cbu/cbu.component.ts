@@ -17,8 +17,7 @@ import { convertNotationToObject } from 'src/app/shared/utility/utility';
     class: "page-component"
   }
 })
-export class CbuComponent {
-  currentUserId:string;
+export class CBUComponent {
   error:string;
   dataSource = new MatTableDataSource<any>();
   displayedColumns = [];
@@ -50,16 +49,10 @@ export class CbuComponent {
     public router: Router) {
       this.dataSource = new MatTableDataSource([]);
       if(this.route.snapshot.data) {
-        // this.pageAccess = {
-        //   ...this.pageAccess,
-        //   ...this.route.snapshot.data["access"]
-        // };
       }
     }
 
   ngOnInit(): void {
-    const profile = this.storageService.getLoginProfile();
-    // this.currentUserId = profile && profile.userId;
     this.getAccessPaginated();
   }
 

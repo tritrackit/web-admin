@@ -198,6 +198,54 @@
           "enable": false
         }
       }
+    ],
+    "scanner": [
+      {
+        "name": "scannerCode",
+        "label": "Scanner #",
+        "apiNotation": "scannerCode",
+        "sticky": true,
+        "type": "string",
+        "style": {
+          "width": "100px",
+          "left": "0px"
+        },
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Scanner #"
+        },
+        "urlPropertyName": "url"
+      },
+      {
+        "name": "name",
+        "label": "Scanner name",
+        "apiNotation": "name",
+        "type": "string",
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Scanner name"
+        }
+      },
+      {
+        "name": "location",
+        "label": "Location",
+        "apiNotation": "location.name",
+        "type": "string",
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Location"
+        }
+      },
+      {
+        "name": "assignedEmployeeUser",
+        "label": "Assigned Employee",
+        "apiNotation": "assignedEmployeeUser.name",
+        "type": "string",
+        "filterOptions": {
+          "enable": true,
+          "placeholder": "Assigned Employee"
+        }
+      }
     ]
   }
 }

@@ -91,16 +91,12 @@ export class CBUDetailsComponent implements OnInit {
     return this.unitForm.controls;
   }
   get formIsValid() {
-    console.log("this.unitForm.valid && this.locationSearchCtrl.valid && this.modelSearchCtrl.valid ", this.unitForm.valid && this.locationSearchCtrl.valid && this.modelSearchCtrl.valid)
     return this.unitForm.valid && this.locationSearchCtrl.valid && this.modelSearchCtrl.valid;
   }
   get formIsReady() {
-    console.log("this.unitForm.valid && this.modelSearchCtrl.valid && (this.unitForm.dirty || this.modelSearchCtrl.dirty)", this.unitForm.valid && this.locationSearchCtrl.valid && this.modelSearchCtrl.valid && (this.unitForm.dirty || this.locationSearchCtrl.dirty || this.modelSearchCtrl.dirty))
     return this.unitForm.valid && this.locationSearchCtrl.valid && this.modelSearchCtrl.valid && (this.unitForm.dirty || this.locationSearchCtrl.dirty || this.modelSearchCtrl.dirty);
   }
   get formData() {
-    console.log(`this.unitForm.controls["locationId"].value `, this.unitForm.controls["locationId"].value);
-    console.log(`this.unitForm.controls["modelId"].value `, this.unitForm.controls["modelId"].value);
     const data = this.unitForm.value;
     data.price = data?.price?.toString();
     return data;
@@ -311,7 +307,7 @@ export class CBUDetailsComponent implements OnInit {
 
     const dialogData = new AlertDialogModel();
     dialogData.title = 'Confirm';
-    dialogData.message = 'Save user?';
+    dialogData.message = 'Save CBU?';
     dialogData.confirmButton = {
       visible: true,
       text: 'yes',
@@ -382,8 +378,8 @@ export class CBUDetailsComponent implements OnInit {
 
   onDeleteProduct() {
     const dialogData = new AlertDialogModel();
-    dialogData.title = 'Delete unit';
-    dialogData.message = 'Are you sure you want to delete this unit?';
+    dialogData.title = 'Delete CBU';
+    dialogData.message = 'Are you sure you want to delete this CBU?';
     dialogData.confirmButton = {
       visible: true,
       text: 'yes',
@@ -404,10 +400,10 @@ export class CBUDetailsComponent implements OnInit {
 
         const res = await this.unitService.delete(this.unitCode).toPromise();
         if (res.success) {
-          this.snackBar.open('unit deleted!', 'close', {
+          this.snackBar.open('CBU deleted!', 'close', {
             panelClass: ['style-success'],
           });
-          this.router.navigate(['/unit/']);
+          this.router.navigate(['/cbu/']);
           this.isProcessing = false;
           dialogRef.componentInstance.isProcessing = this.isProcessing;
           dialogRef.close();

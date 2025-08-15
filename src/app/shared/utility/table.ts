@@ -76,4 +76,12 @@ export class ModelTableColumn {
   unitCount?: string;
   url?: string;
 }
+export class ScannerTableColumn {
+  scannerId?: string;
+  scannerCode?: string;
+  name?: string;
+  location?: string;
+  assignedEmployeeUser?: string;
+  url?: string;
+}
 

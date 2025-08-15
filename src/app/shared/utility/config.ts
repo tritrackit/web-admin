@@ -9,6 +9,7 @@ export interface AppConfig {
       locations: ColumnDefinition[];
       cbu: ColumnDefinition[];
       model: ColumnDefinition[];
+      scanner: ColumnDefinition[];
     };
     sessionConfig: {
       sessionTimeout: string;

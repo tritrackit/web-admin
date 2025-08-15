@@ -150,11 +150,6 @@
                         |-- scanner-details.component.scss
                         |-- scanner-details.component.spec.ts
                         |-- scanner-details.component.ts
-                    |-- scanner-form
-                        |-- scanner-form.component.html
-                        |-- scanner-form.component.scss
-                        |-- scanner-form.component.spec.ts
-                        |-- scanner-form.component.ts
                     |-- scanner.component.html
                     |-- scanner.component.scss
                     |-- scanner.component.spec.ts
@@ -225,6 +220,8 @@
             |-- roles.service.ts
             |-- route.service.spec.ts
             |-- route.service.ts
+            |-- scanner.service.spec.ts
+            |-- scanner.service.ts
             |-- storage.service.spec.ts
             |-- storage.service.ts
             |-- unit.service.spec.ts

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CbuComponent } from './cbu.component';
+import { CBUComponent } from './cbu.component';
 import { CBUDetailsComponent } from './cbu-details/cbu-details.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
@@ -13,14 +13,14 @@ import { MaterialModule } from 'src/app/shared/material/material.module';
 export const routes: Routes = [
   {
     path: '',
-    component: CbuComponent,
+    component: CBUComponent,
     pathMatch: 'full',
     data: { title: "CBU" }
   },
   {
     path: 'add',
     component: CBUDetailsComponent,
-    data: { title: "New CBU", details: true, isNew: true}
+    data: { title: "New CBU", details: true, isNew: true }
   },
   {
     path: ':unitCode',
@@ -36,18 +36,18 @@ export const routes: Routes = [
 
 @NgModule({
   declarations: [
-    CbuComponent,
+    CBUComponent,
     CBUDetailsComponent,
   ],
   imports: [
-      CommonModule,
-      FlexLayoutModule,
-      NgxSkeletonLoaderModule,
-      FormsModule,
-      ReactiveFormsModule,
-      RouterModule.forChild(routes),
-      SharedComponentsModule,
-      MaterialModule,
+    CommonModule,
+    FlexLayoutModule,
+    NgxSkeletonLoaderModule,
+    FormsModule,
+    ReactiveFormsModule,
+    RouterModule.forChild(routes),
+    SharedComponentsModule,
+    MaterialModule,
   ]
 })
 export class CbuModule { }
