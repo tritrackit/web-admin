@@ -337,3 +337,4 @@
 |-- tsconfig.app.json
 |-- tsconfig.json
 |-- tsconfig.spec.json
+|-- vercel.json

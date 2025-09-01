@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/api/pusher/auth", "destination": "/api/pusher/auth" },
+    { "source": "/api/pusher/trigger", "destination": "/api/pusher/trigger" }
+  ]
+}
