@@ -34,6 +34,12 @@ export class UnitService implements IServices {
 
 
     this.currentUserProfile = this.storageService.getLoginProfile();
+    if (!this.pusher) throw new Error('Pusher not initialized');
+    // Unsubscribe previous if any
+    if (this.currentChannel) {
+      this.currentChannel.unbind_all();
+      this.pusher.unsubscribe(this.currentChannel.name);
+    }
     this.currentChannel = this.pusher.init(`scanner-${this.currentUserProfile?.employeeUserCode}`);
 
     this.currentChannel.bind('scanner', data => {
