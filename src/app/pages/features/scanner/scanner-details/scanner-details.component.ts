@@ -32,7 +32,7 @@ export class ScannerDetailsComponent implements OnInit {
   error;
   isLoading = true;
   scannerForm: FormGroup = new FormGroup({
-    scannerCode: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(15), Validators.pattern(/^(?=.{1,15}$)([A-Z][A-Za-z0-9_-]*|[0-9][A-Za-z0-9_-]*)$/)]),
+    scannerCode: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(20), Validators.pattern(/^(?=.{1,20}$)([A-Z][A-Za-z0-9_-]*|[0-9][A-Za-z0-9_-]*)$/)]),
     name: new FormControl('', [Validators.required]),
     locationId: new FormControl('', [Validators.required]),
     assignedEmployeeUserId: new FormControl('', [Validators.required]),

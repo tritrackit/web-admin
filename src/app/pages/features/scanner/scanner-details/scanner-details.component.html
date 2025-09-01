@@ -65,13 +65,13 @@
                       ||
                       (getError("scannerCode") &&
                       getError("scannerCode")["maxlength"]
-                      ? "ScannerCode must not exceed 15 characters"
+                      ? "ScannerCode must not exceed 20 characters"
                       : "")
                       ||
 
                       (getError("scannerCode") &&
                       getError("scannerCode")["pattern"]
-                      ? error ?? "Invalid value, scanner code must start with an uppercase letter or a number, and only contain letters, numbers, underscore (_) or dash (-) with no spaces, max 15 characters"
+                      ? error ?? "Invalid value, scanner code must start with an uppercase letter or a number, and only contain letters, numbers, underscore (_) or dash (-) with no spaces, max 20 characters"
                       : "")
                       }}
                       </mat-error>
