@@ -1,7 +1,7 @@
 <mat-toolbar color="#fff" class="mat-elevation-z4">
   <button [disabled]="isLoading" style="margin-right: 10px!important;" mat-icon-button
     matTooltip="{{ isReadOnly? 'Back' : 'Cancel'}}"
-    [routerLink]="isReadOnly ? '/cbu/' : isNew ? '/cbu/': '/cbu/' + unitCode">
+    [routerLink]="isReadOnly ? '/cbu/' : isNew ? '/cbu': '/cbu/' + unitCode">
     <mat-icon>
       {{
       isReadOnly? 'keyboard_arrow_left' : 'close'

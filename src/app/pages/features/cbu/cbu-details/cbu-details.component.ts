@@ -1,9 +1,9 @@
-import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { debounceTime, distinctUntilChanged, forkJoin, map, Observable, of, startWith, Subscription, switchMap } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, forkJoin, map, Observable, of, startWith, Subject, Subscription, switchMap, takeUntil } from 'rxjs';
 import { AppConfigService } from 'src/app/services/app-config.service';
 import { LocationsService } from 'src/app/services/locations.service';
 import { StorageService } from 'src/app/services/storage.service';
@@ -30,7 +30,7 @@ import { EmployeeUsers } from 'src/app/model/employee-users.model';
     class: "page-component"
   }
 })
-export class CBUDetailsComponent implements OnInit {
+export class CBUDetailsComponent implements OnInit, OnDestroy {
   currentUserProfile: EmployeeUsers;
   currentChannel: any;
   unitCode;
@@ -63,6 +63,7 @@ export class CBUDetailsComponent implements OnInit {
 
   unit: Units;
 
+  private destroy$ = new Subject<void>();
   constructor(
     private unitService: UnitService,
     private modelService: ModelService,
@@ -84,33 +85,6 @@ export class CBUDetailsComponent implements OnInit {
     this.isReadOnly = !edit && !isNew;
 
     this.currentUserProfile = this.storageService.getLoginProfile();
-    if (this.isNew) {
-
-      this.currentChannel = this.pusher.init(`scanner-${this.currentUserProfile?.employeeUserCode}`);
-
-      this.currentChannel.bind('pusher:subscription_succeeded', () => {
-        this.currentChannel.bind('scanner', data => {
-          console.log('pusher received data', data.data);
-          const { employeeUser, location, rfid } = data?.data;
-          if (employeeUser?.employeeUserCode === this.currentUserProfile?.employeeUserCode) {
-            this.unitForm.patchValue({
-              rfid,
-              locationId: location?.locationId,
-            }, {
-              emitEvent: true
-            });
-
-            this.location = location;
-
-            this.cdr.detectChanges();
-            this.snackBar.open('RFID Detected!', 'close', {
-              panelClass: ['style-success'],
-            });
-          }
-
-        });
-      });
-    }
   }
 
   get pageRights() {
@@ -144,6 +118,36 @@ export class CBUDetailsComponent implements OnInit {
     this.isLoading = true;
     if (!this.isNew) {
       await this.initDetails();
+    } else {
+      if (this.isNew) {
+
+        this.unitService.data$
+        .pipe(
+          filter((d: any) => !!d),   // ignore null clears
+          takeUntil(this.destroy$)
+        ).subscribe(data => {
+          if(data?.rfid && data?.location?.locationId){
+            this.unitForm.controls["rfid"].patchValue(data?.rfid, {
+              emitEvent: true
+            });
+
+            this.unitForm.controls["locationId"].patchValue(data?.location?.locationId, {
+              emitEvent: true
+            });
+
+            this.location = data?.location;
+
+            this.cdr.detectChanges();
+            this.snackBar.open('RFID Detected!', 'close', {
+              panelClass: ['style-success'],
+            });
+
+            setTimeout(() => {
+              this.unitService.clearScannedData();
+            }, 500);
+          }
+        });
+      }
     }
     this.modelSearchCtrl.valueChanges
       .pipe(
@@ -155,6 +159,11 @@ export class CBUDetailsComponent implements OnInit {
       });
     await this.initModelOptions();
     this.isLoading = false;
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   async initDetails() {

@@ -1,19 +1,52 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, tap, catchError, of } from 'rxjs';
+import { Observable, tap, catchError, of, BehaviorSubject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ApiResponse } from '../model/api-response.model';
 import { Units } from '../model/units.model';
 import { AppConfigService } from './app-config.service';
 import { IServices } from './interface/iservices';
+import { PusherService } from './pusher.service';
+import { StorageService } from './storage.service';
+import { EmployeeUsers } from '../model/employee-users.model';
+import { Locations } from '../model/locations.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UnitService implements IServices {
+  currentUserProfile: EmployeeUsers = this.storageService.getLoginProfile();
+  currentChannel: any;
 
-  constructor(private http: HttpClient, private appconfig: AppConfigService) { }
+  private data = new BehaviorSubject< {
+      rfid: string;
+      scannerCode: string;
+      employeeUser: EmployeeUsers;
+      location: Locations;
+      timestamp: Date;
+    }>(null);
+  data$ = this.data.asObservable();
+  constructor(private http: HttpClient, private appconfig: AppConfigService,
 
+        private storageService: StorageService,
+        private pusher: PusherService,
+  ) {
+
+
+    this.currentUserProfile = this.storageService.getLoginProfile();
+      this.currentChannel = this.pusher.init(`scanner-${this.currentUserProfile?.employeeUserCode}`);
+
+      this.currentChannel.bind('pusher:subscription_succeeded', () => {
+        this.currentChannel.bind('scanner', data => {
+          console.log('pusher received data', data.data);
+          this.data.next(data.data);
+        });
+      });
+   }
+
+  clearScannedData(){
+    this.data.next(null);
+  }
   getByAdvanceSearch(params:{
     order: any,
     columnDef: { apiNotation: string; filter: any }[],

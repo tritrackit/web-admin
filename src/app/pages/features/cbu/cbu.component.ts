@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Router } from '@angular/router';
+import { filter, Subject, takeUntil } from 'rxjs';
 import { AppConfigService } from 'src/app/services/app-config.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { UnitService } from 'src/app/services/unit.service';
@@ -39,6 +40,7 @@ export class CBUComponent {
   //   view: true,
   //   modify: false,
   // };
+  private destroy$ = new Subject<void>();
   constructor(
     private unitService: UnitService,
     private snackBar: MatSnackBar,
@@ -50,6 +52,16 @@ export class CBUComponent {
       this.dataSource = new MatTableDataSource([]);
       if(this.route.snapshot.data) {
       }
+
+      this.unitService.data$
+        .pipe(
+          filter((d: any) => !!d),   // ignore null clears
+          takeUntil(this.destroy$)
+        ).subscribe(data => {
+        if(data?.rfid && data?.location?.locationId){
+          router.navigate([`/cbu/add`]);
+        }
+      });
     }
 
   ngOnInit(): void {
@@ -58,6 +70,11 @@ export class CBUComponent {
 
   ngAfterViewInit() {
 
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   filterChange(event: {
