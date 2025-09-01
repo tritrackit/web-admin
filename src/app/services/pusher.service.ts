@@ -9,7 +9,8 @@ export class PusherService {
   constructor() {
   // Replace this with your pusher key
     this.pusher = new Pusher(environment.pusher.key, {
-      cluster: environment.pusher.cluster
+      cluster: environment.pusher.cluster,
+      forceTLS: environment.production
     });
   }
   pusher;
