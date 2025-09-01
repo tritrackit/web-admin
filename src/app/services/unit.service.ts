@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { Observable, tap, catchError, of, BehaviorSubject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ApiResponse } from '../model/api-response.model';
@@ -18,80 +18,84 @@ export class UnitService implements IServices {
   currentUserProfile: EmployeeUsers = this.storageService.getLoginProfile();
   currentChannel: any;
 
-  private data = new BehaviorSubject< {
-      rfid: string;
-      scannerCode: string;
-      employeeUser: EmployeeUsers;
-      location: Locations;
-      timestamp: Date;
-    }>(null);
+  private data = new BehaviorSubject<{
+    rfid: string;
+    scannerCode: string;
+    employeeUser: EmployeeUsers;
+    location: Locations;
+    timestamp: Date;
+  }>(null);
   data$ = this.data.asObservable();
   constructor(private http: HttpClient, private appconfig: AppConfigService,
-
-        private storageService: StorageService,
-        private pusher: PusherService,
+    private zone: NgZone,
+    private storageService: StorageService,
+    private pusher: PusherService,
   ) {
 
 
     this.currentUserProfile = this.storageService.getLoginProfile();
-      this.currentChannel = this.pusher.init(`scanner-${this.currentUserProfile?.employeeUserCode}`);
+    this.currentChannel = this.pusher.init(`scanner-${this.currentUserProfile?.employeeUserCode}`);
 
-      this.currentChannel.bind('pusher:subscription_succeeded', () => {
-        this.currentChannel.bind('scanner', data => {
-          console.log('pusher received data', data.data);
-          this.data.next(data.data);
-        });
-      });
-   }
+    this.currentChannel.bind('scanner', data => {
+      console.log('pusher received data', data.data);
+      this.zone.run(() => this.data.next(data?.data));
+    });
+    // this.currentChannel.bind('pusher:subscription_succeeded', () => {
+    //   this.currentChannel.bind('scanner', data => {
+    //     console.log('pusher received data', data.data);
+    //     this.zone.run(() => this.data.next(data?.data));
+    //   });
+    // });
+  }
 
-  clearScannedData(){
+  clearScannedData() {
     this.data.next(null);
   }
-  getByAdvanceSearch(params:{
+  getByAdvanceSearch(params: {
     order: any,
     columnDef: { apiNotation: string; filter: any }[],
     pageSize: number,
     pageIndex: number
-  }): Observable<ApiResponse<{ results: Units[], total: number}>> {
+  }): Observable<ApiResponse<{ results: Units[], total: number }>> {
     return this.http.post<any>(environment.apiBaseUrl + "/units/page",
       params)
-    .pipe(
-      tap(_ => this.log('units')),
-      catchError(this.handleError('units', []))
-    );
+      .pipe(
+        tap(_ => this.log('units')),
+        catchError(this.handleError('units', []))
+      );
   }
 
 
   getByCode(roleCode: string): Observable<ApiResponse<Units>> {
     return this.http.get<any>(environment.apiBaseUrl + "/units/" + roleCode)
-    .pipe(
-      tap(_ => this.log('units')),
-      catchError(this.handleError('units', []))
-    );
+      .pipe(
+        tap(_ => this.log('units')),
+        catchError(this.handleError('units', []))
+      );
   }
 
   create(data: any): Observable<ApiResponse<Units>> {
     return this.http.post<any>(environment.apiBaseUrl + "/units/", data)
-    .pipe(
-      tap(_ => this.log('units')),
-      catchError(this.handleError('units', []))
-    );
+      .pipe(
+        tap(_ => this.log('units')),
+        catchError(this.handleError('units', []))
+      );
   }
 
   update(roleCode: string, data: any): Observable<ApiResponse<Units>> {
     return this.http.put<any>(environment.apiBaseUrl + "/units/" + roleCode, data)
-    .pipe(
-      tap(_ => this.log('units')),
-      catchError(this.handleError('units', []))
-    );
+      .pipe(
+        tap(_ => this.log('units')),
+        catchError(this.handleError('units', []))
+      );
   }
 
   delete(roleCode: string): Observable<ApiResponse<Units>> {
     return this.http.delete<any>(environment.apiBaseUrl + "/units/" + roleCode)
-    .pipe(
-      tap(_ => this.log('units')),
-      catchError(this.handleError('units', []))
-    );
+      .pipe(
+        tap(_ => this.log('units')),
+        catchError(this.handleError('units', []))
+      );
   }
 
   handleError<T>(operation: string, result?: T) {
