@@ -75,7 +75,8 @@
                     <mat-label>Model</mat-label>
                     <input type="text" placeholder="Select model" aria-label="Select model" matInput
                       [formControl]="modelSearchCtrl" [matAutocomplete]="autoModel"
-                      (focusout)="mapSearchModel();" #modelSearchInput (input)="isOptionsModelLoading = true;">
+                      (focusout)="mapSearchModel();" #modelSearchInput (input)="isOptionsModelLoading = true;" #modelTrig="matAutocompleteTrigger"
+           matAutocompleteTrigger>
                     <mat-autocomplete #autocompleteModel #autoModel="matAutocomplete"
                       [displayWith]="displayModelName"
                       (optionSelected)="onModelSelected($event.option.value)">

@@ -21,6 +21,7 @@ import { ModelService } from 'src/app/services/model.service';
 import { Locations } from 'src/app/model/locations.model';
 import { PusherService } from 'src/app/services/pusher.service';
 import { EmployeeUsers } from 'src/app/model/employee-users.model';
+import { MatAutocompleteTrigger } from '@angular/material/autocomplete';
 
 @Component({
   selector: 'app-cbu-details',
@@ -40,7 +41,7 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
   isLoading = true;
   unitForm: FormGroup = new FormGroup({
     unitCode: new FormControl(),
-    rfid: new FormControl('', [Validators.required]),
+    rfid: new FormControl(''),
     chassisNo: new FormControl('', [Validators.required]),
     modelId: new FormControl('', [Validators.required]),
     locationId: new FormControl('', [Validators.required]),
@@ -64,6 +65,9 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
   unit: Units;
 
   private destroy$ = new Subject<void>();
+
+  @ViewChild('modelTrig', { read: MatAutocompleteTrigger }) modelTrig!: MatAutocompleteTrigger;
+
   constructor(
     private unitService: UnitService,
     private modelService: ModelService,
@@ -142,6 +146,7 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
               panelClass: ['style-success'],
             });
 
+            this.modelTrig.openPanel();
             setTimeout(() => {
               this.unitService.clearScannedData();
             }, 500);
