@@ -17,4 +17,5 @@ export class EmployeeUsers {
     role: Roles = {} as any;
     refreshToken: string;
     accessToken: string;
+    
   }

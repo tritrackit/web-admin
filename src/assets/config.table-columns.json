@@ -1,6 +1,22 @@
 {
   "tableColumns": {
     "employeeUsers": [
+      
+      {
+        "name": "employeeUserCode",
+        "label": "Employee ID",
+        "apiNotation": "employeeUserCode",
+        "sticky": true,
+        "type": "string",
+        "style": {
+          "width": "50px"  
+        },
+        "filterOptions": {
+          "enable": false,
+          "placeholder": "Name"
+        }
+       
+      },
       {
         "name": "name",
         "label": "Name",
@@ -12,19 +28,35 @@
           "left": "0px"
         },
         "filterOptions": {
-          "enable": true,
+          "enable": false,
           "placeholder": "Name"
         },
         "urlPropertyName": "url"
       },
       {
         "name": "userName",
-        "label": "Username",
+        "label": "Email",
         "apiNotation": "userName",
         "type": "string",
+         "style": {
+          "width": "120px"
+        },
         "filterOptions": {
-          "enable": true,
+          "enable": false,
           "placeholder": "Username"
+        }
+      },
+      {
+        "name": "contactNo",
+        "label": "Contact Number",
+        "apiNotation": "contactNo",
+        "type": "string",
+        "style": {
+          "width": "140px"
+        },
+        "filterOptions": {
+          "enable": false,
+          "placeholder": "Phone"
         }
       },
       {
@@ -33,8 +65,25 @@
         "apiNotation": "role.name",
         "type": "string",
         "filterOptions": {
-          "enable": true,
+          "enable": false,
           "placeholder": "Role"
+        }
+      },
+      {
+        "name": "dateCreated",
+        "label": "Date Created",
+        "apiNotation": "dateCreated",
+        "type": "date",
+        "format": {
+          "type": "date",
+          "custom": "MMM dd, yyyy"
+        },
+        "style": {
+          "width": "140px"
+        },
+        "filterOptions": {
+          "enable": false,
+          "placeholder": "Date created"
         }
       }
     ],

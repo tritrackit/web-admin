@@ -71,7 +71,42 @@
       }
     }
   }
+  .title-container {
+    display: flex;
+    align-items: center;  // Vertical alignment
+    gap: 10px;  // Space between icon and text
+  }
 
+  #title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    font-style: normal;
+    letter-spacing: 0.5px;
+    margin: 0; // Remove default margins
+  }
+
+  .title-icon-size {
+    font-weight: 600;
+    font-size: 2rem;
+    // Ensure proper vertical alignment
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .header {
+    position: relative;
+    
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 97%; // Half the container width
+      height: 3px; // Thicker border
+      background-color: black;
+    }
+  }
   .maintenance-button {
     .mat-badge-content {
       left: 70%;

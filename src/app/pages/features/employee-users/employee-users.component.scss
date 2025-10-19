@@ -1,78 +1,164 @@
+.inner-content{
+  padding: 10px;
+  margin-top: 20px;
+}
+
 ::ng-deep .table-container {
   overflow: auto;
   padding-bottom: 16px;
+  
+
   .table {
-    min-width: 860px !important;
-    tr {
-      th {
-        padding-right: 20px !important;
+    min-width: 1200px !important;
+    border-collapse: collapse;
+    background: #fff;
 
-        &:last-child {
-          padding-right: 0 !important;
-        }
-        .mat-sort-header {
-          position: relative;
-          height: 30px;
-          display: flex;
-        }
-        mat-form-field {
-          width: 100%;
-        }
-      }
+    th, td {
+     
+      text-align: left;
+      vertical-align: middle;
+      font-family: "Chackra Petch", sans-serif;
+      font-size: 15px;
+      color: black;
+      border-bottom: 1px solid #dee2e6;
     }
 
-    tr.mat-row {
-      .mat-cell {
-        padding-right: 20px !important;
-
-        &:last-child {
-          padding-right: 0 !important;
-        }
-      }
+    th {
+      background: #f8f9fa;
+      font-weight: 500;
+      border-bottom: 1px solid black;
+      border-top: 1px solid black;
+      padding-bottom: 8px !important;
+      text-transform: none;
     }
 
-    .mat-column-userName {
-      flex: 0 0 30% !important;
-      width: 30% !important;
+    td {
+      height: 1px;
     }
 
-    .mat-column-name {
-      flex: 0 0 20% !important;
-      width: 20% !important;
+    tr:hover {
+      background: #f8f9fa;
     }
 
-    .mat-column-role {
-      flex: 0 10% !important;
-      width: 10% !important;
+    .mat-column-employeeId,
+    .mat-column-firstName,
+    .mat-column-lastName,
+    .mat-column-contactNumber,
+    .mat-column-email,
+    .mat-column-role,
+    .mat-column-dateCreated {
+      white-space: nowrap;
     }
 
     .mat-column-email {
-      flex: 0 0 20% !important;
-      width: 20% !important;
+      color: #007bff;
     }
 
-    .mat-column-controls {
-      flex: 0 0 1% !important;
-      width: 1% !important;
+    .mat-column-actions {
+      text-align: center;
+      width: 100px !important;
       padding-right: 0 !important;
     }
 
-    @media only screen and (max-width: 800px) {
-      .mat-column-mobileNumber {
-        display: none !important;
-      }
+    .mat-column-actions button {
+      background: #ff7b29;
+      color: white;
+      border-radius: 6px;
+      width: 30px;
+      height: 30px;
+      margin: 0 3px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    @media only screen and (max-width: 600px) {
-      .mat-column-email {
-        display: none !important;
-      }
+    .mat-column-actions button:nth-child(2) {
+      background: #007bff;
     }
 
-    @media only screen and (max-width: 414px) {
-      .mat-column-userName {
-        display: none !important;
-      }
+    .mat-icon {
+      font-size: 16px;
     }
   }
+}
+
+
+
+  .search-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+    width: 100%;
+
+    .search-field {
+      width: 330px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      height: 45px;
+    }
+    
+    
+    
+  /* make gray background fill the whole box */
+  ::ng-deep .search-field .mat-mdc-text-field-wrapper {
+    background: #d9d9d9 !important;
+    border-radius: 8px !important;
+    padding: 0 8px !important;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    box-shadow: none !important;
+  }
+
+  /* remove default white layers from Angular Material */
+  ::ng-deep .search-field .mat-mdc-form-field-flex {
+    background: transparent !important;
+    height: 100%;
+    align-items: center;
+  }
+
+  ::ng-deep .search-field .mat-mdc-form-field-outline,
+  ::ng-deep .search-field .mat-mdc-form-field-subscript-wrapper {
+    display: none !important;
+  }
+
+  ::ng-deep .search-field input {
+    font-family: "Chakra Petch", sans-serif;
+    font-size: 17px;
+    color: #333;
+  }
+
+  ::ng-deep .search-field .mat-icon {
+    color: black !important;
+    font-size: 18px;
+  }
+      
+    .add-user-btn {
+      background: #ff7b29 !important;
+      color: #fff !important;
+      border-radius: 8px;
+      font-weight: 500;
+      text-transform: none;
+      height: 40px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: auto; // This is key - pushes it to the right
+      white-space: nowrap;
+
+      mat-icon {
+        font-size: 20px;
+        border-radius: 10px;
+        border-color: white;
+      }
+
+      &:hover {
+        background: #e56f20 !important;
+      }
+    }
+  
 }

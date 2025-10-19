@@ -1,9 +1,11 @@
 
-<mat-toolbar [ngClass]="{ 'side-bar-open' : drawerDefaultOpened}">
+<mat-toolbar [ngClass]="{ 'side-bar-open' : drawerDefaultOpened}" class="header">
     <button mat-icon-button (click)="sidenav.toggle()" matTooltip="Menu" *ngIf="!drawerDefaultOpened">
         <mat-icon>menu</mat-icon>
     </button>
-    <span id="title">{{title}}</span>
+    <div class="title-section">
+        <span id="title">{{title}}</span>
+    </div>
     <span class="toolbar-item-spacer"></span>
     <button class="profile-mat-menu" mat-icon-button matTooltip="My profile" [matMenuTriggerFor]="userAccountMenu">
         <mat-icon>account_circle</mat-icon>
@@ -23,13 +25,14 @@
     <mat-sidenav #sidenav mode="side" className="mat-elevation-z4" class="custom-sidenav-color" [opened]="drawerDefaultOpened"
     (openedChange)="onSidenavToggle($event)" [mode]="!drawerDefaultOpened ? 'over': 'side'" style="position: fixed;">
 
-    <div class="sidenav-banner"><img src="../../../assets/img/banner.png" alt="">
+    <div class="sidenav-banner"><img src="../../../assets/img/banner-logo.png" alt="">
     </div>
+    <mat-divider class="div"></mat-divider>
         <mat-nav-list>
             <mat-list-item (mouseup)="sidenav.close()" class="mobile-close-sidenav">
                 <mat-icon>keyboard_backspace</mat-icon>
             </mat-list-item>
-            <mat-list-item *ngIf="showMenu('Dashboard')" routerLink="dashboard" (mouseup)="!drawerDefaultOpened ? sidenav.close() : false" routerLinkActive="active-link">
+            <mat-list-item class="menu-item" *ngIf="showMenu('Dashboard')" routerLink="dashboard" (mouseup)="!drawerDefaultOpened ? sidenav.close() : false" routerLinkActive="active-link">
                 <mat-icon>space_dashboard</mat-icon><span>Dashboard</span>
             </mat-list-item>
             <mat-list-item *ngIf="showMenu('Unit Tracker')" routerLink="unit-tracker" (mouseup)="!drawerDefaultOpened ? sidenav.close() : false" routerLinkActive="active-link" >

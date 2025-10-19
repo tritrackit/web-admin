@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  apiBaseUrl: "http://localhost:3000/api/v1",
+  apiBaseUrl: "https://tritrackit-api.vercel.app/api/v1",
   idleTimeoutMinutes: 30,
   pusher: {
     key: "525752a480ad973116be",
