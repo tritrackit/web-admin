@@ -100,6 +100,7 @@ export class ScannerComponent {
               name: d.name,
               location: d.location?.name,
               assignedEmployeeUser: `${d.assignedEmployeeUser?.firstName} ${d.assignedEmployeeUser?.lastName}`,
+              dateCreated: d.dateCreated,
               url: `/scanner/${d.scannerCode}`,
             } as ScannerTableColumn
           });

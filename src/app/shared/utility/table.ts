@@ -88,5 +88,6 @@ export class ScannerTableColumn {
   location?: string;
   assignedEmployeeUser?: string;
   url?: string;
+  dateCreated?: Date;
 }
 
