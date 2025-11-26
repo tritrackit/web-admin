@@ -90,7 +90,7 @@
     "roles": [
       {
         "name": "roleCode",
-        "label": "Role #",
+        "label": "Role ID",
         "sticky": true,
         "apiNotation": "roleCode",
         "type": "string",
@@ -98,21 +98,13 @@
           "width": "100px",
           "left": "0px"
         },
-        "filterOptions": {
-          "enable": true,
-          "placeholder": "Role #"
-        },
         "urlPropertyName": "url"
       },
       {
         "name": "name",
         "label": "Role name",
         "apiNotation": "name",
-        "type": "string",
-        "filterOptions": {
-          "enable": true,
-          "placeholder": "Role name"
-        }
+        "type": "string"
       }
     ],
     "locations": [
@@ -147,7 +139,7 @@
       {
         "sticky": true,
         "name": "unitCode",
-        "label": "Unit #",
+        "label": "Unit ID",
         "apiNotation": "unitCode",
         "type": "string",
         "style": {
@@ -172,6 +164,12 @@
         "name": "color",
         "label": "Color",
         "apiNotation": "color",
+        "type": "string"
+      },
+      {
+        "name": "location",
+        "label": "Location",
+        "apiNotation": "location.name",
         "type": "string"
       }
     ],
@@ -235,7 +233,7 @@
     "scanner": [
       {
         "name": "scannerCode",
-        "label": "Scanner #",
+        "label": "Scanner ID",
         "apiNotation": "scannerCode",
         "sticky": true,
         "type": "string",
@@ -245,7 +243,7 @@
         },
         "filterOptions": {
           "enable": false,
-          "placeholder": "Scanner #"
+          "placeholder": "Scanner ID"
         },
         "urlPropertyName": "url"
       },

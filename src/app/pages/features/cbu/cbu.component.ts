@@ -117,6 +117,7 @@ export class CBUComponent {
               chassisNo: d.chassisNo,
               model: d.model?.modelName,
               color: d.color,
+              location: d.location?.name,
               url: `/cbu/${d.unitCode}`,
             } as CBUTableColumn
           });

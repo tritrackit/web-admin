@@ -71,6 +71,7 @@ export class CBUTableColumn {
   chassisNo?: string;
   model?: string;
   color?: string;
+  location?: string;
   url?: string;
 }
 export class ModelTableColumn {

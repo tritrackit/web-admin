@@ -1,4 +1,56 @@
+.inner-content {
+  padding: 10px;
+  margin-top: 20px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.add-role-btn {
+  background: #ff7b29 !important;
+  color: #fff !important;
+  border-radius: 8px;
+  font-weight: 500;
+  text-transform: none;
+  height: 40px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+
+  mat-icon {
+    font-size: 20px;
+  }
+
+  &:hover {
+    background: #e56f20 !important;
+  }
+}
+
 ::ng-deep .table-container {
+  th, td {
+    text-align: left;
+    vertical-align: middle;
+    font-family: "Chackra Petch", sans-serif;
+    font-size: 15px;
+    color: black;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  th {
+    background: #f8f9fa;
+    font-weight: 500;
+    border-bottom: 1px solid black;
+    border-top: 1px solid black;
+    padding-bottom: 8px !important;
+    text-transform: none;
+  }
+
   overflow: auto;
   padding-bottom: 16px;
   .table {
@@ -40,5 +92,121 @@
       flex: 0 0 30% !important;
       width: 30% !important;
     }
+  }
+}
+
+/* Dialog Styles */
+::ng-deep .dialog-container {
+  border-radius: 12px !important;
+  overflow: hidden;
+  min-width: 10px;
+  
+  .mat-mdc-dialog-surface {
+    border-radius: 12px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+  }
+}
+
+.dialog-title {
+  background: #f8f9fa;
+ 
+  margin: 0;
+  border-bottom: 1px solid #dee2e6;
+  
+  h4 {
+    margin: 0;
+    font-family: "Chakra Petch", sans-serif;
+    font-size: 30px;
+    font-weight: 700;
+    color: #333;
+  }
+}
+
+.dialog-content {
+  padding: 10px;
+  margin: 0;
+  max-height: 70vh;
+  overflow-y: auto;
+  
+  /* Style the form component if needed */
+  ::ng-deep app-role-form {
+    display: block;
+    width: 100%;
+  }
+}
+
+.dialog-actions {
+  padding: 16px 24px 20px 24px;
+  margin: 0;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  border-top: 1px solid #dee2e6;
+  background: #f8f9fa;
+  
+  .cancel-btn {
+    background: #6c757d !important;
+    color: white !important;
+    border-radius: 6px;
+    font-family: "Chakra Petch", sans-serif;
+    font-weight: 500;
+    text-transform: none;
+    padding: 0 20px;
+    height: 40px;
+    
+    &:hover {
+      background: #5a6268 !important;
+    }
+  }
+  
+  .save-btn {
+    background: #ff7b29 !important;
+    color: white !important;
+    border-radius: 6px;
+    font-family: "Chakra Petch", sans-serif;
+    font-weight: 500;
+    text-transform: none;
+    padding: 0 20px;
+    height: 40px;
+    
+    &:hover:not([disabled]) {
+      background: #e56f20 !important;
+    }
+    
+    &:disabled {
+      background: #cccccc !important;
+      color: #666666 !important;
+      cursor: not-allowed;
+    }
+  }
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  ::ng-deep .dialog-container {
+    min-width: 90vw !important;
+    max-width: 95vw !important;
+  }
+  
+  .dialog-content {
+    padding: 16px;
+  }
+  
+  .dialog-actions {
+    padding: 12px 16px 16px 16px;
+    flex-direction: column;
+    
+    button {
+      width: 100%;
+    }
+  }
+  
+  .button-container {
+    justify-content: center;
+  }
+  
+  .add-role-btn {
+    width: 100%;
+    justify-content: center;
   }
 }

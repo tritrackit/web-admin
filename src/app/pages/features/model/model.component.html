@@ -1,64 +1,113 @@
-<div class="component-floating-actions vertical-actions">
-  <button mat-fab color="primary" aria-label="New model" matTooltip="New model" routerLink="/model/add">
+<div class="component-floating-actions">
+  <button mat-fab color="primary" aria-label="New model" matTooltip="New model" 
+          routerLink="/model/add" class="floating-btn-pulse">
     <mat-icon>add</mat-icon>
   </button>
 </div>
+
 <div class="content">
   <div class="inner-content">
     <div fxFlex="column">
-      <div fxLayout="column" fxLayout.gt-xs="row" fxLayoutGap="16px">
-        <div fxLayout="column" fxFlex.gt-xs="33.33" fxFlex="100">
-            <mat-form-field
-                appearance="outline"
-                fxFlex="100"
-                class="cell"
-                floatLabel="auto">
-                <input
-                  matInput
-                  [(ngModel)]="filterKeywords"
-                  (keydown.enter)="getPaginated()"
-                  placeholder="Search model name or description"
-                />
-            </mat-form-field>
-        </div>
+      
+      <!-- Search Section -->
+      <div class="search-section">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-icon matPrefix>search</mat-icon>
+          <input matInput [(ngModel)]="filterKeywords" 
+                 (keydown.enter)="getPaginated()"
+                 placeholder="Search models...">
+        </mat-form-field>
       </div>
-      <ng-container *ngIf="dataSource.data?.length > 0; else showPlaceholder">
-        <div fxLayout="row wrap" class="card-view" fxLayoutAlign="start stretch" [cdkDropListDisabled]="isLoading"
-          cdkDropList cdkDropListOrientation="mixed" (cdkDropListDropped)="drop($event)">
 
-          <div class="card-holder" fxFlex="50%" fxFlex.gt-xs="33.33%" fxFlex.gt-sm="25%" fxFlex.gt-md="20%"
-            fxFlex.gt-lg="16.66%" *ngFor="let item of dataSource.data" cdkDrag>
-            <mat-card [ngClass]="{ 'is-loading': isLoading }">
-              <mat-card-header>
-                <mat-card-title><a routerLink="/model/{{item.modelId}}"><strong>{{ item.modelName
-                      }}</strong></a></mat-card-title>
-              </mat-card-header>
-              <div class="card-image">
-                <img mat-card-image routerLink="/model/{{item.modelId}}" src="{{item.thumbnailUrl}}"
-                  (error)="pictureErrorHandler($event)" width="600" alt="Model image" />
-              </div>
-              <mat-card-content>
-                <p class="desc">{{ item.description }}</p>
-                <p><strong>Units:</strong> {{ item.unitCount }}</p>
-              </mat-card-content>
-              <mat-card-actions>
-                <button color="accent" routerLink="/model/{{item.modelId}}" mat-button>View Details</button>
-              </mat-card-actions>
+      <!-- Content Area -->
+      <ng-container *ngIf="!isLoading; else loadingState">
+        <ng-container *ngIf="dataSource.data?.length > 0; else emptyState">
+          <div fxLayout="row wrap" class="enhanced-card-view">
+
+            <div class="card-holder" fxFlex="50%" fxFlex.gt-xs="33.33%" fxFlex.gt-sm="25%" 
+                 fxFlex.gt-md="20%" fxFlex.gt-lg="16.66%" *ngFor="let item of dataSource.data">
+              
+              <mat-card class="enhanced-card">
+                
+                <!-- Unit Badge -->
+                <div class="unit-badge" *ngIf="item.unitCount > 0">
+                  {{ item.unitCount }} units
+                </div>
+
+                <!-- Image Section -->
+                <div class="enhanced-image">
+                  <img class="card-img" src="{{item.thumbnailUrl}}" 
+                       (error)="pictureErrorHandler($event)" 
+                       alt="{{ item.modelName }}" />
+                </div>
+
+                <!-- Header Section -->
+                <div class="enhanced-header">
+                  <h3 class="model-name">{{ item.modelName }}</h3>
+                  <p class="model-desc">{{ item.description }}</p>
+                </div>
+
+                <!-- Stats Section -->
+                <div class="enhanced-content">
+                  <div class="stats-container">
+                    <div class="stat-item">
+                      <mat-icon class="stat-icon">category</mat-icon>
+                      <span>{{ item.category || 'General' }}</span>
+                    </div>
+                    <div class="stat-item">
+                      <mat-icon class="stat-icon">calendar_today</mat-icon>
+                      <span>Updated</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Actions Section -->
+                <div class="enhanced-actions">
+                  <button mat-raised-button color="primary" class="action-btn" 
+                          routerLink="/model/{{item.modelId}}">
+                    View Details
+                  </button>
+                </div>
+                
+              </mat-card>
+            </div>
+
+          </div>
+        </ng-container>
+      </ng-container>
+
+      <!-- Loading State -->
+      <ng-template #loadingState>
+        <div fxLayout="row wrap" class="enhanced-card-view">
+          <div class="card-holder" fxFlex="50%" fxFlex.gt-xs="33.33%" fxFlex.gt-sm="25%" 
+               fxFlex.gt-md="20%" fxFlex.gt-lg="16.66%" *ngFor="let item of [1,2,3,4,5,6]">
+            <mat-card class="skeleton-card">
+              <div class="skeleton-image"></div>
+              <div class="skeleton-title"></div>
+              <div class="skeleton-text"></div>
             </mat-card>
           </div>
-
-        </div>
-      </ng-container>
-      <!-- Placeholder when list is empty -->
-      <ng-template #showPlaceholder>
-        <div class="card-view" fxLayout="column" fxLayoutAlign="center center" style="height: 300px;">
-          <mat-icon style="font-size: 3rem; color: #ccc;width: auto;height: auto;">library_books</mat-icon>
-          <p style="color: #888;">No model available.</p>
         </div>
       </ng-template>
 
-      <mat-paginator [length]="total" [pageSizeOptions]="[12, 50, 100]" [pageSize]="pageSize"
-        (page)="onPageChange($event)">
+      <!-- Empty State -->
+      <ng-template #emptyState>
+        <div class="empty-state">
+          <mat-icon class="empty-icon">inventory_2</mat-icon>
+          <h3 class="empty-title">No Models Found</h3>
+          <p class="empty-description">
+            Get started by creating your first model.
+          </p>
+          <button mat-raised-button color="primary" routerLink="/model/add">
+            Create New Model
+          </button>
+        </div>
+      </ng-template>
+
+      <!-- Pagination -->
+      <mat-paginator [length]="total" [pageSizeOptions]="[12, 24, 48]" 
+                     [pageSize]="pageSize" (page)="onPageChange($event)"
+                     style="margin-top: 24px;">
       </mat-paginator>
 
     </div>
