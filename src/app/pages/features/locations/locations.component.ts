@@ -1,4 +1,4 @@
-import { Component, TemplateRef, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
@@ -7,8 +7,6 @@ import { SpinnerVisibilityService } from 'ng-http-loader';
 import { AppConfigService } from 'src/app/services/app-config.service';
 import { LocationsService } from 'src/app/services/locations.service';
 import { StorageService } from 'src/app/services/storage.service';
-import { AlertDialogModel } from 'src/app/shared/components/alert-dialog/alert-dialog-model';
-import { AlertDialogComponent } from 'src/app/shared/components/alert-dialog/alert-dialog.component';
 import { LocationsTableColumn } from 'src/app/shared/utility/table';
 import { convertNotationToObject } from 'src/app/shared/utility/utility';
 
@@ -31,6 +29,7 @@ export class LocationsComponent {
   pageSize = 10;
   total = 0;
   order: any = { locationId: "DESC" };
+  searchTerm: string = '';
 
   filter: {
     apiNotation: string;
@@ -39,7 +38,9 @@ export class LocationsComponent {
     type: string;
   }[] = [];
 
-  @ViewChild('locationFormDialog') locationFormDialogTemp: TemplateRef<any>;
+  // Remove the dialog template reference since we're not using it
+  // @ViewChild('locationFormDialog') locationFormDialogTemp: TemplateRef<any>;
+  
   constructor(
     private spinner: SpinnerVisibilityService,
     private locationService: LocationsService,
@@ -51,10 +52,7 @@ export class LocationsComponent {
     public router: Router) {
       this.dataSource = new MatTableDataSource([]);
       if(this.route.snapshot.data) {
-        // this.pageLocations = {
-        //   ...this.pageLocations,
-        //   ...this.route.snapshot.data["location"]
-        // };
+        // ... existing code
       }
     }
 
@@ -75,6 +73,19 @@ export class LocationsComponent {
     this.getLocationsPaginated();
   }
 
+  // Add search method
+  onSearch(): void {
+    this.pageIndex = 0; // Reset to first page when searching
+    this.getLocationsPaginated();
+  }
+
+  // Add clear search method
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.pageIndex = 0;
+    this.getLocationsPaginated();
+  }
+
   async pageChange(event: { pageIndex: number, pageSize: number }) {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
@@ -92,9 +103,22 @@ export class LocationsComponent {
     try{
       this.isLoading = true;
       this.spinner.show();
+
+      const searchFilter = this.searchTerm ? [
+        {
+          apiNotation: "name",
+          filter: this.searchTerm.trim(),
+          name: "name",
+          type: "text"
+        },
+      ] : [];
+
       this.locationService.getAdvanceSearch({
         order: this.order,
-        columnDef: this.filter,
+        columnDef: [
+          ...this.filter,
+          ...searchFilter,
+        ],
         pageIndex: this.pageIndex, pageSize: this.pageSize
       })
       .subscribe(res => {
@@ -130,9 +154,10 @@ export class LocationsComponent {
       this.isLoading = false;
       this.spinner.hide();
     }
-
   }
 
+  // Remove these methods since locations can't be created
+  /*
   showAddDialog() {
     this.dialog.open(this.locationFormDialogTemp)
   }
@@ -142,58 +167,10 @@ export class LocationsComponent {
   }
 
   saveNewLocations(formData) {
-    const dialogData = new AlertDialogModel();
-    dialogData.title = 'Confirm';
-    dialogData.message = 'Save location?';
-    dialogData.confirmButton = {
-      visible: true,
-      text: 'yes',
-      color: 'primary',
-    };
-    dialogData.dismissButton = {
-      visible: true,
-      text: 'cancel',
-    };
-    const dialogRef = this.dialog.open(AlertDialogComponent, {
-      maxWidth: '400px',
-      closeOnNavigation: true,
-    });
-    dialogRef.componentInstance.alertDialogConfig = dialogData;
-
-    dialogRef.componentInstance.conFirm.subscribe(async (data: any) => {
-      this.isProcessing = true;
-      dialogRef.componentInstance.isProcessing = this.isProcessing;
-      try {
-        let res = await this.locationService.create(formData).toPromise();
-        if (res.success) {
-          this.snackBar.open(res.message, 'close', {
-            panelClass: ['style-success'],
-          });
-          this.dialog.closeAll();
-          this.router.navigate(['/locations/' + res.data.locationId]);
-          this.isProcessing = false;
-          dialogRef.componentInstance.isProcessing = this.isProcessing;
-          dialogRef.close();
-        } else {
-          this.isProcessing = false;
-          dialogRef.componentInstance.isProcessing = this.isProcessing;
-          this.error = Array.isArray(res.message)
-            ? res.message[0]
-            : res.message;
-          this.snackBar.open(this.error, 'close', {
-            panelClass: ['style-error'],
-          });
-          dialogRef.close();
-        }
-      } catch (e) {
-        this.isProcessing = false;
-        dialogRef.componentInstance.isProcessing = this.isProcessing;
-        this.error = Array.isArray(e.message) ? e.message[0] : e.message;
-        this.snackBar.open(this.error, 'close', {
-          panelClass: ['style-error'],
-        });
-        dialogRef.close();
-      }
+    // Show error message since locations are fixed
+    this.snackBar.open('Locations are fixed and cannot be created.', 'close', {
+      panelClass: ['style-error'],
     });
   }
+  */
 }

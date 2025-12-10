@@ -27,6 +27,7 @@ import { WebcamModule } from 'ngx-webcam';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { AuthService } from './services/auth.service';
 import { AuthInterceptor } from './interceptors/auth.interceptors';
+import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 export class MyClock extends TimeagoClock {
   tick(then: number): Observable<number> {
     return interval(1000);
@@ -76,6 +77,7 @@ export class MyClock extends TimeagoClock {
       multi: true
     },
     {provide: DateAdapter, useClass: AppDateAdapter},
+    provideCharts(withDefaultRegisterables()),
   ],
   bootstrap: [AppComponent]
 })

@@ -1,1 +1,163 @@
-<p>unit-details works!</p>
+<div class="unit-details-container">
+  <!-- Header -->
+  <div class="header-section" 
+       fxLayout="row" 
+       fxLayout.xs="row"
+       fxLayoutAlign="start center" 
+       fxLayoutGap="16px"
+       fxLayoutGap.xs="12px">
+    <button mat-icon-button (click)="goBack()" class="back-button">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <h1 class="page-title">Unit Activity</h1>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container" fxLayout="column" fxLayoutAlign="center center">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Loading unit details...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <mat-card class="error-card">
+      <mat-card-content>
+        <mat-icon color="warn">error</mat-icon>
+        <p>{{ error }}</p>
+        <button mat-raised-button color="primary" (click)="loadUnitDetails()">Retry</button>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Content -->
+  <div *ngIf="!loading && !error && unit" class="content-section">
+    <!-- Unit Details Card -->
+    <mat-card class="details-card">
+      <mat-card-content>
+        <div class="details-grid">
+          <div class="detail-item">
+            <span class="detail-label">RFID ID</span>
+            <span class="detail-value">{{ getRfidDisplay() }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Chassis Number</span>
+            <span class="detail-value">{{ unit.chassisNo }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Color</span>
+            <span class="detail-value">{{ unit.color }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Model</span>
+            <span class="detail-value">{{ unit.model?.modelName || 'N/A' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Location</span>
+            <span class="detail-value">{{ unit.location?.name || 'N/A' }}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Status</span>
+            <span class="detail-value">{{ unit.status?.name || 'N/A' }}</span>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Description Card -->
+    <mat-card class="description-card">
+      <mat-card-content>
+        <div class="description-label">Description:</div>
+        <div class="description-text">
+          {{ unit.description || 'No description available' }}
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- CBU Activity Summary Card -->
+    <mat-card class="activity-card">
+      <mat-card-content>
+        <div class="activity-title">CBU Activity Summary</div>
+        
+        <!-- Loading Activity -->
+        <div *ngIf="loadingActivity" class="activity-loading" fxLayout="column" fxLayoutAlign="center center">
+          <mat-spinner diameter="40"></mat-spinner>
+          <p>Loading activity history...</p>
+        </div>
+
+        <!-- Desktop Activity Table -->
+        <div *ngIf="!loadingActivity" class="activity-table-container desktop-table">
+          <table class="activity-table">
+            <thead>
+              <tr>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let log of activityLogs">
+                <td>{{ log.location }}</td>
+                <td>{{ log.status }}</td>
+                <td>{{ log.date }}</td>
+              </tr>
+              <tr *ngIf="activityLogs.length === 0">
+                <td colspan="3" class="no-data">No activity history available</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile Activity Cards -->
+        <div *ngIf="!loadingActivity" class="activity-cards-container mobile-cards">
+          <div *ngFor="let log of activityLogs" class="activity-card-item">
+            <div class="activity-card-row">
+              <span class="activity-card-label">Location:</span>
+              <span class="activity-card-value">{{ log.location }}</span>
+            </div>
+            <div class="activity-card-row">
+              <span class="activity-card-label">Status:</span>
+              <span class="activity-card-value">{{ log.status }}</span>
+            </div>
+            <div class="activity-card-row">
+              <span class="activity-card-label">Date:</span>
+              <span class="activity-card-value">{{ log.date }}</span>
+            </div>
+          </div>
+          <div *ngIf="activityLogs.length === 0" class="activity-no-data">
+            No activity history available
+          </div>
+        </div>
+
+        <!-- Activity Pagination -->
+        <div *ngIf="!loadingActivity && activityTotal > 0" 
+             class="activity-pagination" 
+             fxLayout="row" 
+             fxLayout.xs="column"
+             fxLayout.sm="row"
+             fxLayoutAlign="space-between center"
+             fxLayoutAlign.xs="center"
+             fxLayoutAlign.sm="space-between"
+             fxLayoutGap="8px">
+          <div class="pagination-info" fxLayoutAlign.xs="center" fxLayoutAlign.sm="start">
+            <span fxHide.xs="false" fxHide.sm="false">{{ getActivityStartRecord() }}-{{ getActivityEndRecord() }} / {{ activityTotal }}</span>
+            <span fxShow.xs="false" fxShow.sm="false">Showing {{ getActivityStartRecord() }}-{{ getActivityEndRecord() }} from {{ activityTotal }} records</span>
+          </div>
+          <div class="pagination-controls" fxLayout="row" fxLayoutGap="8px" fxLayoutAlign.xs="center" fxLayoutAlign.sm="end">
+            <button mat-icon-button 
+                    [disabled]="!hasPreviousActivityPage()" 
+                    (click)="goToPreviousActivityPage()"
+                    class="pagination-button">
+              <mat-icon>arrow_back</mat-icon>
+            </button>
+            <button mat-icon-button 
+                    [disabled]="!hasNextActivityPage()" 
+                    (click)="goToNextActivityPage()"
+                    class="pagination-button">
+              <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

@@ -23,7 +23,13 @@
             "polyfills": [
               "zone.js"
             ],
-            "allowedCommonJsDependencies": ["moment", "apexcharts", "pusher-js", "moment-timezone"],
+            "allowedCommonJsDependencies": ["moment", "apexcharts", "pusher-js", "moment-timezone",    "jspdf",
+            "html2canvas",
+            "xlsx",
+            "core-js",
+            "raf",
+            "rgbcolor",
+            "canvg"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [

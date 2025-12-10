@@ -31,7 +31,7 @@ body {
 body {
   margin: 0;
   // font-family: 'Roboto', sans-serif!important;
-  font-family: 'Chackra Petch', sans-serif !important;
+  font-family: 'Chakra Petch', sans-serif !important;
   background: #fafafa !important;
 }
 
@@ -64,7 +64,7 @@ textarea,
 span,
 div,
 button {
-  font-family: 'Chackra Petch', sans-serif !important;
+  font-family: 'Chakra Petch', sans-serif !important;
   margin: 0;
 }
 
@@ -87,7 +87,7 @@ button {
     .mat-badge-content {
       font-size: 12px !important;
       // font-family: 'arial'!important;
-      font-family: 'Chackra Petch', sans-serif !important;
+      font-family: 'Chakra Petch', sans-serif !important;
     }
   }
 }
@@ -355,6 +355,12 @@ button {
 
       &.app-notification-primary {
         --mdc-snackbar-container-color: #7E57C2;
+      }
+
+      &.success-toast {
+        --mdc-snackbar-container-color: #FF9800;
+        --mdc-snackbar-supporting-text-color: #ffffff;
+        --mat-mdc-snack-bar-button-color: #ffffff;
       }
     }
 

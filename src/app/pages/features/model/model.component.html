@@ -1,22 +1,23 @@
-<div class="component-floating-actions">
-  <button mat-fab color="primary" aria-label="New model" matTooltip="New model" 
-          routerLink="/model/add" class="floating-btn-pulse">
-    <mat-icon>add</mat-icon>
-  </button>
-</div>
-
 <div class="content">
   <div class="inner-content">
     <div fxFlex="column">
       
-      <!-- Search Section -->
-      <div class="search-section">
+      <!-- Search Container -->
+      <div class="search-container">
         <mat-form-field appearance="outline" class="search-field">
-          <mat-icon matPrefix>search</mat-icon>
+          <button mat-icon-button matPrefix (click)="onSearch()">
+            <mat-icon>search</mat-icon>
+          </button>
           <input matInput [(ngModel)]="filterKeywords" 
-                 (keydown.enter)="getPaginated()"
-                 placeholder="Search models...">
+                 (keyup.enter)="onSearch()"
+                 placeholder="Search Model">
         </mat-form-field>
+  
+        <!-- Add New Model button on the right -->
+        <button mat-raised-button class="add-user-btn" routerLink="/model/add">
+          <mat-icon>add</mat-icon>
+          Add New Model
+        </button>
       </div>
 
       <!-- Content Area -->
@@ -29,44 +30,54 @@
               
               <mat-card class="enhanced-card">
                 
-                <!-- Unit Badge -->
-                <div class="unit-badge" *ngIf="item.unitCount > 0">
-                  {{ item.unitCount }} units
-                </div>
-
-                <!-- Image Section -->
-                <div class="enhanced-image">
-                  <img class="card-img" src="{{item.thumbnailUrl}}" 
-                       (error)="pictureErrorHandler($event)" 
-                       alt="{{ item.modelName }}" />
-                </div>
-
-                <!-- Header Section -->
-                <div class="enhanced-header">
-                  <h3 class="model-name">{{ item.modelName }}</h3>
-                  <p class="model-desc">{{ item.description }}</p>
-                </div>
-
-                <!-- Stats Section -->
-                <div class="enhanced-content">
-                  <div class="stats-container">
-                    <div class="stat-item">
-                      <mat-icon class="stat-icon">category</mat-icon>
-                      <span>{{ item.category || 'General' }}</span>
-                    </div>
-                    <div class="stat-item">
-                      <mat-icon class="stat-icon">calendar_today</mat-icon>
-                      <span>Updated</span>
-                    </div>
+                <!-- Image Section with Overlay -->
+                <div class="enhanced-image-wrapper">
+                  <div class="enhanced-image">
+                    <img class="card-img" src="{{item.thumbnailUrl}}" 
+                         (error)="pictureErrorHandler($event)" 
+                         alt="{{ item.modelName }}" />
+                    <div class="image-overlay"></div>
+                  </div>
+                  
+                  <!-- Unit Badge -->
+                  <div class="unit-badge" *ngIf="item.unitCount > 0">
+                    <mat-icon class="badge-icon">inventory_2</mat-icon>
+                    <span class="badge-text">{{ item.unitCount }}</span>
                   </div>
                 </div>
 
-                <!-- Actions Section -->
-                <div class="enhanced-actions">
-                  <button mat-raised-button color="primary" class="action-btn" 
-                          routerLink="/model/{{item.modelId}}">
-                    View Details
-                  </button>
+                <!-- Card Content -->
+                <div class="card-body">
+                  <!-- Header Section -->
+                  <div class="enhanced-header">
+                    <h3 class="model-name">{{ item.modelName }}</h3>
+                    <p class="model-desc" *ngIf="item.description">{{ item.description }}</p>
+                    <p class="model-desc-placeholder" *ngIf="!item.description">No description available</p>
+                  </div>
+
+                  <!-- Stats Section -->
+                  <div class="enhanced-content">
+                    <div class="stats-container">
+                      <div class="stat-item">
+                        <div class="stat-icon-wrapper">
+                          <mat-icon class="stat-icon">inventory</mat-icon>
+                        </div>
+                        <div class="stat-info">
+                          <span class="stat-label">Units</span>
+                          <span class="stat-value">{{ item.unitCount || 0 }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Actions Section -->
+                  <div class="enhanced-actions">
+                    <button mat-raised-button class="action-btn" 
+                            routerLink="/model/{{item.modelId}}">
+                      <mat-icon>visibility</mat-icon>
+                      <span>View Details</span>
+                    </button>
+                  </div>
                 </div>
                 
               </mat-card>
@@ -85,6 +96,8 @@
               <div class="skeleton-image"></div>
               <div class="skeleton-title"></div>
               <div class="skeleton-text"></div>
+              <div class="skeleton-text"></div>
+              <div class="skeleton-button"></div>
             </mat-card>
           </div>
         </div>
@@ -93,22 +106,52 @@
       <!-- Empty State -->
       <ng-template #emptyState>
         <div class="empty-state">
-          <mat-icon class="empty-icon">inventory_2</mat-icon>
+          <div class="empty-icon-wrapper">
+            <mat-icon class="empty-icon">inventory_2</mat-icon>
+          </div>
           <h3 class="empty-title">No Models Found</h3>
           <p class="empty-description">
-            Get started by creating your first model.
+            Get started by creating your first model to track your inventory.
           </p>
-          <button mat-raised-button color="primary" routerLink="/model/add">
-            Create New Model
+          <button mat-raised-button class="empty-action-btn" routerLink="/model/add">
+            <mat-icon>add</mat-icon>
+            <span>Create New Model</span>
           </button>
         </div>
       </ng-template>
 
-      <!-- Pagination -->
-      <mat-paginator [length]="total" [pageSizeOptions]="[12, 24, 48]" 
-                     [pageSize]="pageSize" (page)="onPageChange($event)"
-                     style="margin-top: 24px;">
-      </mat-paginator>
+      <!-- Pagination Section -->
+      <div class="custom-pagination" *ngIf="total > 0 && dataSource.data.length > 0">
+        <div class="pagination-content">
+          <h4 class="pagination-text">
+            Showing
+            <span>{{ getStartRecord() }}-{{ getEndRecord() }}</span>
+            from
+            <span>{{ total }}</span>
+            models
+          </h4>
+          <ul class="pagination-controls">
+            <li>
+              <a
+                (click)="goToPreviousPage()"
+                [class.disabled]="isFirstPage()"
+                href="javascript:void(0);"
+              >
+                <mat-icon>chevron_left</mat-icon>
+              </a>
+            </li>
+            <li>
+              <a
+                (click)="goToNextPage()"
+                [class.disabled]="isLastPage()"
+                href="javascript:void(0);"
+              >
+                <mat-icon>chevron_right</mat-icon>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
 
     </div>
   </div>

@@ -54,7 +54,6 @@ export class ModelComponent implements OnInit, AfterViewInit {
       sequenceId: item.sequenceId,
     }));
 
-    console.log("reordered ", reordered);
     this.isLoading = true;
     this.modelService.updateOrder(reordered).subscribe(res => {
       this.isLoading = false;
@@ -132,7 +131,6 @@ export class ModelComponent implements OnInit, AfterViewInit {
   }
 
   onPageChange(event: any) {
-    console.log(event);
     const {
       previousPageIndex,
       pageIndex,
@@ -141,6 +139,49 @@ export class ModelComponent implements OnInit, AfterViewInit {
     } = event;
     this.pageIndex = pageIndex;
     this.pageSize = pageSize;
+    this.getPaginated();
+  }
+
+  getStartRecord(): number {
+    return (this.pageIndex * this.pageSize) + 1;
+  }
+
+  getEndRecord(): number {
+    return Math.min((this.pageIndex + 1) * this.pageSize, this.total);
+  }
+
+  isFirstPage(): boolean {
+    return this.pageIndex === 0;
+  }
+
+  isLastPage(): boolean {
+    return (this.pageIndex + 1) * this.pageSize >= this.total;
+  }
+
+  goToPreviousPage(): void {
+    if (!this.isFirstPage()) {
+      this.pageIndex--;
+      this.getPaginated();
+    }
+  }
+
+  goToNextPage(): void {
+    if (!this.isLastPage()) {
+      this.pageIndex++;
+      this.getPaginated();
+    }
+  }
+
+  // Add search method
+  onSearch(): void {
+    this.pageIndex = 0; // Reset to first page when searching
+    this.getPaginated();
+  }
+
+  // Add clear search method
+  clearSearch(): void {
+    this.filterKeywords = '';
+    this.pageIndex = 0;
     this.getPaginated();
   }
 

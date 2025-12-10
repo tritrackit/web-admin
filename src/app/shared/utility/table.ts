@@ -72,6 +72,7 @@ export class CBUTableColumn {
   model?: string;
   color?: string;
   location?: string;
+  status?: string;
   url?: string;
 }
 export class ModelTableColumn {
@@ -85,6 +86,7 @@ export class ModelTableColumn {
 export class ScannerTableColumn {
   scannerId?: string;
   scannerCode?: string;
+  scannerType?: string;
   name?: string;
   location?: string;
   assignedEmployeeUser?: string;

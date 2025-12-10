@@ -1,0 +1,590 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.unit-details-container {
+  padding: 24px;
+  background-color: #f5f5f5;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  flex-grow: 1;
+
+  // Header Section
+  .header-section {
+    margin-bottom: 8px;
+
+    .back-button {
+      color: #000;
+      
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.1);
+      }
+    }
+
+    .page-title {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 700;
+      color: #000;
+    }
+  }
+
+  // Loading State
+  .loading-container,
+  .error-container {
+    padding: 48px;
+    text-align: center;
+
+    p {
+      margin-top: 16px;
+      color: #666;
+    }
+  }
+
+  .error-card {
+    mat-card-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+  }
+
+  // Content Section
+  .content-section {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  // Details Card
+  .details-card {
+    background-color: #e0e0e0;
+    border-radius: 8px;
+    box-shadow: none;
+
+    mat-card-content {
+      padding: 24px;
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 24px;
+
+      .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+
+        .detail-label {
+          font-size: 13px;
+          color: #666;
+          font-weight: 500;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .detail-value {
+          font-size: 16px;
+          font-weight: 700;
+          color: #000;
+        }
+      }
+    }
+  }
+
+  // Description Card
+  .description-card {
+    background-color: #e0e0e0;
+    border-radius: 8px;
+    box-shadow: none;
+
+    mat-card-content {
+      padding: 24px;
+    }
+
+    .description-label {
+      font-size: 13px;
+      color: #666;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .description-text {
+      font-size: 14px;
+      color: #000;
+      line-height: 1.6;
+    }
+  }
+
+  // Activity Card
+  .activity-card {
+    background-color: #e0e0e0;
+    border-radius: 8px;
+    box-shadow: none;
+
+    mat-card-content {
+      padding: 24px;
+    }
+
+    .activity-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #000;
+      margin-bottom: 16px;
+    }
+
+    .activity-loading {
+      padding: 32px;
+      text-align: center;
+
+      p {
+        margin-top: 16px;
+        color: #666;
+        font-size: 14px;
+      }
+    }
+
+    .activity-table-container {
+      overflow-x: auto;
+      
+      &.desktop-table {
+        display: block;
+      }
+    }
+
+    .activity-table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: transparent;
+
+      thead {
+        tr {
+          th {
+            background-color: transparent;
+            color: #000;
+            font-weight: 600;
+            font-size: 13px;
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 2px solid #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+        }
+      }
+
+      tbody {
+        tr {
+          td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #ccc;
+            color: #000;
+            font-size: 14px;
+            background-color: transparent;
+          }
+
+          &:last-child td {
+            border-bottom: none;
+          }
+
+          &:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+          }
+        }
+
+        .no-data {
+          text-align: center;
+          color: #666;
+          font-style: italic;
+          padding: 24px;
+        }
+      }
+    }
+
+    // Mobile Activity Cards
+    .activity-cards-container {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      
+      .activity-card-item {
+        background: white;
+        border-radius: 8px;
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        
+        .activity-card-row {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          
+          .activity-card-label {
+            font-size: 11px;
+            color: #666;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+          
+          .activity-card-value {
+            font-size: 14px;
+            color: #000;
+            font-weight: 500;
+          }
+        }
+      }
+      
+      .activity-no-data {
+        text-align: center;
+        color: #666;
+        font-style: italic;
+        padding: 24px;
+        background: white;
+        border-radius: 8px;
+      }
+    }
+
+    // Activity Pagination
+    .activity-pagination {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #ccc;
+
+      .pagination-info {
+        font-size: 14px;
+        color: #666;
+      }
+
+      .pagination-controls {
+        .pagination-button {
+          color: #000;
+
+          &[disabled] {
+            color: #ccc;
+          }
+
+          &:not([disabled]):hover {
+            background-color: rgba(0, 0, 0, 0.1);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .unit-details-container {
+    .activity-table-container.desktop-table {
+      display: none;
+    }
+    
+    .activity-cards-container.mobile-cards {
+      display: flex;
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 960px) {
+  .unit-details-container {
+    padding: 16px;
+    gap: 16px;
+
+    .header-section {
+      .page-title {
+        font-size: 20px;
+      }
+    }
+
+    .details-card {
+      mat-card-content {
+        padding: 16px;
+      }
+
+      .details-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+    }
+
+    .description-card {
+      mat-card-content {
+        padding: 16px;
+      }
+    }
+
+    .activity-card {
+      mat-card-content {
+        padding: 16px;
+      }
+
+      .activity-table {
+        font-size: 12px;
+
+        thead tr th,
+        tbody tr td {
+          padding: 8px 12px;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  :host {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+  
+  .unit-details-container {
+    padding: 12px;
+    gap: 12px;
+
+    .header-section {
+      margin-bottom: 4px;
+      
+      .page-title {
+        font-size: 18px;
+      }
+    }
+
+    .loading-container,
+    .error-container {
+      padding: 32px 16px;
+    }
+
+    .details-card {
+      mat-card-content {
+        padding: 12px;
+      }
+
+      .details-grid {
+        gap: 12px;
+
+        .detail-item {
+          gap: 6px;
+
+          .detail-label {
+            font-size: 11px;
+          }
+
+          .detail-value {
+            font-size: 14px;
+          }
+        }
+      }
+    }
+
+    .description-card {
+      mat-card-content {
+        padding: 12px;
+      }
+
+      .description-label {
+        font-size: 11px;
+        margin-bottom: 8px;
+      }
+
+      .description-text {
+        font-size: 13px;
+      }
+    }
+
+    .activity-card {
+      mat-card-content {
+        padding: 12px;
+      }
+
+      .activity-title {
+        font-size: 14px;
+        margin-bottom: 12px;
+      }
+
+      .activity-loading {
+        padding: 24px 16px;
+
+        p {
+          font-size: 13px;
+        }
+      }
+
+      .activity-cards-container {
+        gap: 6px;
+        
+        .activity-card-item {
+          padding: 10px;
+          gap: 6px;
+          
+          .activity-card-row {
+            gap: 3px;
+            
+            .activity-card-label {
+              font-size: 10px;
+            }
+            
+            .activity-card-value {
+              font-size: 13px;
+            }
+          }
+        }
+        
+        .activity-no-data {
+          padding: 20px;
+          font-size: 13px;
+        }
+      }
+
+      .activity-pagination {
+        margin-top: 12px;
+        padding-top: 12px;
+        flex-direction: column;
+        gap: 8px;
+
+        .pagination-info {
+          font-size: 12px;
+          text-align: center;
+          width: 100%;
+        }
+
+        .pagination-controls {
+          justify-content: center;
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 400px) {
+  :host {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+  
+  .unit-details-container {
+    padding: 8px;
+    gap: 8px;
+
+    .header-section {
+      margin-bottom: 2px;
+      
+      .page-title {
+        font-size: 16px;
+      }
+    }
+
+    .loading-container,
+    .error-container {
+      padding: 24px 12px;
+    }
+
+    .details-card {
+      mat-card-content {
+        padding: 10px;
+      }
+
+      .details-grid {
+        gap: 10px;
+
+        .detail-item {
+          gap: 4px;
+
+          .detail-label {
+            font-size: 10px;
+          }
+
+          .detail-value {
+            font-size: 13px;
+          }
+        }
+      }
+    }
+
+    .description-card {
+      mat-card-content {
+        padding: 10px;
+      }
+
+      .description-label {
+        font-size: 10px;
+        margin-bottom: 6px;
+      }
+
+      .description-text {
+        font-size: 12px;
+      }
+    }
+
+    .activity-card {
+      mat-card-content {
+        padding: 10px;
+      }
+
+      .activity-title {
+        font-size: 13px;
+        margin-bottom: 10px;
+      }
+
+      .activity-loading {
+        padding: 20px 12px;
+
+        p {
+          font-size: 12px;
+        }
+      }
+
+      .activity-cards-container {
+        gap: 6px;
+        
+        .activity-card-item {
+          padding: 8px;
+          gap: 6px;
+          
+          .activity-card-row {
+            gap: 2px;
+            
+            .activity-card-label {
+              font-size: 9px;
+            }
+            
+            .activity-card-value {
+              font-size: 12px;
+            }
+          }
+        }
+        
+        .activity-no-data {
+          padding: 16px;
+          font-size: 12px;
+        }
+      }
+
+      .activity-pagination {
+        margin-top: 10px;
+        padding-top: 10px;
+        gap: 6px;
+
+        .pagination-info {
+          font-size: 11px;
+        }
+      }
+    }
+  }
+}
+

@@ -284,31 +284,45 @@ export class ModelDetailsComponent implements OnInit {
     });
   }
 
-  onShowChangeThumbnail() {
-    const dialogRef = this.dialog.open(ImageUploadDialogComponent, {
-        disableClose: true,
-        panelClass: "image-upload-dialog"
+  // In your model-details.component.ts
+onShowChangeThumbnail() {
+  const dialogRef = this.dialog.open(ImageUploadDialogComponent, {
+    disableClose: true,
+    panelClass: "image-upload-dialog"
+  });
+  dialogRef.componentInstance.showCropper = false;
+  dialogRef.componentInstance.showWebCam = false;
+  dialogRef.componentInstance.doneSelect.subscribe(res=> {
+    this.modelThumbnailLoaded = false;
+    this.model.thumbnailFile = {
+      secureUrl: res.base64
+    };
+    this.modelForm.markAsDirty();
+    this.modelForm.markAllAsTouched();
+    dialogRef.close();
+
+    const imageType = getImageExtensionByDataURL(res.base64.toString());
+    
+    // Ensure we have a proper data URI
+    let dataUri = res.base64.toString();
+    
+    // If it's not a proper data URI, convert it
+    if (!dataUri.startsWith('data:image/')) {
+      dataUri = `data:image/${imageType};base64,${dataUri}`;
+    }
+    
+    this.modelThumbnail = {
+      fileName: `${moment().format("YYYY-MM-DD-hh-mm-ss")}.${imageType}`,
+      data: dataUri // Make sure it's a proper data URI
+    };
+
+    console.log('Thumbnail data prepared:', {
+      fileName: this.modelThumbnail.fileName,
+      hasData: !!this.modelThumbnail.data,
+      isDataUri: this.modelThumbnail.data?.startsWith('data:image/')
     });
-    dialogRef.componentInstance.showCropper = false;
-    dialogRef.componentInstance.showWebCam = false;
-    dialogRef.componentInstance.doneSelect.subscribe(res=> {
-      this.modelThumbnailLoaded = false;
-      this.model.thumbnailFile = {
-        secureUrl: res.base64
-      };
-      this.modelForm.markAsDirty();
-      this.modelForm.markAllAsTouched();
-      dialogRef.close();
-
-      const imageType = getImageExtensionByDataURL(res.base64.toString());
-      this.modelThumbnail = {
-        fileName: `${moment().format("YYYY-MM-DD-hh-mm-ss")}.${imageType}`,
-        data: res.base64.toString()
-      };
-
-      console.log(this.modelThumbnail);
-    })
-  }
+  })
+}
 
   onShowImageViewer() {
     const dialogRef = this.dialog.open(ImageViewerDialogComponent, {

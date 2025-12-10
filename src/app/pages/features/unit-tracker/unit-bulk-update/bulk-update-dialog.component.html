@@ -1,0 +1,57 @@
+<h4 mat-dialog-title class="dialog-title">Bulk Update Units</h4>
+
+<div mat-dialog-content class="dialog-content">
+  <p class="dialog-message">You are about to update <strong>{{ data.selectedCount }}</strong> unit(s).</p>
+  <p class="dialog-subtitle">Select what you want to update:</p>
+  
+  <form [formGroup]="bulkUpdateForm" class="bulk-update-form">
+    <!-- Location Update -->
+    <div class="form-section">
+      <mat-checkbox formControlName="updateLocation" class="update-option">
+        Update Location
+      </mat-checkbox>
+      <mat-form-field appearance="outline" *ngIf="bulkUpdateForm.get('updateLocation')?.value" class="update-field">
+        <mat-label>New Location</mat-label>
+        <mat-select formControlName="locationId">
+          <mat-option [value]="null">-- Select Location --</mat-option>
+          <mat-option *ngFor="let location of data.locations" [value]="location.locationId">
+            {{ location.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- Status Update -->
+    <div class="form-section">
+      <mat-checkbox formControlName="updateStatus" class="update-option">
+        Update Status
+      </mat-checkbox>
+      <mat-form-field appearance="outline" *ngIf="bulkUpdateForm.get('updateStatus')?.value" class="update-field">
+        <mat-label>New Status</mat-label>
+        <mat-select formControlName="statusId">
+          <mat-option [value]="null">-- Select Status --</mat-option>
+          <mat-option *ngFor="let status of data.statuses" [value]="status.statusId">
+            {{ status.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+  </form>
+</div>
+
+<div mat-dialog-actions class="dialog-actions">
+  <button mat-flat-button 
+          color="primary" 
+          class="dismiss-button"
+          (click)="onCancel()">
+    No, Cancel
+  </button>
+  <button mat-flat-button 
+          color="accent" 
+          class="confirm-button"
+          (click)="onConfirm()"
+          [disabled]="!isFormValid()">
+    Yes, Confirm
+  </button>
+</div>
+
