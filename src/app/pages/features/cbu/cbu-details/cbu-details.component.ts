@@ -3,19 +3,17 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
-import { debounceTime, distinctUntilChanged, filter, forkJoin, map, Observable, of, startWith, Subject, Subscription, switchMap, takeUntil } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, forkJoin, Subject, Subscription, takeUntil } from 'rxjs';
 import { AppConfigService } from 'src/app/services/app-config.service';
 import { LocationsService } from 'src/app/services/locations.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { AlertDialogModel } from 'src/app/shared/components/alert-dialog/alert-dialog-model';
 import { AlertDialogComponent } from 'src/app/shared/components/alert-dialog/alert-dialog.component';
 import { MyErrorStateMatcher } from 'src/app/shared/form-validation/error-state.matcher';
-import { LocationFormComponent } from '../../locations/location-form/location-form.component';
 import { UnitService } from 'src/app/services/unit.service';
 import moment from 'moment';
 import { ApiResponse } from 'src/app/model/api-response.model';
 import { AuthService } from 'src/app/services/auth.service';
-import { ImageViewerDialogComponent } from 'src/app/shared/components/image-viewer-dialog/image-viewer-dialog.component';
 import { Units } from 'src/app/model/units.model';
 import { ModelService } from 'src/app/services/model.service';
 import { Locations } from 'src/app/model/locations.model';
@@ -34,11 +32,15 @@ import { MatAutocompleteTrigger } from '@angular/material/autocomplete';
 export class CBUDetailsComponent implements OnInit, OnDestroy {
   currentUserProfile: EmployeeUsers;
   currentChannel: any;
-  unitCode;
+  unitCode: string;
   isNew = false;
   isReadOnly = true;
-  error;
+  error: string;
   isLoading = true;
+  
+  // Add scannerCode property to store from pusher data
+  scannerCode: string;
+  
   unitForm: FormGroup = new FormGroup({
     unitCode: new FormControl(),
     rfid: new FormControl(''),
@@ -47,8 +49,8 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
     locationId: new FormControl('', [Validators.required]),
     color: new FormControl('', [Validators.required]),
     description: new FormControl('', [Validators.required]),
-  }
-  );
+  });
+  
   mediaWatcher: Subscription;
   matcher = new MyErrorStateMatcher();
   isProcessing = false;
@@ -57,7 +59,7 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
 
   location: Locations;
 
-  modelSearchCtrl = new FormControl()
+  modelSearchCtrl = new FormControl();
   isOptionsModelLoading = false;
   optionsModel: { name: string; code: string }[] = [];
   @ViewChild('modelSearchInput', { static: true }) modelSearchInput: ElementRef<HTMLInputElement>;
@@ -93,29 +95,32 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
 
   get pageRights() {
     let rights = {};
-    // for(var right of this.pageAccess.rights) {
-    //   rights[right] = this.pageAccess.modify;
-    // }
     return rights;
   }
 
   get f() {
     return this.unitForm.controls;
   }
+  
   get formIsValid() {
     return this.unitForm.valid && this.modelSearchCtrl.valid;
   }
+  
   get formIsReady() {
     return this.unitForm.valid && this.modelSearchCtrl.valid && (this.unitForm.dirty || this.modelSearchCtrl.dirty);
   }
+  
   get formData() {
     const data = this.unitForm.value;
-    data.price = data?.price?.toString();
+    // Add locationId from the scanned location
+    if (this.location) {
+      data.locationId = this.location.locationId;
+    }
     return data;
   }
 
   get isRegistrationValid() {
-    return this.location && this.location?.locationCode && this.formData.locationId && this.formData.rfid && this.formData.rfid.length > 0;
+    return this.location && this.location?.locationId && this.formData.rfid && this.formData.rfid.length > 0 && this.scannerCode;
   }
 
   async ngOnInit(): Promise<void> {
@@ -124,36 +129,38 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
       await this.initDetails();
     } else {
       if (this.isNew) {
-
         this.unitService.data$
-        .pipe(
-          filter((d: any) => !!d),   // ignore null clears
-          takeUntil(this.destroy$)
-        ).subscribe(data => {
-          if(data?.rfid && data?.location?.locationId){
-            this.unitForm.controls["rfid"].patchValue(data?.rfid, {
-              emitEvent: true
-            });
+          .pipe(
+            filter((d: any) => !!d),   // ignore null clears
+            takeUntil(this.destroy$)
+          ).subscribe(data => {
+            if (data?.rfid && data?.location?.locationId && data?.scannerCode) {
+              this.scannerCode = data.scannerCode; // Store scanner code for registration
+              
+              this.unitForm.controls["rfid"].patchValue(data?.rfid, {
+                emitEvent: true
+              });
 
-            this.unitForm.controls["locationId"].patchValue(data?.location?.locationId, {
-              emitEvent: true
-            });
+              this.unitForm.controls["locationId"].patchValue(data?.location?.locationId, {
+                emitEvent: true
+              });
 
-            this.location = data?.location;
+              this.location = data?.location;
 
-            this.cdr.detectChanges();
-            this.snackBar.open('RFID Detected!', 'close', {
-              panelClass: ['style-success'],
-            });
+              this.cdr.detectChanges();
+              this.snackBar.open('RFID Detected!', 'close', {
+                panelClass: ['style-success'],
+              });
 
-            this.modelTrig.openPanel();
-            setTimeout(() => {
-              this.unitService.clearScannedData();
-            }, 500);
-          }
-        });
+              this.modelTrig.openPanel();
+              setTimeout(() => {
+                this.unitService.clearScannedData();
+              }, 500);
+            }
+          });
       }
     }
+    
     this.modelSearchCtrl.valueChanges
       .pipe(
         debounceTime(2000),
@@ -162,6 +169,7 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
       .subscribe(async value => {
         await this.initModelOptions();
       });
+    
     await this.initModelOptions();
     this.isLoading = false;
   }
@@ -185,9 +193,10 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
         }),
       ]).subscribe(([unit, modelOptions]) => {
         if (modelOptions.success) {
-          this.optionsModel = modelOptions.data.results.map(x => {
-            return { name: x.modelName, code: x.modelId }
-          });
+          this.optionsModel = modelOptions.data.results.map(x => ({
+            name: x.modelName, 
+            code: x.modelId 
+          }));
         }
         if (unit.success) {
           this.unit = unit.data;
@@ -202,10 +211,12 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
           });
           this.location = unit.data.location;
           this.unitForm.updateValueAndValidity();
+          
           if (this.isReadOnly) {
             this.unitForm.disable();
             this.modelSearchCtrl.disable();
           }
+          
           this.modelSearchCtrl.setValue({
             name: unit.data.model?.modelName,
             code: unit.data.model?.modelId
@@ -241,7 +252,11 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
       pageIndex: 0,
       pageSize: 10
     }).toPromise();
-    this.optionsModel = res.data.results.map(a => { return { name: a.modelName, code: a.modelId } });
+    
+    this.optionsModel = res.data.results.map(a => ({ 
+      name: a.modelName, 
+      code: a.modelId 
+    }));
     this.mapSearchModel();
     this.isOptionsModelLoading = false;
   }
@@ -256,8 +271,8 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
 
   onModelSelected(value?: number) {
     const model = this.optionsModel.find(_ => _.code === value?.toString());
-    this.f['modelId'].setValue(model);
-    this.modelSearchCtrl.setValue(model); // ensure the full object is set for displayWith
+    this.f['modelId'].setValue(model?.code);
+    this.modelSearchCtrl.setValue(model);
   }
 
   mapSearchModel() {
@@ -277,7 +292,6 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
-
   getError(key: string) {
     return this.f[key].errors;
   }
@@ -289,7 +303,7 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
 
     const dialogData = new AlertDialogModel();
     dialogData.title = 'Confirm';
-    dialogData.message = 'Save CBU?';
+    dialogData.message = this.isNew ? 'Register unit via scanner?' : 'Update unit?';
     dialogData.confirmButton = {
       visible: true,
       text: 'yes',
@@ -299,52 +313,62 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
       visible: true,
       text: 'cancel',
     };
+    
     const dialogRef = this.dialog.open(AlertDialogComponent, {
       maxWidth: '400px',
       closeOnNavigation: true,
     });
     dialogRef.componentInstance.alertDialogConfig = dialogData;
 
-    dialogRef.componentInstance.conFirm.subscribe(async (data: any) => {
+    dialogRef.componentInstance.conFirm.subscribe(async () => {
       this.isProcessing = true;
       dialogRef.componentInstance.isProcessing = this.isProcessing;
+      
       try {
-        this.isProcessing = true;
-        const params = this.formData;
         let res: ApiResponse<Units>;
+        
         if (this.isNew) {
-          res = await this.unitService.create(params).toPromise();
+          // Use scanner registration endpoint for new units
+          res = await this.unitService.registerViaScanner({
+            scannerCode: this.scannerCode,
+            rfid: this.unitForm.value.rfid,
+            chassisNo: this.unitForm.value.chassisNo,
+            color: this.unitForm.value.color,
+            description: this.unitForm.value.description,
+            modelId: this.unitForm.value.modelId
+          }).toPromise();
         } else {
+          // Use regular update for existing units
+          const params = this.formData;
           res = await this.unitService.update(this.unitCode, params).toPromise();
         }
+        
         this.isProcessing = false;
+        dialogRef.componentInstance.isProcessing = this.isProcessing;
 
         if (res.success) {
-          this.snackBar.open('Saved!', 'close', {
+          this.snackBar.open(this.isNew ? 'Unit registered via scanner!' : 'Unit updated!', 'close', {
             panelClass: ['style-success'],
           });
           this.router.navigate(['/cbu/' + res.data.unitCode]);
-          dialogRef.componentInstance.isProcessing = this.isProcessing;
           dialogRef.close();
         } else {
-          dialogRef.componentInstance.isProcessing = this.isProcessing;
-          this.error = Array.isArray(res.message)
-            ? res.message[0]
-            : res.message;
+          this.error = Array.isArray(res.message) ? res.message[0] : res.message;
           this.snackBar.open(this.error, 'close', {
             panelClass: ['style-error'],
           });
+          
+          // Handle specific errors
+          if (res.message?.toLowerCase().includes("already exist")) {
+            this.unitForm.get("rfid").setErrors({ exist: true });
+          }
+          if (res.message?.toLowerCase().includes("registration scanner not found")) {
+            this.snackBar.open('Please scan RFID again with a valid registration scanner', 'close', {
+              panelClass: ['style-error'],
+            });
+          }
+          
           dialogRef.close();
-          if (res?.message?.toString().toLowerCase().includes("already exist")) {
-            this.unitForm.get("name").setErrors({
-              exist: true
-            })
-          }
-          if (res?.message?.toString().toLowerCase().includes("size must be") && res?.message?.toString().toLowerCase().includes("following values")) {
-            this.unitForm.get("size").setErrors({
-              invalid: true
-            })
-          }
         }
       } catch (e) {
         this.isProcessing = false;
@@ -371,16 +395,17 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
       visible: true,
       text: 'cancel',
     };
+    
     const dialogRef = this.dialog.open(AlertDialogComponent, {
       maxWidth: '400px',
       closeOnNavigation: true,
     });
     dialogRef.componentInstance.alertDialogConfig = dialogData;
 
-    dialogRef.componentInstance.conFirm.subscribe(async (data: any) => {
+    dialogRef.componentInstance.conFirm.subscribe(async () => {
       try {
-
         const res = await this.unitService.delete(this.unitCode).toPromise();
+        
         if (res.success) {
           this.snackBar.open('CBU deleted!', 'close', {
             panelClass: ['style-success'],
@@ -392,9 +417,7 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
         } else {
           this.isProcessing = false;
           dialogRef.componentInstance.isProcessing = this.isProcessing;
-          this.error = Array.isArray(res.message)
-            ? res.message[0]
-            : res.message;
+          this.error = Array.isArray(res.message) ? res.message[0] : res.message;
           this.snackBar.open(this.error, 'close', {
             panelClass: ['style-error'],
           });
@@ -413,10 +436,70 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
   }
 
   profilePicErrorHandler(event) {
-    event.target.src = this.getDeafaultProfilePicture();
+    event.target.src = this.getDefaultProfilePicture();
   }
 
-  getDeafaultProfilePicture() {
+  getDefaultProfilePicture() {
     return '../../../../../assets/img/person.png';
+  }
+
+  // Add this method to test location scanning
+  testLocationScan() {
+    if (!this.unitForm.value.rfid || !this.scannerCode) {
+      this.snackBar.open('Please scan RFID first', 'close', {
+        panelClass: ['style-error'],
+      });
+      return;
+    }
+
+    const dialogData = new AlertDialogModel();
+    dialogData.title = 'Scan Location';
+    dialogData.message = `Scan unit ${this.unitForm.value.rfid} at location?`;
+    dialogData.confirmButton = {
+      visible: true,
+      text: 'Scan',
+      color: 'primary',
+    };
+    dialogData.dismissButton = {
+      visible: true,
+      text: 'Cancel',
+    };
+    
+    const dialogRef = this.dialog.open(AlertDialogComponent, {
+      maxWidth: '400px',
+      closeOnNavigation: true,
+    });
+    dialogRef.componentInstance.alertDialogConfig = dialogData;
+
+    dialogRef.componentInstance.conFirm.subscribe(async () => {
+      try {
+        this.isProcessing = true;
+        const res = await this.unitService.scanLocation({
+          scannerCode: this.scannerCode,
+          rfid: this.unitForm.value.rfid
+        }).toPromise();
+        
+        if (res.success) {
+          this.snackBar.open('Location updated successfully!', 'close', {
+            panelClass: ['style-success'],
+          });
+          // Refresh unit details if we're viewing an existing unit
+          if (!this.isNew) {
+            await this.initDetails();
+          }
+        } else {
+          this.snackBar.open(res.message, 'close', {
+            panelClass: ['style-error'],
+          });
+        }
+      } catch (e) {
+        this.snackBar.open(e.message || 'Scan failed', 'close', {
+          panelClass: ['style-error'],
+        });
+      } finally {
+        this.isProcessing = false;
+        dialogRef.close();
+      }
+    });
   }
 }

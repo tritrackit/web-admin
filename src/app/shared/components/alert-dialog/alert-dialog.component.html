@@ -1,13 +1,25 @@
 <mat-progress-bar mode="query" *ngIf="isProcessing"></mat-progress-bar>
-<h4 mat-dialog-title *ngIf="!isProcessing">{{alertDialogConfig.title}}</h4>
+<h4 mat-dialog-title *ngIf="!isProcessing" class="dialog-title">{{alertDialogConfig.title}}</h4>
 
-<div mat-dialog-content>
-  <p>{{alertDialogConfig.message}}</p>
+<div mat-dialog-content class="dialog-content">
+  <p class="dialog-message">{{alertDialogConfig.message}}</p>
 </div>
 
-<div mat-dialog-actions>
-  <div>
-    <button mat-flat-button [disabled]="isProcessing" cdkFocusInitial (click)="onDismiss()">{{alertDialogConfig.dismissButton.text}}</button>
-    <button mat-flat-button [disabled]="isProcessing" *ngIf="alertDialogConfig.confirmButton.visible" [color]="alertDialogConfig.confirmButton.color" (click)="onConfirm()">{{alertDialogConfig.confirmButton.text}}</button>
-  </div>
+<div mat-dialog-actions class="dialog-actions">
+  <button mat-flat-button 
+          [disabled]="isProcessing" 
+          cdkFocusInitial 
+          [color]="alertDialogConfig.dismissButton.color || 'primary'" 
+          class="dismiss-button"
+          (click)="onDismiss()">
+    {{alertDialogConfig.dismissButton.text}}
+  </button>
+  <button mat-flat-button 
+          [disabled]="isProcessing" 
+          *ngIf="alertDialogConfig.confirmButton.visible" 
+          [color]="alertDialogConfig.confirmButton.color" 
+          class="confirm-button"
+          (click)="onConfirm()">
+    {{alertDialogConfig.confirmButton.text}}
+  </button>
 </div>

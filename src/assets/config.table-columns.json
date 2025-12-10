@@ -171,6 +171,12 @@
         "label": "Location",
         "apiNotation": "location.name",
         "type": "string"
+      },
+      {
+        "name": "status",
+        "label": "Status",
+        "apiNotation": "status.name",
+        "type": "string"
       }
     ],
     "model": [
@@ -247,6 +253,22 @@
         },
         "urlPropertyName": "url"
       },
+      {
+        "name": "scannerType",
+        "label": "Scanner Type",
+        "apiNotation": "scannerType",
+        "sticky": true,
+        "type": "string",
+        "style": {
+          "width": "10px",
+          "left": "0px"
+        },
+        "filterOptions": {
+          "enable": false,
+          "placeholder": "Scanner Type"
+        },
+        "urlPropertyName": "url"
+      },  
       {
         "name": "name",
         "label": "Scanner name",

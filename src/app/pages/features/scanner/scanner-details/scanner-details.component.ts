@@ -31,9 +31,15 @@ export class ScannerDetailsComponent implements OnInit {
   isReadOnly = true;
   error;
   isLoading = true;
+
+  scannerTypeOptions = [
+    { value: 'LOCATION', label: 'Location Scanner' },
+    { value: 'REGISTRATION', label: 'Registration Scanner' }
+  ];
   scannerForm: FormGroup = new FormGroup({
     scannerCode: new FormControl('', [Validators.required, Validators.minLength(3), Validators.maxLength(20), Validators.pattern(/^(?=.{1,20}$)([A-Z][A-Za-z0-9_-]*|[0-9][A-Za-z0-9_-]*)$/)]),
     name: new FormControl('', [Validators.required]),
+    scannerType: new FormControl('LOCATION', [Validators.required]),
     locationId: new FormControl('', [Validators.required]),
     assignedEmployeeUserId: new FormControl('', [Validators.required]),
     statusId: new FormControl('', [Validators.required]),
@@ -169,6 +175,7 @@ export class ScannerDetailsComponent implements OnInit {
           this.scannerForm.setValue({
             scannerCode: scanner.data.scannerCode,
             name: scanner.data.name,
+            scannerType: scanner.data.scannerType || 'LOCATION',
             assignedEmployeeUserId: scanner.data.assignedEmployeeUser?.employeeUserId,
             locationId: scanner.data.location?.locationId,
             statusId: scanner.data.status?.statusId
