@@ -1,23 +1,36 @@
-
-<div class="component-floating-actions vertical-actions">
-  <button mat-fab color="primary" aria-label="New employee user" matTooltip="New employee user" routerLink="/employee-users/add">
-    <mat-icon>add</mat-icon>
-  </button>
-</div>
 <div class="content">
   <div class="inner-content">
-    <mat-card [ngClass]="{ 'hidden': isLoading }">
-        <mat-card-content fxLayout="column" >
-          <app-data-table
+
+    <div class="search-container">
+      <mat-form-field appearance="outline" class="search-field">
+        <button mat-icon-button matPrefix (click)="onSearch()">
+          <mat-icon>search</mat-icon>
+        </button>
+        <input matInput placeholder="Search User" [(ngModel)]="searchTerm" (keyup.enter)="onSearch()">
+      </mat-form-field>
+  
+      <!-- Add New User button on the right -->
+      <button mat-raised-button class="add-user-btn" routerLink="/employee-users/add">
+        <mat-icon>add</mat-icon>
+        Add New User
+      </button>
+    </div>
+
+    <mat-card>
+      <mat-card-content>
+        <app-data-table
           [isLoading]="isLoading"
           [dataSource]="dataSource"
           [columnDefs]="appConfig.config.tableColumns.employeeUsers"
           [total]="total"
+          [pageIndex]="pageIndex"
+          [pageSize]="pageSize"
           (pageChange)="pageChange($event)"
           (sortChange)="sortChange($event)"
-          (filterChange)="filterChange($event)"
-          ></app-data-table>
-        </mat-card-content>
+          (filterChange)="filterChange($event)">
+        </app-data-table>
+      </mat-card-content>
     </mat-card>
-    </div>
+    
+  </div>
 </div>

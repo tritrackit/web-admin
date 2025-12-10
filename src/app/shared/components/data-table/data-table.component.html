@@ -56,17 +56,7 @@
                 </ng-container>
                 <!-- no filter -->
                 <!-- when filterOptions is empty or label is blank -->
-                <ng-template #noFilter>
-                  <div style="height: 76px!important;" [ngStyle]="colDef.style">
-                    <mat-checkbox
-                    (change)="booleanHeaderControlChange(colDef.name, checkAll.checked)"
-                    [indeterminate]="booleanHeaderControlValue(colDef.name, 'indeterminate')"
-                    [checked]="booleanHeaderControlValue(colDef.name, 'all')"
-                    *ngIf="colDef.controls && colDef.type === 'boolean'"
-                    [ngStyle]="colDef.style"
-                    #checkAll>{{colDef.label}}</mat-checkbox>
-                  </div>
-                </ng-template>
+                
                 <!-- end no filter-->
                 <!-- end filter -->
             </th>
@@ -138,14 +128,37 @@
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
 </section>
-<mat-paginator
-    [style]="{'display': dataSource.data.length === 0 ? 'none!important' : ''}"
-    #paginator
-    [pageSizeOptions]="[10, 20, 50, 100]"
-    showFirstLastButtons
-    [length]="total"
-    aria-label="Select page of periodic elements">
-</mat-paginator>
+<div class="custom-pagination" *ngIf="dataSource.data.length > 0">
+  <div class="pagination-content">
+      <h4 class="pagination-text">
+          Showing
+          <span>{{ getDisplayRange().start }}-{{ getDisplayRange().end }}</span>
+          from
+          <span>{{ total }}</span>
+          records
+      </h4>
+      <ul class="pagination-controls">
+          <li>
+              <a
+                  (click)="previousPage()"
+                  [class.disabled]="isFirstPage()"
+                  href="javascript:void(0);"
+              >
+                  <mat-icon>chevron_left</mat-icon>
+              </a>
+          </li>
+          <li>
+              <a
+                  (click)="nextPage()"
+                  [class.disabled]="isLastPage()"
+                  href="javascript:void(0);"
+              >
+                  <mat-icon>chevron_right</mat-icon>
+              </a>
+          </li>
+      </ul>
+  </div>
+</div>
 <div class="table-no-data" *ngIf="dataSource.data.length === 0">
   <span>No data available</span>
 </div>

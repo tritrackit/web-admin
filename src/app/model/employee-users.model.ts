@@ -17,4 +17,10 @@ export class EmployeeUsers {
     role: Roles = {} as any;
     refreshToken: string;
     accessToken: string;
+    get fullName(): string {
+      return `${this.firstName || ''} ${this.lastName || ''}`.trim() || this.userName || 'User';
+    }
+    
   }
+
+  

@@ -34,6 +34,8 @@ export class EmployeeUsersComponent implements OnInit {
   pageSize = 10;
   total = 0;
   order: any = { employeeUserId: "DESC" };
+  searchTerm: string = ''; 
+
 
   filter: {
     apiNotation: string;
@@ -83,6 +85,19 @@ export class EmployeeUsersComponent implements OnInit {
     this.getUsersPaginated();
   }
 
+   // Add search method
+   onSearch(): void {
+    this.pageIndex = 0; // Reset to first page when searching
+    this.getUsersPaginated();
+  }
+
+  // Add clear search method
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.pageIndex = 0;
+    this.getUsersPaginated();
+  }
+
   async pageChange(event: { pageIndex: number, pageSize: number }) {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
@@ -99,10 +114,22 @@ export class EmployeeUsersComponent implements OnInit {
   getUsersPaginated() {
     try {
       this.isLoading = true;
+
+         const searchFilter = this.searchTerm ? [
+      {
+        apiNotation: "firstName",
+        filter: this.searchTerm.trim(),
+        name: "firstName",
+        type: "text"
+      },
+    ] : [];
+
+
       this.employeeUsersService.getAdvanceSearch({
         order: this.order,
         columnDef: [
           ...this.filter,
+          ...searchFilter,
           {
             apiNotation: "accessGranted",
             filter: "yes",
@@ -120,9 +147,13 @@ export class EmployeeUsersComponent implements OnInit {
                 employeeUserCode: d.employeeUserCode,
                 userName: d.userName,
                 name: d.firstName + ' ' + d.lastName,
+                firstName: d.firstName,
+                lastName: d.lastName,
                 email: d.email,
                 enable: d.accessGranted,
                 role: d.role?.name,
+                contactNo: d.contactNo, // New field
+                dateCreated: d.dateCreated, // New field
                 url: `/employee-users/${d.employeeUserCode}`,
               } as EmployeeUsersTableColumn
             });

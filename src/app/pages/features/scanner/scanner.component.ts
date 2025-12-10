@@ -27,6 +27,7 @@ export class ScannerComponent {
   pageSize = 10;
   total = 0;
   order: any = { scannerCode: "DESC" };
+  searchTerm: string = '';
 
   filter: {
     apiNotation: string;
@@ -70,6 +71,19 @@ export class ScannerComponent {
     this.getAccessPaginated();
   }
 
+  // Add search method
+  onSearch(): void {
+    this.pageIndex = 0; // Reset to first page when searching
+    this.getAccessPaginated();
+  }
+
+  // Add clear search method
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.pageIndex = 0;
+    this.getAccessPaginated();
+  }
+
   async pageChange(event: { pageIndex: number, pageSize: number }) {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
@@ -86,9 +100,22 @@ export class ScannerComponent {
   getAccessPaginated(){
     try{
       this.isLoading = true;
+
+      const searchFilter = this.searchTerm ? [
+        {
+          apiNotation: "name",
+          filter: this.searchTerm.trim(),
+          name: "name",
+          type: "text"
+        },
+      ] : [];
+
       this.scannerService.getByAdvanceSearch({
         order: this.order,
-        columnDef: this.filter,
+        columnDef: [
+          ...this.filter,
+          ...searchFilter,
+        ],
         pageIndex: this.pageIndex, pageSize: this.pageSize
       })
       .subscribe(async res => {
@@ -98,8 +125,10 @@ export class ScannerComponent {
               scannerId: d.scannerId,
               scannerCode: d.scannerCode,
               name: d.name,
+              scannerType: d.scannerType, 
               location: d.location?.name,
               assignedEmployeeUser: `${d.assignedEmployeeUser?.firstName} ${d.assignedEmployeeUser?.lastName}`,
+              dateCreated: d.dateCreated,
               url: `/scanner/${d.scannerCode}`,
             } as ScannerTableColumn
           });

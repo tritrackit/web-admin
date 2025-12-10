@@ -19,6 +19,8 @@ export class DataTableComponent {
   @Input() columnDefs: ColumnDefinition[] = [];
   @Input() isLoading: any;
   @Input() dataSource = new MatTableDataSource<any>();
+  @Input() pageIndex: number = 0;
+  @Input() pageSize: number = 10;
   @Input() total = 0;
   @Input() defaultThumbnail;
   @ViewChild('paginator', {static: false}) paginator: MatPaginator;
@@ -62,11 +64,6 @@ export class DataTableComponent {
 
   ngAfterViewInit() {
     this.dataSource.sort = this.sort;
-    this.dataSource.paginator = this.paginator;
-    this.paginator.page.subscribe((event: PageEvent)=> {
-      const { pageIndex, pageSize } = event;
-      this.pageChange.emit({ pageIndex, pageSize })
-    });
     this.dataSource.sort.sortChange.subscribe((event: MatSort)=> {
       const { active, direction } = event;
       this.sortChange.emit({ active, direction });
@@ -111,4 +108,34 @@ export class DataTableComponent {
       event.target.src = "../../../assets/img/thumbnail.png";
     }
   }
+
+  getDisplayRange() {
+    const start = (this.pageIndex * this.pageSize) + 1;
+    const end = Math.min((this.pageIndex + 1) * this.pageSize, this.total);
+    return { start, end };
+  }
+
+  previousPage() {
+    if (!this.isFirstPage()) {
+      this.pageIndex--;
+      this.pageChange.emit({ pageIndex: this.pageIndex, pageSize: this.pageSize });
+    }
+  }
+
+  nextPage() {
+    if (!this.isLastPage()) {
+      this.pageIndex++;
+      this.pageChange.emit({ pageIndex: this.pageIndex, pageSize: this.pageSize });
+    }
+  }
+
+  isFirstPage(): boolean {
+    return this.pageIndex === 0;
+  }
+
+  isLastPage(): boolean {
+    return (this.pageIndex + 1) * this.pageSize >= this.total;
+  }
+
+  
 }

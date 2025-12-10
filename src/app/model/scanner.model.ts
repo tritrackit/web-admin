@@ -5,6 +5,7 @@ import { Status } from "./status.model";
 export class Scanner {
   scannerId: string;
   scannerCode: string;
+  scannerType: string; 
   name: string;
   locationId: string;
   dateCreated: Date;

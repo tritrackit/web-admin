@@ -23,7 +23,13 @@
             "polyfills": [
               "zone.js"
             ],
-            "allowedCommonJsDependencies": ["moment", "apexcharts", "pusher-js", "moment-timezone"],
+            "allowedCommonJsDependencies": ["moment", "apexcharts", "pusher-js", "moment-timezone",    "jspdf",
+            "html2canvas",
+            "xlsx",
+            "core-js",
+            "raf",
+            "rgbcolor",
+            "canvg"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
             "assets": [
@@ -55,8 +61,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "8kb",
-                  "maximumError": "16kb"
+                  "maximumWarning": "20kb",
+                  "maximumError": "20kb"
                 }
               ],
               "outputHashing": "all"
@@ -110,5 +116,8 @@
         }
       }
     }
+  },
+  "cli": {
+    "analytics": "28a417fa-4576-45d8-ac00-e69225eb97f5"
   }
 }

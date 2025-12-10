@@ -6,6 +6,7 @@ import { FlexLayoutModule } from '@ngbracket/ngx-layout'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { MaterialModule } from 'src/app/shared/material/material.module';
+import { BaseChartDirective } from 'ng2-charts';
 
 export const routes: Routes = [
   {
@@ -27,6 +28,7 @@ export const routes: Routes = [
     FormsModule,
     ReactiveFormsModule,
     AsyncPipe,
+    BaseChartDirective,
     RouterModule.forChild(routes),
   ]
 })

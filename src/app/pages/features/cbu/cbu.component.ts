@@ -28,6 +28,7 @@ export class CBUComponent {
   pageSize = 10;
   total = 0;
   order: any = { unitCode: "DESC" };
+  searchTerm: string = '';
 
   filter: {
     apiNotation: string;
@@ -59,13 +60,36 @@ export class CBUComponent {
           takeUntil(this.destroy$)
         ).subscribe(data => {
         if(data?.rfid && data?.location?.locationId){
-          router.navigate([`/cbu/add`]);
+          // Show immediate notification
+          this.snackBar.open(`RFID Detected: ${data.rfid}`, 'Opening Registration...', {
+            duration: 2000,
+            horizontalPosition: 'end',
+            verticalPosition: 'top',
+            panelClass: ['success-toast']
+          });
+          
+          // Navigate immediately (navigation is intentional for full form)
+          router.navigate([`/cbu/add`], {
+            queryParams: { 
+              rfid: data.rfid,
+              scannerCode: data.scannerCode,
+              locationId: data.location?.locationId
+            }
+          });
+          
+          // Clear the data after navigation
+          this.unitService.clearScannedData();
         }
       });
     }
 
   ngOnInit(): void {
     this.getAccessPaginated();
+    this.unitService.refresh$
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(() => {
+      this.getAccessPaginated(); // Reload the data
+    });
   }
 
   ngAfterViewInit() {
@@ -87,6 +111,19 @@ export class CBUComponent {
     this.getAccessPaginated();
   }
 
+  // Add search method
+  onSearch(): void {
+    this.pageIndex = 0; // Reset to first page when searching
+    this.getAccessPaginated();
+  }
+
+  // Add clear search method
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.pageIndex = 0;
+    this.getAccessPaginated();
+  }
+
   async pageChange(event: { pageIndex: number, pageSize: number }) {
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
@@ -103,9 +140,22 @@ export class CBUComponent {
   getAccessPaginated(){
     try{
       this.isLoading = true;
+
+      const searchFilter = this.searchTerm ? [
+        {
+          apiNotation: "chassisNo",
+          filter: this.searchTerm.trim(),
+          name: "chassisNo",
+          type: "text"
+        },
+      ] : [];
+
       this.unitService.getByAdvanceSearch({
         order: this.order,
-        columnDef: this.filter,
+        columnDef: [
+          ...this.filter,
+          ...searchFilter,
+        ],
         pageIndex: this.pageIndex, pageSize: this.pageSize
       })
       .subscribe(async res => {
@@ -117,6 +167,8 @@ export class CBUComponent {
               chassisNo: d.chassisNo,
               model: d.model?.modelName,
               color: d.color,
+              location: d.location?.name,
+              status: d.status?.name,
               url: `/cbu/${d.unitCode}`,
             } as CBUTableColumn
           });

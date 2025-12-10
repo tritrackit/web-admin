@@ -1,0 +1,880 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.unit-tracker-container {
+  padding: 24px;
+  background-color: #f5f5f5;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+
+  // Top Section: Search and Filters
+  .top-section {
+    margin-bottom: 8px;
+    flex-shrink: 0;
+
+    .search-section {
+      .search-field {
+        width: 100%;
+        max-width: 400px;
+
+        ::ng-deep {
+          .mat-mdc-form-field-subscript-wrapper {
+            display: none;
+          }
+
+          .mat-mdc-text-field-wrapper {
+            background-color: white;
+          }
+        }
+      }
+    }
+
+    .filter-section {
+      align-items: center;
+      flex-wrap: wrap;
+
+      .filter-label {
+        font-weight: 600;
+        font-size: 14px;
+        color: #333;
+        margin-right: 8px;
+      }
+
+      .filter-dropdown {
+        width: 140px;
+        margin-left: 0;
+
+        ::ng-deep {
+          .mat-mdc-form-field-subscript-wrapper {
+            display: none;
+          }
+
+          .mat-mdc-text-field-wrapper {
+            background-color: white;
+          }
+        }
+      }
+    }
+  }
+
+  .section-divider {
+    margin: 16px 0;
+  }
+
+  // Loading State
+  .loading-container {
+    padding: 48px;
+    text-align: center;
+
+    p {
+      margin-top: 16px;
+      color: #666;
+    }
+  }
+
+  // Table Section (Desktop)
+  .table-section {
+    flex: 1;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    padding: 16px;
+    overflow-x: auto;
+    
+    &.desktop-table {
+      display: block;
+    }
+
+    .units-table {
+      width: 100%;
+      background-color: transparent;
+      border-collapse: collapse;
+
+      th {
+        background-color: transparent;
+        color: #000;
+        font-weight: 600;
+        font-size: 13px;
+        padding: 14px 12px;
+        text-align: left;
+        border-bottom: 2px solid #999;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      td {
+        padding: 12px;
+        border-bottom: 1px solid #ccc;
+        color: #000;
+        font-size: 14px;
+        background-color: transparent;
+      }
+
+      tr:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+      }
+
+      .dropdown-cell {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .inline-select {
+        width: 180px;
+        margin: 0;
+
+        ::ng-deep {
+          .mat-mdc-form-field-subscript-wrapper {
+            display: none;
+          }
+
+          .mat-mdc-text-field-wrapper {
+            background-color: white;
+            padding: 0 8px;
+          }
+
+          .mat-mdc-form-field-flex {
+            align-items: center;
+            min-height: 36px;
+          }
+
+          .mat-mdc-select-value {
+            font-size: 14px;
+          }
+
+          .mat-mdc-form-field-infix {
+            padding: 8px 0;
+            min-height: 36px;
+          }
+        }
+      }
+
+      .update-spinner {
+        display: inline-block;
+        margin-left: 4px;
+        vertical-align: middle;
+      }
+
+      .more-info-button {
+        background-color: #FF9800;
+        color: white;
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 6px 16px;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+
+        &:hover {
+          background-color: #F57C00;
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+      }
+    }
+  }
+
+  // Selection Section
+  .selection-section {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background-color: #e3f2fd;
+    border-radius: 4px;
+    border: 1px solid #90caf9;
+
+    .selection-info {
+      .selection-count {
+        font-size: 14px;
+        font-weight: 600;
+        color: #1976d2;
+      }
+    }
+
+    .selection-actions {
+      button {
+        font-size: 13px;
+      }
+    }
+  }
+
+  // Pagination Section
+  .pagination-section {
+    margin-top: 16px;
+    padding: 12px 0;
+    border-top: 1px solid #ccc;
+
+    .pagination-info {
+      font-size: 14px;
+      color: #000;
+      font-weight: 400;
+      
+      span {
+        font-family: 'Chakra Petch', sans-serif;
+      }
+    }
+
+    .pagination-controls {
+      .pagination-button {
+        color: #000;
+        border: none;
+        background: transparent;
+        padding: 4px;
+        min-width: 40px;
+        width: 40px;
+        height: 40px;
+
+        mat-icon {
+          font-size: 24px;
+          width: 24px;
+          height: 24px;
+        }
+
+        &[disabled] {
+          color: #ccc;
+          cursor: not-allowed;
+        }
+
+        &:not([disabled]):hover {
+          background-color: rgba(0, 0, 0, 0.05);
+          border-radius: 4px;
+        }
+      }
+    }
+  }
+
+  // Mobile Cards Section
+  .mobile-cards-section {
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    
+    .mobile-select-all-header {
+      background: white;
+      padding: 10px 12px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 4px;
+      flex-shrink: 0;
+      
+      .mobile-select-all-checkbox {
+        width: 100%;
+        
+        .select-all-label {
+          margin-left: 8px;
+          font-weight: 600;
+          font-size: 14px;
+          color: #1a1a1a;
+        }
+      }
+    }
+    
+    .unit-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 0;
+      flex-shrink: 0;
+      
+      .card-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e0e0e0;
+        margin-bottom: 10px;
+        
+        .card-checkbox {
+          margin-top: 4px;
+        }
+        
+        .card-title-section {
+          flex: 1;
+          
+          .card-chassis {
+            margin: 0 0 4px 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: #1a1a1a;
+          }
+          
+          .card-rfid {
+            font-size: 12px;
+            color: #666;
+            font-family: monospace;
+          }
+        }
+      }
+      
+      .card-body {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 10px;
+        
+        .card-row {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          
+          .card-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+          
+          .card-value {
+            font-size: 14px;
+            color: #1a1a1a;
+            font-weight: 500;
+          }
+          
+          .card-dropdown {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            
+            .mobile-select {
+              flex: 1;
+              width: 100%;
+              margin: 0;
+              
+              ::ng-deep {
+                .mat-mdc-form-field-subscript-wrapper {
+                  display: none;
+                }
+                
+                .mat-mdc-text-field-wrapper {
+                  background-color: #f5f5f5;
+                  padding: 0 8px;
+                }
+                
+                .mat-mdc-form-field-flex {
+                  align-items: center;
+                  min-height: 40px;
+                }
+                
+                .mat-mdc-select-value {
+                  font-size: 14px;
+                }
+                
+                .mat-mdc-form-field-infix {
+                  padding: 8px 0;
+                  min-height: 40px;
+                }
+              }
+            }
+            
+            .mobile-spinner {
+              display: inline-block;
+            }
+          }
+        }
+      }
+      
+      .card-actions {
+        padding-top: 10px;
+        border-top: 1px solid #e0e0e0;
+        
+        .mobile-info-button {
+          width: 100%;
+          background-color: #FF9800;
+          color: white;
+          font-weight: 600;
+          font-size: 13px;
+          text-transform: none;
+          padding: 8px;
+          border-radius: 6px;
+          
+          mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+            margin-right: 6px;
+          }
+          
+          &:hover {
+            background-color: #F57C00;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 960px) {
+  .unit-tracker-container {
+    padding: 16px;
+    gap: 12px;
+
+    .top-section {
+      .search-section {
+        .search-field {
+          max-width: 100%;
+        }
+      }
+
+      .filter-section {
+        .filter-label {
+          margin-bottom: 8px;
+          width: 100%;
+        }
+
+        .filter-dropdown {
+          width: 100%;
+        }
+      }
+    }
+
+    .table-section {
+      padding: 12px;
+
+      .units-table {
+        min-width: 800px;
+
+        th, td {
+          padding: 10px 8px;
+          font-size: 12px;
+        }
+
+        .inline-select {
+          width: 140px;
+
+          ::ng-deep {
+            .mat-mdc-form-field-infix {
+              padding: 6px 0;
+              min-height: 32px;
+            }
+          }
+        }
+
+        .more-info-button {
+          padding: 4px 12px;
+          font-size: 11px;
+        }
+      }
+    }
+    
+    .mobile-cards-section {
+      .mobile-select-all-header {
+        padding: 10px 14px;
+      }
+    }
+
+    .selection-section {
+      padding: 10px 12px;
+
+      .selection-info {
+        .selection-count {
+          font-size: 13px;
+        }
+      }
+
+      .selection-actions {
+        button {
+          font-size: 12px;
+          padding: 6px 12px;
+        }
+      }
+    }
+
+    .pagination-section {
+      padding: 10px 0;
+
+      .pagination-info {
+        font-size: 13px;
+        color: #000;
+        text-align: center;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .unit-tracker-container {
+    .table-section.desktop-table {
+      display: none;
+    }
+    
+    .mobile-cards-section {
+      display: flex;
+    }
+  }
+}
+
+@media (max-width: 600px) {
+  :host {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+  
+  .unit-tracker-container {
+    padding: 8px;
+    gap: 6px;
+
+    .top-section {
+      margin-bottom: 4px;
+      gap: 8px;
+      
+      .search-section {
+        margin-bottom: 4px;
+        
+        .search-field {
+          ::ng-deep {
+            .mat-mdc-form-field-wrapper {
+              padding: 0;
+            }
+          }
+        }
+      }
+
+      .filter-section {
+        gap: 6px;
+        
+        .filter-label {
+          font-size: 12px;
+          margin-bottom: 4px;
+        }
+
+        .filter-dropdown {
+          ::ng-deep {
+            .mat-mdc-form-field-wrapper {
+              padding: 0;
+            }
+          }
+        }
+      }
+    }
+
+    .section-divider {
+      margin: 8px 0;
+    }
+
+    .table-section {
+      display: none;
+    }
+    
+    .mobile-cards-section {
+      display: flex;
+      gap: 6px;
+      
+      .mobile-select-all-header {
+        padding: 8px 10px;
+        margin-bottom: 2px;
+        
+        .mobile-select-all-checkbox {
+          .select-all-label {
+            font-size: 12px;
+          }
+        }
+      }
+      
+      .unit-card {
+        mat-card-content {
+          padding: 12px;
+        }
+        
+        .card-header {
+          gap: 8px;
+          padding-bottom: 8px;
+          margin-bottom: 8px;
+          
+          .card-title-section {
+            .card-chassis {
+              font-size: 14px;
+            }
+            
+            .card-rfid {
+              font-size: 10px;
+            }
+          }
+        }
+        
+        .card-body {
+          gap: 8px;
+          margin-bottom: 8px;
+          
+          .card-row {
+            gap: 3px;
+            
+            .card-label {
+              font-size: 10px;
+            }
+            
+            .card-value {
+              font-size: 12px;
+            }
+            
+            .card-dropdown {
+              .mobile-select {
+                ::ng-deep {
+                  .mat-mdc-form-field-flex {
+                    min-height: 36px;
+                  }
+                  
+                  .mat-mdc-form-field-infix {
+                    min-height: 36px;
+                    padding: 6px 0;
+                  }
+                  
+                  .mat-mdc-select-value {
+                    font-size: 12px;
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        .card-actions {
+          padding-top: 8px;
+          
+          .mobile-info-button {
+            font-size: 12px;
+            padding: 8px;
+            
+            mat-icon {
+              font-size: 16px;
+              width: 16px;
+              height: 16px;
+            }
+          }
+        }
+      }
+    }
+
+    .selection-section {
+      padding: 8px 10px;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+      flex-shrink: 0;
+
+      .selection-info {
+        text-align: center;
+        width: 100%;
+
+        .selection-count {
+          font-size: 12px;
+        }
+      }
+
+      .selection-actions {
+        width: 100%;
+        justify-content: stretch;
+
+        button {
+          width: 100%;
+          font-size: 12px;
+          padding: 8px 12px;
+        }
+      }
+    }
+
+    .pagination-section {
+      padding: 8px 0;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 8px;
+      flex-shrink: 0;
+
+      .pagination-info {
+        font-size: 12px;
+        color: #000;
+        text-align: center;
+        width: 100%;
+      }
+
+      .pagination-controls {
+        justify-content: center;
+        width: 100%;
+      }
+    }
+  }
+}
+
+@media (max-width: 400px) {
+  :host {
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+  
+  .unit-tracker-container {
+    padding: 6px;
+    gap: 4px;
+
+    .top-section {
+      margin-bottom: 2px;
+      gap: 6px;
+      
+      .search-section {
+        margin-bottom: 2px;
+        
+        .search-field {
+          ::ng-deep {
+            .mat-mdc-form-field-label {
+              font-size: 11px;
+            }
+          }
+        }
+      }
+
+      .filter-section {
+        gap: 4px;
+        
+        .filter-label {
+          font-size: 11px;
+          margin-bottom: 2px;
+        }
+
+        .filter-dropdown {
+          ::ng-deep {
+            .mat-mdc-select-placeholder {
+              font-size: 11px;
+            }
+          }
+        }
+      }
+    }
+
+    .table-section {
+      display: none;
+    }
+    
+    .mobile-cards-section {
+      gap: 6px;
+      
+      .mobile-select-all-header {
+        padding: 6px 8px;
+        margin-bottom: 2px;
+        
+        .mobile-select-all-checkbox {
+          .select-all-label {
+            font-size: 11px;
+          }
+        }
+      }
+      
+      .unit-card {
+        mat-card-content {
+          padding: 10px;
+        }
+        
+        .card-header {
+          gap: 8px;
+          padding-bottom: 8px;
+          margin-bottom: 8px;
+          
+          .card-title-section {
+            .card-chassis {
+              font-size: 13px;
+            }
+            
+            .card-rfid {
+              font-size: 9px;
+            }
+          }
+        }
+        
+        .card-body {
+          gap: 8px;
+          margin-bottom: 8px;
+          
+          .card-row {
+            gap: 3px;
+            
+            .card-label {
+              font-size: 9px;
+            }
+            
+            .card-value {
+              font-size: 11px;
+            }
+            
+            .card-dropdown {
+              .mobile-select {
+                ::ng-deep {
+                  .mat-mdc-form-field-flex {
+                    min-height: 32px;
+                  }
+                  
+                  .mat-mdc-form-field-infix {
+                    min-height: 32px;
+                    padding: 4px 0;
+                  }
+                  
+                  .mat-mdc-select-value {
+                    font-size: 11px;
+                  }
+                }
+              }
+            }
+          }
+        }
+        
+        .card-actions {
+          padding-top: 8px;
+          
+          .mobile-info-button {
+            font-size: 11px;
+            padding: 6px;
+            
+            mat-icon {
+              font-size: 14px;
+              width: 14px;
+              height: 14px;
+              margin-right: 4px;
+            }
+          }
+        }
+      }
+    }
+
+    .selection-section {
+      padding: 6px 8px;
+      margin-top: 6px;
+      gap: 6px;
+
+      .selection-info {
+        .selection-count {
+          font-size: 11px;
+        }
+      }
+
+      .selection-actions {
+        button {
+          font-size: 11px;
+          padding: 6px 10px;
+        }
+      }
+    }
+
+    .pagination-section {
+      padding: 6px 0;
+      margin-top: 6px;
+      gap: 6px;
+      
+      .pagination-info {
+        font-size: 11px;
+        color: #000;
+      }
+    }
+  }
+}
+

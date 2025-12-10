@@ -15,17 +15,17 @@ export const routes: Routes = [
     path: '',
     pathMatch: 'full',
     component: EmployeeUsersComponent,
-    data: { title: "EmployeeUser"}
+    data: { title: "User Management" }
   },
   {
     path: 'add',
     component: EmployeeUserDetailsComponent,
-    data: { title: "New EmployeeUser", details: true, isNew: true}
+    data: { title: "User Management", details: true, isNew: true}
   },
   {
     path: ':employeeUserCode',
     component: EmployeeUserDetailsComponent,
-    data: { title: "EmployeeUser", details: true }
+    data: { title: "Employee User", details: true }
   },
   {
     path: ':employeeUserCode/edit',

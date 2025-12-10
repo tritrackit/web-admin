@@ -6,6 +6,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
 import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
 import { MaterialModule } from 'src/app/shared/material/material.module';
+import { NgApexchartsModule } from 'ng-apexcharts';
 import { ReportsComponent } from './reports.component';
 
 export const routes: Routes = [
@@ -27,6 +28,7 @@ export const routes: Routes = [
     NgxSkeletonLoaderModule,
     FormsModule,
     ReactiveFormsModule,
+    NgApexchartsModule,
     RouterModule.forChild(routes),
     PdfViewerModule
   ]

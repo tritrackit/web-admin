@@ -1,3 +1,10 @@
+html, body {
+  font-family: 'Poppins', sans-serif !important;
+  background-color: #fff;
+  margin: 0;
+  padding: 0;
+}
+
 .page-container {
   display: flex;
   flex-direction: column;
@@ -44,6 +51,7 @@
           font-size: 1rem;
           text-align: center;
           margin-bottom: 20px;
+          color: #666;
         }
 
         .forgot-password {
@@ -63,6 +71,10 @@
 
         button {
           font-size: 1rem !important;
+          font-weight: 500;
+          border-radius: 10px;
+          text-transform: none;
+          color: white !important;
         }
       }
     }

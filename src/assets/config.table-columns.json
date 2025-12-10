@@ -1,6 +1,22 @@
 {
   "tableColumns": {
     "employeeUsers": [
+      
+      {
+        "name": "employeeUserCode",
+        "label": "Employee ID",
+        "apiNotation": "employeeUserCode",
+        "sticky": true,
+        "type": "string",
+        "style": {
+          "width": "50px"  
+        },
+        "filterOptions": {
+          "enable": false,
+          "placeholder": "Name"
+        }
+       
+      },
       {
         "name": "name",
         "label": "Name",
@@ -12,19 +28,35 @@
           "left": "0px"
         },
         "filterOptions": {
-          "enable": true,
+          "enable": false,
           "placeholder": "Name"
         },
         "urlPropertyName": "url"
       },
       {
         "name": "userName",
-        "label": "Username",
+        "label": "Email",
         "apiNotation": "userName",
         "type": "string",
+         "style": {
+          "width": "120px"
+        },
         "filterOptions": {
-          "enable": true,
+          "enable": false,
           "placeholder": "Username"
+        }
+      },
+      {
+        "name": "contactNo",
+        "label": "Contact Number",
+        "apiNotation": "contactNo",
+        "type": "string",
+        "style": {
+          "width": "140px"
+        },
+        "filterOptions": {
+          "enable": false,
+          "placeholder": "Phone"
         }
       },
       {
@@ -33,15 +65,32 @@
         "apiNotation": "role.name",
         "type": "string",
         "filterOptions": {
-          "enable": true,
+          "enable": false,
           "placeholder": "Role"
+        }
+      },
+      {
+        "name": "dateCreated",
+        "label": "Date Created",
+        "apiNotation": "dateCreated",
+        "type": "date",
+        "format": {
+          "type": "date",
+          "custom": "MMM dd, yyyy"
+        },
+        "style": {
+          "width": "140px"
+        },
+        "filterOptions": {
+          "enable": false,
+          "placeholder": "Date created"
         }
       }
     ],
     "roles": [
       {
         "name": "roleCode",
-        "label": "Role #",
+        "label": "Role ID",
         "sticky": true,
         "apiNotation": "roleCode",
         "type": "string",
@@ -49,21 +98,13 @@
           "width": "100px",
           "left": "0px"
         },
-        "filterOptions": {
-          "enable": true,
-          "placeholder": "Role #"
-        },
         "urlPropertyName": "url"
       },
       {
         "name": "name",
         "label": "Role name",
         "apiNotation": "name",
-        "type": "string",
-        "filterOptions": {
-          "enable": true,
-          "placeholder": "Role name"
-        }
+        "type": "string"
       }
     ],
     "locations": [
@@ -98,16 +139,12 @@
       {
         "sticky": true,
         "name": "unitCode",
-        "label": "Unit #",
+        "label": "Unit ID",
         "apiNotation": "unitCode",
         "type": "string",
         "style": {
           "width": "100px",
           "left": "0px"
-        },
-        "filterOptions": {
-          "enable": true,
-          "placeholder": "Unit #"
         },
         "urlPropertyName": "url"
       },
@@ -115,31 +152,31 @@
         "name": "chassisNo",
         "label": "Chassis No",
         "apiNotation": "chassisNo",
-        "type": "string",
-        "filterOptions": {
-          "enable": true,
-          "placeholder": "Chassis No"
-        }
+        "type": "string"
       },
       {
         "name": "model",
         "label": "Model",
         "apiNotation": "model.modelName",
-        "type": "string",
-        "filterOptions": {
-          "enable": true,
-          "placeholder": "Model"
-        }
+        "type": "string"
       },
       {
         "name": "color",
         "label": "Color",
         "apiNotation": "color",
-        "type": "string",
-        "filterOptions": {
-          "enable": true,
-          "placeholder": "Color"
-        }
+        "type": "string"
+      },
+      {
+        "name": "location",
+        "label": "Location",
+        "apiNotation": "location.name",
+        "type": "string"
+      },
+      {
+        "name": "status",
+        "label": "Status",
+        "apiNotation": "status.name",
+        "type": "string"
       }
     ],
     "model": [
@@ -202,27 +239,43 @@
     "scanner": [
       {
         "name": "scannerCode",
-        "label": "Scanner #",
+        "label": "Scanner ID",
         "apiNotation": "scannerCode",
         "sticky": true,
         "type": "string",
         "style": {
-          "width": "100px",
+          "width": "10px",
           "left": "0px"
         },
         "filterOptions": {
-          "enable": true,
-          "placeholder": "Scanner #"
+          "enable": false,
+          "placeholder": "Scanner ID"
         },
         "urlPropertyName": "url"
       },
+      {
+        "name": "scannerType",
+        "label": "Scanner Type",
+        "apiNotation": "scannerType",
+        "sticky": true,
+        "type": "string",
+        "style": {
+          "width": "10px",
+          "left": "0px"
+        },
+        "filterOptions": {
+          "enable": false,
+          "placeholder": "Scanner Type"
+        },
+        "urlPropertyName": "url"
+      },  
       {
         "name": "name",
         "label": "Scanner name",
         "apiNotation": "name",
         "type": "string",
         "filterOptions": {
-          "enable": true,
+          "enable": false,
           "placeholder": "Scanner name"
         }
       },
@@ -232,7 +285,7 @@
         "apiNotation": "location.name",
         "type": "string",
         "filterOptions": {
-          "enable": true,
+          "enable": false,
           "placeholder": "Location"
         }
       },
@@ -241,8 +294,25 @@
         "label": "Assigned Employee",
         "apiNotation": "assignedEmployeeUser.name",
         "type": "string",
+      
         "filterOptions": {
-          "enable": true,
+          "enable": false,
+          "placeholder": "Assigned Employee"
+        }
+      },
+      {
+        "name": "dateCreated",
+        "label": "Date Created",
+        "apiNotation": "dateCreated",
+        "sticky": true,
+        "type": "string",
+        "format": {
+          "type": "date",
+          "custom": "MMM dd, yyyy"
+        },
+
+        "filterOptions": {
+          "enable": false,
           "placeholder": "Assigned Employee"
         }
       }

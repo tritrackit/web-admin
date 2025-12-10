@@ -1,23 +1,45 @@
-
-<div class="component-floating-actions vertical-actions">
-  <button mat-fab color="primary" aria-label="New Scanner" matTooltip="New Scanner" routerLink="/scanner/add">
-    <mat-icon>add</mat-icon>
-  </button>
-</div>
+<!-- In your table headers -->
+<ng-container matColumnDef="scannerType">
+  <th mat-header-cell *matHeaderCellDef> Scanner Type </th>
+  <td mat-cell *matCellDef="let element"> 
+    <span class="scanner-type-badge" [class]="element.scannerType?.toLowerCase()">
+      {{ element.scannerType === 'LOCATION' ? 'Location' : 'Registration' }}
+    </span>
+  </td>
+</ng-container>
 <div class="content">
-<div class="inner-content">
-  <mat-card [ngClass]="{ 'hidden': isLoading }">
-      <mat-card-content fxLayout="column" >
+  <div class="inner-content">
+
+    <div class="search-container">
+      <mat-form-field appearance="outline" class="search-field">
+        <button mat-icon-button matPrefix (click)="onSearch()">
+          <mat-icon>search</mat-icon>
+        </button>
+        <input matInput placeholder="Search Scanner" [(ngModel)]="searchTerm" (keyup.enter)="onSearch()">
+      </mat-form-field>
+  
+      <!-- Add New Scanner button on the right -->
+      <button mat-raised-button class="add-user-btn" routerLink="/scanner/add">
+        <mat-icon>add</mat-icon>
+        Add New Scanner
+      </button>
+    </div>
+
+    <mat-card>
+      <mat-card-content>
         <app-data-table
-        [isLoading]="isLoading"
-        [dataSource]="dataSource"
-        [columnDefs]="appConfig.config.tableColumns.scanner"
-        [total]="total"
-        (pageChange)="pageChange($event)"
-        (sortChange)="sortChange($event)"
-        (filterChange)="filterChange($event)"
-        ></app-data-table>
+          [isLoading]="isLoading"
+          [dataSource]="dataSource"
+          [columnDefs]="appConfig.config.tableColumns.scanner"
+          [total]="total"
+          [pageIndex]="pageIndex"
+          [pageSize]="pageSize"
+          (pageChange)="pageChange($event)"
+          (sortChange)="sortChange($event)"
+          (filterChange)="filterChange($event)">
+        </app-data-table>
       </mat-card-content>
-  </mat-card>
+    </mat-card>
+    
   </div>
 </div>

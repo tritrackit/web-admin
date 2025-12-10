@@ -25,6 +25,7 @@ export class ColumnDefinitionFilterOptions {
 export class ColumnStyle {
   width: string;
   left: string;
+  //  to be added style properties
 }
 
 export class TableColumnBase {
@@ -35,10 +36,14 @@ export class EmployeeUsersTableColumn {
   employeeUserCode?: string;
   userName?: string;
   name?: string;
+  firstName?: string;
+  lastName?: string;
   email?: string;
   enable?: boolean;
   role?: string;
   url?: string;
+  contactNo: string;
+  dateCreated?: Date;
 }
 
 export class EmployeeUserTableColumn {
@@ -66,6 +71,8 @@ export class CBUTableColumn {
   chassisNo?: string;
   model?: string;
   color?: string;
+  location?: string;
+  status?: string;
   url?: string;
 }
 export class ModelTableColumn {
@@ -79,9 +86,11 @@ export class ModelTableColumn {
 export class ScannerTableColumn {
   scannerId?: string;
   scannerCode?: string;
+  scannerType?: string;
   name?: string;
   location?: string;
   assignedEmployeeUser?: string;
   url?: string;
+  dateCreated?: Date;
 }
 

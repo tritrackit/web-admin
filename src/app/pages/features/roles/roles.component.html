@@ -1,13 +1,16 @@
-
-<div class="component-floating-actions vertical-actions">
-  <button mat-fab color="primary" aria-label="New Role" matTooltip="New Role" (click)="showAddDialog()">
-    <mat-icon>add</mat-icon>
-  </button>
-</div>
 <div class="content">
-<div class="inner-content">
-  <mat-card [ngClass]="{ 'hidden': isLoading }">
-      <mat-card-content fxLayout="column" >
+  <div class="inner-content">
+
+    <!-- Add button container -->
+    <div class="button-container">
+      <button mat-raised-button class="add-role-btn" (click)="showAddDialog()">
+        <mat-icon>add</mat-icon>
+        Add New Role
+      </button>
+    </div>
+
+    <mat-card [ngClass]="{ 'hidden': isLoading }">
+      <mat-card-content fxLayout="column">
         <app-data-table
         [isLoading]="isLoading"
         [dataSource]="dataSource"
@@ -18,38 +21,40 @@
         (filterChange)="filterChange($event)"
         ></app-data-table>
       </mat-card-content>
-  </mat-card>
+    </mat-card>
   </div>
 </div>
 
 <ng-template #roleFormDialog>
-  <h4 mat-dialog-title>New Role</h4>
+  <div class="dialog-container">
+    <div mat-dialog-title class="dialog-title">
+      <h4>New Role</h4>
+    </div>
 
-<div mat-dialog-content>
-  <app-role-form #roleForm></app-role-form>
-</div>
+    <div mat-dialog-content class="dialog-content">
+      <app-role-form #roleForm></app-role-form>
+    </div>
 
-<div mat-dialog-actions>
-  <div>
-    <button
-      mat-flat-button
-      cdkFocusInitial
-      (click)="closeNewRoleDialog()"
-    >
-      Cancel
-    </button>
-    <button
-      mat-flat-button
-      [disabled]="!roleForm.valid || !roleForm.ready"
-      color="primary"
-      form="roleForm"
-      type="submit"
-      (click)="saveNewRole(roleForm.getFormData)"
-    >
-      Save
-    </button>
+    <div mat-dialog-actions class="dialog-actions">
+      <button
+        mat-flat-button
+        class="cancel-btn"
+        cdkFocusInitial
+        (click)="closeNewRoleDialog()"
+      >
+        Cancel
+      </button>
+      <button
+        mat-flat-button
+        class="save-btn"
+        [disabled]="!roleForm.valid || !roleForm.ready"
+        color="primary"
+        form="roleForm"
+        type="submit"
+        (click)="saveNewRole(roleForm.getFormData)"
+      >
+        Save
+      </button>
+    </div>
   </div>
-</div>
-
 </ng-template>
-
