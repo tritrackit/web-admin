@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, NgZone } from '@angular/core';
+import { Router } from '@angular/router';
 import { Observable, tap, catchError, of, BehaviorSubject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ApiResponse } from '../model/api-response.model';
@@ -38,6 +39,7 @@ export class UnitService implements IServices {
     private zone: NgZone,
     private storageService: StorageService,
     private pusher: PusherService,
+    private router: Router
   ) {
     this.currentUserProfile = this.storageService.getLoginProfile();
     
@@ -71,17 +73,57 @@ export class UnitService implements IServices {
     // Backend sends reSync events via PusherService which emits onUpdate
     try {
       this.pusher.onUpdate.subscribe((payload: any) => {
-        console.log('📡 UnitService: Pusher update received', payload);
-        // Backend sends: { type: 'units', data: { rfid, action, location, status, ... } }
-        // OR batched: { type: 'units', data: { action: 'BATCH_UPDATE', updates: [...], count: N } }
+        const receiveTime = Date.now();
+        console.log(`📡 UnitService: Pusher update received at ${receiveTime}`, payload);
+        
         if (payload && payload.type === 'units') {
           const data = payload.data;
+          
+          // Log channel source and latency
+          const sentAt = data?._sentAt || data?._pusherSentAt;
+          const latency = sentAt ? receiveTime - sentAt : data?._latency || 0;
+          const channel = data?._channel || 'unknown';
+          
+          if (sentAt || data?._latency) {
+            console.log(`⚡ Channel: ${channel}, Latency: ${latency}ms, Action: ${data?.action || 'unknown'}`);
+            
+            if (latency > 200 && data?.action !== 'BATCH_UPDATE') {
+              console.warn(`⚠️ High Pusher latency: ${latency}ms for action: ${data?.action}`);
+            }
+          }
+          
+          // ⚡ STEP 1: Handle URGENT RFID events FIRST (HIGHEST PRIORITY)
+          if (data?.action === 'RFID_DETECTED_URGENT') {
+            console.log(`⚡ UnitService: URGENT RFID event received (HIGHEST PRIORITY, ${latency}ms)`, data);
+            this.zone.run(() => {
+              // Clear any previous data first
+              this.data.next(null);
+              
+              // Emit via data$ observable so CBU component can handle registration immediately
+              // Using type assertions since we only need partial data for registration flow
+              this.data.next({
+                rfid: data.rfid,
+                scannerCode: data.scannerCode,
+                employeeUser: data.employeeUserCode ? { 
+                  employeeUserCode: data.employeeUserCode 
+                } as any : null,
+                location: data.locationId ? { 
+                  locationId: data.locationId, 
+                  name: data.location 
+                } as any : null,
+                timestamp: data.timestamp ? new Date(data.timestamp) : new Date(),
+                _urgent: true,
+                _latency: latency
+              } as any);
+            });
+            return; // ⚡ EXIT EARLY - urgent events take precedence
+          }
           
           // Handle BATCH_UPDATE - backend batches multiple updates together
           if (data?.action === 'BATCH_UPDATE' && data?.updates && Array.isArray(data.updates)) {
             console.log(`📡 UnitService: BATCH_UPDATE received with ${data.count} updates`, data);
             // Process each update in the batch
-            const hasRfidDetected = data.updates.some((u: any) => u.action === 'RFID_DETECTED');
+            const hasRfidDetected = data.updates.some((u: any) => u.action === 'RFID_DETECTED' || u.action === 'RFID_DETECTED_URGENT');
             const hasLocationUpdate = data.updates.some((u: any) => 
               u.action === 'LOCATION_UPDATED' || 
               u.action === 'ENTERED_WAREHOUSE_5' || 
@@ -91,7 +133,7 @@ export class UnitService implements IServices {
             
             // If batch contains RFID_DETECTED, handle registration
             if (hasRfidDetected) {
-              const rfidEvent = data.updates.find((u: any) => u.action === 'RFID_DETECTED');
+              const rfidEvent = data.updates.find((u: any) => u.action === 'RFID_DETECTED' || u.action === 'RFID_DETECTED_URGENT');
               if (rfidEvent) {
                 this.zone.run(() => {
                   this.data.next({
@@ -112,10 +154,12 @@ export class UnitService implements IServices {
                 this.refreshUnits();
               });
             }
+            return;
           }
+          
           // Handle RFID_DETECTED action - emit via data$ for registration flow (immediate, no batching)
-          else if (data?.action === 'RFID_DETECTED') {
-            console.log('📡 UnitService: RFID_DETECTED event received (immediate)', data);
+          if (data?.action === 'RFID_DETECTED') {
+            console.log(`📡 UnitService: RFID_DETECTED event received (immediate, ${latency}ms)`, data);
             this.zone.run(() => {
               // Emit via data$ observable so CBU component can handle registration
               // Using type assertions since we only need partial data for registration flow
@@ -124,17 +168,18 @@ export class UnitService implements IServices {
                 scannerCode: data.scannerCode,
                 employeeUser: data.employeeUserCode ? { employeeUserCode: data.employeeUserCode } as any : null,
                 location: data.locationId ? { locationId: data.locationId, name: data.location } as any : null,
-                timestamp: data.timestamp ? new Date(data.timestamp) : new Date()
+                timestamp: data.timestamp ? new Date(data.timestamp) : new Date(),
+                _latency: latency
               } as any);
             });
+            return;
           } 
+          
           // Handle other unit updates (location changes, status updates, etc.)
-          else {
-            console.log('📡 UnitService: Unit update detected, refreshing...', data);
-            this.zone.run(() => {
-              this.refreshUnits(); // Trigger refresh
-            });
-          }
+          console.log('📡 UnitService: Unit update detected, refreshing...', data);
+          this.zone.run(() => {
+            this.refreshUnits(); // Trigger refresh
+          });
         }
       });
       

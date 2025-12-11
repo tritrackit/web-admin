@@ -16,14 +16,56 @@ export class PusherService {
       forceTLS: environment.production
     });
     
-    // 🔥 LISTEN TO THE SAME CHANNEL AS BACKEND: 'all' channel with 'reSync' event
+    // ⚡ STEP 1: URGENT CHANNEL - HIGHEST PRIORITY (bypasses all queues)
+    // Backend sends: sendRegistrationUrgent() -> 'registration-urgent' with 'rfid-detected' event
+    const urgentChannel = this.pusher.subscribe('registration-urgent');
+    urgentChannel.bind('rfid-detected', (data: any) => {
+      const receiveTime = Date.now();
+      const sentAt = data?._sentAt || data?._pusherSentAt;
+      const latency = sentAt ? receiveTime - sentAt : 0;
+      
+      console.log(`⚡ URGENT Pusher: RFID detected for immediate registration (${latency}ms latency)`, data);
+      
+      if (latency > 200) {
+        console.warn(`⚠️ High URGENT Pusher latency: ${latency}ms`);
+      }
+      
+      // Emit a HIGH PRIORITY event with new action type
+      this.onUpdate.emit({
+        type: 'units',
+        data: {
+          rfid: data.rfid,
+          scannerCode: data.scannerCode,
+          action: 'RFID_DETECTED_URGENT', // ⚡ NEW action type
+          location: data.location,
+          locationId: data.locationId,
+          employeeUserCode: data.employeeUserCode,
+          timestamp: data.timestamp,
+          _priority: 'highest',
+          _channel: 'registration-urgent', // Identify source
+          _sentAt: sentAt,
+          _receiveTime: receiveTime,
+          _latency: latency
+        }
+      });
+    });
+    
+    // 🔥 STEP 2: LISTEN TO THE SAME CHANNEL AS BACKEND: 'all' channel with 'reSync' event
     // Backend sends: pusherService.reSync('units', { rfid, action, location, status, ... })
     // Which triggers: channel 'all', event 'reSync', payload: { type: 'units', data: {...} }
     const globalChannel = this.pusher.subscribe('all');
     
     // Listen for reSync events (this is what the backend actually sends)
     globalChannel.bind('reSync', (payload: any) => {
-      console.log('📡 Pusher: reSync event received', payload);
+      const receiveTime = Date.now();
+      const sentAt = payload?.data?._pusherSentAt;
+      const latency = sentAt ? receiveTime - sentAt : 0;
+      
+      console.log(`📡 Pusher: reSync event received (${latency}ms latency)`, payload);
+      
+      if (latency > 500) {
+        console.warn(`⚠️ High Pusher latency: ${latency}ms for reSync event`);
+      }
       
       // Backend sends: { type: 'units', data: { rfid, action, location, status, ... } }
       // OR batched: { type: 'units', data: { action: 'BATCH_UPDATE', updates: [...], count: N } }
@@ -33,11 +75,20 @@ export class PusherService {
       }
     });
     
-    // 🔥 CRITICAL: Listen to registration-channel for immediate registration events
+    // 🔥 STEP 3: Listen to registration-channel for immediate registration events
     // Backend sends: sendRegistrationEventImmediate() -> 'registration-channel' with 'new-registration' event
     const registrationChannel = this.pusher.subscribe('registration-channel');
     registrationChannel.bind('new-registration', (data: any) => {
-      console.log('📡 Pusher: New registration event received (immediate)', data);
+      const receiveTime = Date.now();
+      const sentAt = data?._pusherSentAt;
+      const latency = sentAt ? receiveTime - sentAt : 0;
+      
+      console.log(`📡 Pusher: New registration event received (immediate, ${latency}ms latency)`, data);
+      
+      if (latency > 200) {
+        console.warn(`⚠️ High registration channel latency: ${latency}ms`);
+      }
+      
       // Emit as RFID_DETECTED for UnitService to handle
       this.onUpdate.emit({
         type: 'units',
@@ -48,7 +99,11 @@ export class PusherService {
           location: data.location,
           locationId: data.locationId,
           timestamp: data.timestamp,
-          scannerType: data.scannerType
+          scannerType: data.scannerType,
+          _channel: 'registration-channel',
+          _sentAt: sentAt,
+          _receiveTime: receiveTime,
+          _latency: latency
         }
       });
     });
