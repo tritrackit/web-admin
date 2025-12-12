@@ -13,9 +13,16 @@
     <!-- Info Card -->
     <mat-card class="info-card">
       <mat-card-content>
-        <div fxLayout="row" fxLayoutAlign="start center" fxLayoutGap="8px">
-          <mat-icon color="primary">info</mat-icon>
-          <span>Locations are fixed: <strong>Open Area, Warehouse 4, Warehouse 5, Delivered</strong>. They cannot be created, updated, or deleted.</span>
+        <div fxLayout="row" 
+             fxLayout.xs="row"
+             fxLayout.sm="row"
+             fxLayoutAlign="start center"
+             fxLayoutAlign.xs="start start"
+             fxLayoutAlign.sm="start center"
+             fxLayoutGap="8px"
+             fxLayoutGap.xs="6px">
+          <mat-icon color="primary" class="info-icon">info</mat-icon>
+          <span class="info-text">Locations are fixed: <strong>Open Area, Warehouse 4, Warehouse 5, Delivered</strong>. They cannot be created, updated, or deleted.</span>
         </div>
       </mat-card-content>
     </mat-card>

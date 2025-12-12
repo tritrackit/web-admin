@@ -155,21 +155,24 @@
   }
 }
 
-// Responsive adjustments
-@media (max-width: 600px) {
+// Responsive adjustments for tablets and smaller screens (1024px and below)
+@media (max-width: 1024px) {
   .inner-content {
-    padding: 8px;
-    margin-top: 12px;
+    padding: 12px;
+    margin-top: 16px;
   }
 
   .search-container {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 8px;
+    gap: 10px;
     margin-bottom: 16px;
     
     .search-field {
       width: 100%;
+      max-width: 100%;
+      
+      ::ng-deep input {
+        font-size: 15px;
+      }
     }
   }
 
@@ -177,10 +180,207 @@
     margin-bottom: 16px;
     
     mat-card-content {
+      padding: 14px !important;
+      
+      .info-text {
+        font-size: 13px;
+        line-height: 1.4;
+      }
+      
+      .info-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+      }
+    }
+  }
+}
+
+// Responsive adjustments for mobile (768px and below)
+@media (max-width: 768px) {
+  .inner-content {
+    padding: 10px;
+    margin-top: 12px;
+  }
+
+  .search-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    margin-bottom: 14px;
+    
+    .search-field {
+      width: 100%;
+      height: 42px;
+      
+      ::ng-deep .mat-mdc-text-field-wrapper {
+        height: 42px;
+      }
+      
+      ::ng-deep input {
+        font-size: 14px;
+      }
+      
+      ::ng-deep .mat-icon {
+        font-size: 16px;
+      }
+    }
+  }
+
+  .info-card {
+    margin-bottom: 14px;
+    border-left-width: 3px;
+    
+    mat-card-content {
       padding: 12px !important;
       
-      span {
+      .info-text {
         font-size: 12px;
+        line-height: 1.5;
+        word-wrap: break-word;
+        
+        strong {
+          font-weight: 600;
+          display: inline;
+        }
+      }
+      
+      .info-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        margin-top: 2px;
+      }
+    }
+  }
+}
+
+// Responsive adjustments for small mobile (600px and below)
+@media (max-width: 600px) {
+  .inner-content {
+    padding: 8px;
+    margin-top: 10px;
+  }
+
+  .search-container {
+    gap: 6px;
+    margin-bottom: 12px;
+    
+    .search-field {
+      height: 40px;
+      
+      ::ng-deep .mat-mdc-text-field-wrapper {
+        height: 40px;
+        padding: 0 6px !important;
+      }
+      
+      ::ng-deep input {
+        font-size: 13px;
+      }
+      
+      ::ng-deep .mat-icon {
+        font-size: 16px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+  }
+
+  .info-card {
+    margin-bottom: 12px;
+    border-left-width: 3px;
+    border-radius: 6px;
+    
+    mat-card-content {
+      padding: 10px !important;
+      
+      div {
+        flex-wrap: wrap;
+      }
+      
+      .info-text {
+        font-size: 11px;
+        line-height: 1.6;
+        
+        strong {
+          font-size: 11px;
+          display: inline-block;
+          margin-top: 2px;
+        }
+      }
+      
+      .info-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        margin-top: 2px;
+      }
+    }
+  }
+
+  ::ng-deep .table-container {
+    padding-bottom: 12px;
+    
+    .table {
+      min-width: 600px !important;
+      font-size: 13px;
+      
+      th, td {
+        font-size: 13px;
+        padding: 8px 12px !important;
+      }
+      
+      th {
+        padding-bottom: 6px !important;
+      }
+    }
+  }
+}
+
+// Responsive adjustments for extra small mobile (400px and below)
+@media (max-width: 400px) {
+  .inner-content {
+    padding: 6px;
+    margin-top: 8px;
+  }
+
+  .search-container {
+    margin-bottom: 10px;
+    
+    .search-field {
+      height: 38px;
+      
+      ::ng-deep .mat-mdc-text-field-wrapper {
+        height: 38px;
+        padding: 0 4px !important;
+      }
+      
+      ::ng-deep input {
+        font-size: 12px;
+      }
+    }
+  }
+
+  .info-card {
+    margin-bottom: 10px;
+    
+    mat-card-content {
+      padding: 8px !important;
+      
+      .info-text {
+        font-size: 10px;
+        line-height: 1.5;
+        
+        strong {
+          font-size: 10px;
+        }
+      }
+      
+      .info-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
       }
     }
   }

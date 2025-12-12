@@ -118,27 +118,38 @@
     // Total Units Card with Model List
     .total-units-card {
       border: 1px solid black;
+      height: 100%; // Match height with other cards
       
       mat-card-content {
         text-align: left;
         padding: 20px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
         
         .summary-label {
           text-align: center;
           font-size: 14px;
           font-weight: 600;
+          flex-shrink: 0;
         }
         
         .summary-value {
           text-align: center;
           font-size: 42px;
           font-weight: 900;
+          flex-shrink: 0;
         }
 
         .model-totals-list {
           margin-top: 16px;
           padding-top: 16px;
           border-top: 1px solid #ccc;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          min-height: 0; // Important for flex scrolling
           
           .model-totals-header {
             font-size: 11px;
@@ -148,15 +159,18 @@
             letter-spacing: 0.5px;
             margin-bottom: 12px;
             text-align: center;
+            flex-shrink: 0;
           }
 
           .model-totals-items {
             display: flex;
             flex-direction: column;
             gap: 8px;
-            max-height: 200px;
+            flex: 1;
             overflow-y: auto;
+            overflow-x: hidden;
             -webkit-overflow-scrolling: touch;
+            max-height: 100%; // Fixed height constraint
 
             .model-total-item {
               display: flex;
@@ -350,6 +364,200 @@
 
       tr:hover {
         background-color: rgba(0, 0, 0, 0.05);
+      }
+    }
+  }
+}
+
+// Responsive adjustments for tablets and smaller screens (1024px width and below)
+@media (max-width: 1024px) {
+  .dashboard-container {
+    padding: 16px;
+
+    .dashboard-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 16px;
+
+      .dashboard-title {
+        font-size: 20px;
+      }
+
+      .dashboard-date {
+        font-size: 14px;
+      }
+    }
+
+    .top-section {
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .summary-section {
+      width: 100%;
+
+      .summary-card {
+        mat-card-content {
+          padding: 16px;
+
+          .summary-label {
+            font-size: 12px;
+          }
+
+          .summary-value {
+            font-size: 32px;
+          }
+        }
+      }
+
+      .total-units-card {
+        mat-card-content {
+          padding: 16px;
+          
+          .summary-label {
+            font-size: 12px;
+          }
+          
+          .summary-value {
+            font-size: 32px;
+            margin-bottom: 12px;
+          }
+
+          .model-totals-list {
+            margin-top: 12px;
+            padding-top: 12px;
+
+            .model-totals-header {
+              font-size: 10px;
+              margin-bottom: 10px;
+            }
+
+            .model-totals-items {
+              max-height: 150px;
+              gap: 6px;
+
+              .model-total-item {
+                padding: 6px 10px;
+
+                .model-total-info {
+                  gap: 6px;
+
+                  .model-total-icon {
+                    font-size: 16px;
+                    width: 16px;
+                    height: 16px;
+                  }
+
+                  .model-total-name {
+                    font-size: 12px;
+                  }
+                }
+
+                .model-total-value {
+                  font-size: 14px;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .chart-section {
+      width: 100%;
+
+      .chart-card {
+        mat-card-content {
+          padding: 16px;
+
+          .filter-controls {
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 8px;
+
+            .filter-label {
+              font-size: 11px;
+              margin-bottom: 0;
+            }
+
+            .filter-select {
+              max-width: 150px;
+              width: auto;
+            }
+
+            .filter-date {
+              max-width: 140px;
+              width: auto;
+            }
+
+            .filter-month {
+              max-width: 150px;
+              width: auto;
+            }
+          }
+
+          .chart-container {
+            min-height: 250px;
+          }
+        }
+      }
+    }
+
+    .table-section {
+      .table-card {
+        mat-card-content {
+          padding: 16px;
+          overflow-x: auto;
+        }
+      }
+
+      .units-table {
+        font-size: 12px;
+        min-width: 600px; // Ensure table doesn't get too cramped
+
+        th, td {
+          padding: 8px 12px;
+        }
+
+        .model-cell {
+          mat-icon {
+            font-size: 18px;
+            width: 18px;
+            height: 18px;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive adjustments for shorter screens (1124px height and below)
+@media (max-height: 1124px) {
+  .dashboard-container {
+    padding: 16px;
+
+    .summary-section {
+      .total-units-card {
+        mat-card-content {
+          .model-totals-list {
+            .model-totals-items {
+              max-height: 120px; // Reduced height for shorter screens
+            }
+          }
+        }
+      }
+    }
+
+    .chart-section {
+      .chart-card {
+        mat-card-content {
+          .chart-container {
+            min-height: 200px; // Reduced chart height
+          }
+        }
       }
     }
   }

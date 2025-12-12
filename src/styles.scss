@@ -81,6 +81,11 @@ button {
   &.side-bar-open {
     margin-left: 360px !important;
     width: calc(100% - 360px) !important;
+    
+    @media (max-width: 1024px) {
+      margin-left: 0 !important;
+      width: 100% !important;
+    }
   }
 
   mat-icon {
@@ -109,6 +114,10 @@ button {
 
     color: #fff !important;
     background-color: mat.m2-get-color-from-palette($tritrackit-web-primary) !important;
+
+    @media only screen and (max-width: 1024px) {
+      width: 280px !important;
+    }
 
     @media only screen and (max-width: 360px) {
       width: 100% !important;

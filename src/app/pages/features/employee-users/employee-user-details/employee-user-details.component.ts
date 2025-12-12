@@ -215,7 +215,14 @@ export class EmployeeUserDetailsComponent implements OnInit {
         .subscribe(async value => {
           await this.initRoleOptions();
         });
-      await this.initRoleOptions();
+      
+      // Only load role options if it's not a new user, or if it's a new user, load them without showing spinner
+      if (this.isNew) {
+        // For new users, load options silently (no spinner on initial load)
+        this.initRoleOptionsSilently();
+      } else {
+        await this.initRoleOptions();
+      }
     } catch (ex) {
       this.isLoading = false;
       this.error = Array.isArray(ex.message) ? ex.message[0] : ex.message;
@@ -260,6 +267,24 @@ export class EmployeeUserDetailsComponent implements OnInit {
     this.optionsRole = res.data.results.map(a => { return { name: a.name, code: a.roleCode } });
     this.mapSearchRole();
     this.isOptionsRoleLoading = false;
+  }
+
+  async initRoleOptionsSilently() {
+    // Load role options without showing the spinner (for initial load of new users)
+    try {
+      const res = await this.roleService.getByAdvanceSearch({
+        order: {},
+        columnDef: [],
+        pageIndex: 0,
+        pageSize: 10
+      }).toPromise();
+      if (res?.data?.results) {
+        this.optionsRole = res.data.results.map(a => { return { name: a.name, code: a.roleCode } });
+        this.mapSearchRole();
+      }
+    } catch (error) {
+      console.error('Error loading role options:', error);
+    }
   }
 
   displayRoleName(value?: number) {
