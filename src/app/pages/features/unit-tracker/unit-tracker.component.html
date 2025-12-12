@@ -84,13 +84,15 @@
           <mat-checkbox
             [checked]="selectAllChecked"
             [indeterminate]="selectAllIndeterminate"
-            (change)="onSelectAllChange($event.checked)">
+            (change)="onSelectAllChange($event.checked)"
+            [disabled]="!hasModifyAccess">
           </mat-checkbox>
         </th>
         <td mat-cell *matCellDef="let row">
           <mat-checkbox
             [checked]="row.selected"
-            (change)="onRowSelectChange(row, $event.checked)">
+            (change)="onRowSelectChange(row, $event.checked)"
+            [disabled]="!hasModifyAccess">
           </mat-checkbox>
         </td>
       </ng-container>
@@ -128,7 +130,7 @@
               <mat-select 
                 [value]="row.locationId" 
                 (selectionChange)="onLocationChange(row, $event.value)"
-                [disabled]="isUpdating(row.unitId)">
+                [disabled]="!hasModifyAccess || isUpdating(row.unitId)">
                 <mat-option *ngFor="let location of locations" [value]="location.locationId">
                   {{ location.name }}
                 </mat-option>
@@ -148,7 +150,7 @@
               <mat-select 
                 [value]="row.statusId" 
                 (selectionChange)="onStatusChange(row, $event.value)"
-                [disabled]="isUpdating(row.unitId)">
+                [disabled]="!hasModifyAccess || isUpdating(row.unitId)">
                 <mat-option *ngFor="let status of statuses" [value]="status.statusId">
                   {{ status.name }}
                 </mat-option>
@@ -163,7 +165,7 @@
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let row">
-          <button mat-raised-button color="accent" class="more-info-button" (click)="onMoreInfo(row)">
+          <button mat-raised-button color="accent" class="more-info-button" (click)="onMoreInfo(row)" [disabled]="!hasViewAccess">
             MORE INFO
           </button>
         </td>
@@ -182,6 +184,7 @@
         [checked]="selectAllChecked"
         [indeterminate]="selectAllIndeterminate"
         (change)="onSelectAllChange($event.checked)"
+        [disabled]="!hasModifyAccess"
         class="mobile-select-all-checkbox">
         <span class="select-all-label">Select All</span>
       </mat-checkbox>
@@ -194,6 +197,7 @@
           <mat-checkbox
             [checked]="row.selected"
             (change)="onRowSelectChange(row, $event.checked)"
+            [disabled]="!hasModifyAccess"
             class="card-checkbox">
           </mat-checkbox>
           <div class="card-title-section">
@@ -221,7 +225,7 @@
                 <mat-select 
                   [value]="row.locationId" 
                   (selectionChange)="onLocationChange(row, $event.value)"
-                  [disabled]="isUpdating(row.unitId)">
+                  [disabled]="!hasModifyAccess || isUpdating(row.unitId)">
                   <mat-option *ngFor="let location of locations" [value]="location.locationId">
                     {{ location.name }}
                   </mat-option>
@@ -239,7 +243,7 @@
                 <mat-select 
                   [value]="row.statusId" 
                   (selectionChange)="onStatusChange(row, $event.value)"
-                  [disabled]="isUpdating(row.unitId)">
+                  [disabled]="!hasModifyAccess || isUpdating(row.unitId)">
                   <mat-option *ngFor="let status of statuses" [value]="status.statusId">
                     {{ status.name }}
                   </mat-option>
@@ -252,7 +256,7 @@
 
         <!-- Card Actions -->
         <div class="card-actions">
-          <button mat-raised-button color="accent" class="mobile-info-button" (click)="onMoreInfo(row)">
+          <button mat-raised-button color="accent" class="mobile-info-button" (click)="onMoreInfo(row)" [disabled]="!hasViewAccess">
             <mat-icon>info</mat-icon>
             More Info
           </button>
@@ -281,7 +285,7 @@
          fxLayoutGap="8px"
          fxLayoutAlign.xs="stretch"
          fxLayoutAlign.sm="end">
-      <button mat-raised-button color="primary" (click)="openBulkUpdateDialog()" [disabled]="bulkUpdating" fxFlex.xs="100" fxFlex.sm="none">
+      <button mat-raised-button color="primary" (click)="openBulkUpdateDialog()" [disabled]="!hasModifyAccess || bulkUpdating" fxFlex.xs="100" fxFlex.sm="none">
         <mat-icon>edit</mat-icon>
         <span fxHide.xs="false" fxHide.sm="false">Update Selected</span>
         <span fxShow.xs="false" fxShow.sm="false">Update</span>

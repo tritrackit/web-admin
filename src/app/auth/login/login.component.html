@@ -5,11 +5,11 @@
         <span class="title">Log In</span>
         <span class="desc">Please enter your details</span>
         <mat-form-field appearance="outline">
-          <mat-label>Username</mat-label>
+          <mat-label>Email</mat-label>
           <input matInput placeholder="Enter your  username:" formControlName="userName">
           <mat-error *ngIf="logInForm.controls['userName']?.errors">
             {{
-            ( logInForm.controls['userName'].errors['required'] ? 'Enter your  username:' : '') ||
+            ( logInForm.controls['userName'].errors['required'] ? 'Enter your email:' : '') ||
             (logInForm.controls['userName'].errors['not_found'] ? error : '')
             }}
             </mat-error>

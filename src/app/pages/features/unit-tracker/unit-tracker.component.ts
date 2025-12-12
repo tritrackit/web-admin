@@ -75,6 +75,10 @@ export class UnitTrackerComponent implements OnInit, OnDestroy {
 
   // Current user
   currentUser: EmployeeUsers;
+  
+  // Access control flags
+  hasModifyAccess: boolean = false;
+  hasViewAccess: boolean = false;
 
   private destroy$ = new Subject<void>();
 
@@ -87,6 +91,30 @@ export class UnitTrackerComponent implements OnInit, OnDestroy {
     private dialog: MatDialog
   ) {
     this.currentUser = this.storageService.getLoginProfile();
+    this.checkAccessRights();
+  }
+  
+  /**
+   * Check if user has modify or view access for Unit Tracker page
+   */
+  checkAccessRights(): void {
+    if (!this.currentUser || !this.currentUser.role || !this.currentUser.role.accessPages) {
+      this.hasViewAccess = false;
+      this.hasModifyAccess = false;
+      return;
+    }
+    
+    const unitTrackerAccess = this.currentUser.role.accessPages.find(
+      (access: any) => access.page && access.page.trim().toUpperCase() === 'UNIT TRACKER'
+    );
+    
+    if (unitTrackerAccess) {
+      this.hasViewAccess = unitTrackerAccess.view === true;
+      this.hasModifyAccess = unitTrackerAccess.modify === true;
+    } else {
+      this.hasViewAccess = false;
+      this.hasModifyAccess = false;
+    }
   }
 
   ngOnInit(): void {
@@ -309,6 +337,15 @@ export class UnitTrackerComponent implements OnInit, OnDestroy {
   }
 
   onLocationChange(unit: UnitTableRow, locationId: string): void {
+    // Check modify access
+    if (!this.hasModifyAccess) {
+      this.snackBar.open('You do not have permission to modify units', 'Close', { 
+        duration: 3000,
+        panelClass: ['style-error']
+      });
+      return;
+    }
+    
     if (!locationId || unit.locationId === locationId) {
       return;
     }
@@ -394,6 +431,15 @@ export class UnitTrackerComponent implements OnInit, OnDestroy {
   }
 
   onStatusChange(unit: UnitTableRow, statusId: string): void {
+    // Check modify access
+    if (!this.hasModifyAccess) {
+      this.snackBar.open('You do not have permission to modify units', 'Close', { 
+        duration: 3000,
+        panelClass: ['style-error']
+      });
+      return;
+    }
+    
     if (!statusId || unit.statusId === statusId) {
       return;
     }
@@ -486,6 +532,15 @@ export class UnitTrackerComponent implements OnInit, OnDestroy {
   }
 
   onMoreInfo(unit: UnitTableRow): void {
+    // Check view access
+    if (!this.hasViewAccess) {
+      this.snackBar.open('You do not have permission to view unit details', 'Close', { 
+        duration: 3000,
+        panelClass: ['style-error']
+      });
+      return;
+    }
+    
     this.router.navigate([`/unit-tracker/${unit.unitCode}`]);
   }
 
@@ -605,6 +660,15 @@ export class UnitTrackerComponent implements OnInit, OnDestroy {
   }
 
   openBulkUpdateDialog(): void {
+    // Check modify access
+    if (!this.hasModifyAccess) {
+      this.snackBar.open('You do not have permission to modify units', 'Close', { 
+        duration: 3000,
+        panelClass: ['style-error']
+      });
+      return;
+    }
+    
     const selectedRows = this.getSelectedUnits();
     if (selectedRows.length === 0) {
       this.snackBar.open('No units selected', 'Close', { duration: 3000 });
