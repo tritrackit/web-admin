@@ -21,7 +21,8 @@ import moment from 'moment';
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   profile: EmployeeUsers;
-  userName: string = '';
+  userNam: string = '';
+  firstName: string = '';
   currentDate: string = '';
   
   loading: boolean = false;
@@ -106,7 +107,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ) {
     this.profile = this.storageService.getLoginProfile();
     if (this.profile) {
-      this.userName = this.profile.fullName || this.profile.userName || 'User';
+      this.firstName = this.profile.firstName || 'User';
     }
     this.currentDate = moment().format('MMMM D, YYYY');
   }

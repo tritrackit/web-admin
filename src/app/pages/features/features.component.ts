@@ -39,6 +39,7 @@ export class FeaturesComponent {
   showMaintenanceButton = false;
   maintenanceBadgeCount = 0;
   pageRights = {}
+  
   constructor(
     private loaderService: LoaderService,
     private titleService: Title,
