@@ -379,6 +379,21 @@ button {
         animation: urgent-pulse 1s ease-in-out infinite;
       }
 
+      &.predictive-toast {
+        --mdc-snackbar-container-color: #fff3e0;
+        --mdc-snackbar-supporting-text-color: #ef6c00;
+        --mat-mdc-snack-bar-button-color: #ef6c00;
+        border-left: 4px solid #ffb300;
+        font-weight: 500;
+      }
+
+      &.info-toast {
+        --mdc-snackbar-container-color: #e3f2fd;
+        --mdc-snackbar-supporting-text-color: #1976d2;
+        --mat-mdc-snack-bar-button-color: #1976d2;
+        border-left: 4px solid #2196f3;
+      }
+
       @keyframes urgent-pulse {
         0%, 100% {
           opacity: 1;

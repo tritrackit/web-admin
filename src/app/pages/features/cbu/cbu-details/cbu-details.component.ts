@@ -41,6 +41,10 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
   // Add scannerCode property to store from pusher data
   scannerCode: string;
   
+  // 🔥 PREDICTIVE: New properties
+  isPredictiveRegistration = false;
+  predictiveTransactionId: string | null = null;
+  
   unitForm: FormGroup = new FormGroup({
     unitCode: new FormControl(),
     rfid: new FormControl(''),
@@ -125,40 +129,114 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
 
   async ngOnInit(): Promise<void> {
     this.isLoading = true;
+    
+    // 🔥 STEP 1: Check query params IMMEDIATELY (synchronous check first)
+    const queryParams = this.route.snapshot.queryParams;
+    if (this.isNew && queryParams['rfid'] && queryParams['locationId']) {
+      console.log('📡 CBUDetails: Query params detected (immediate)', queryParams);
+      this.scannerCode = queryParams['scannerCode'] || '';
+      this.isPredictiveRegistration = queryParams['predictive'] === 'true';
+      this.predictiveTransactionId = queryParams['transactionId'] || null;
+      
+      // Set form values directly from query params IMMEDIATELY
+      this.unitForm.controls["rfid"].patchValue(queryParams['rfid'], { emitEvent: false });
+      this.unitForm.controls["locationId"].patchValue(queryParams['locationId'], { emitEvent: false });
+      
+      // Create a minimal location object for the form
+      this.location = {
+        locationId: queryParams['locationId'],
+        name: queryParams['location'] || 'Open Area' // Use passed location name or default
+      } as Locations;
+      
+      this.cdr.detectChanges();
+      
+      // Open model autocomplete after component is ready
+      setTimeout(() => {
+        if (this.modelTrig) {
+          this.modelTrig.openPanel();
+        }
+      }, 500);
+    }
+    
+    // 🔥 STEP 2: Also listen to query params changes (for dynamic updates)
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
+      if (this.isNew && params['rfid'] && params['locationId'] && !this.unitForm.value.rfid) {
+        console.log('📡 CBUDetails: Query params changed', params);
+        this.scannerCode = params['scannerCode'] || '';
+        this.isPredictiveRegistration = params['predictive'] === 'true';
+        this.predictiveTransactionId = params['transactionId'] || null;
+        
+        // Set form values directly from query params
+        this.unitForm.controls["rfid"].patchValue(params['rfid'], { emitEvent: true });
+        this.unitForm.controls["locationId"].patchValue(params['locationId'], { emitEvent: true });
+        
+        // Create a minimal location object for the form
+        this.location = {
+          locationId: params['locationId'],
+          name: params['location'] || 'Open Area'
+        } as Locations;
+        
+        this.cdr.detectChanges();
+        
+        // Open model autocomplete after a short delay
+        setTimeout(() => {
+          if (this.modelTrig) {
+            this.modelTrig.openPanel();
+          }
+        }, 300);
+      }
+    });
+    
     if (!this.isNew) {
       await this.initDetails();
     } else {
-      if (this.isNew) {
-        this.unitService.data$
-          .pipe(
-            filter((d: any) => !!d),   // ignore null clears
-            takeUntil(this.destroy$)
-          ).subscribe(data => {
-            if (data?.rfid && data?.location?.locationId && data?.scannerCode) {
+      // 🔥 STEP 3: Listen to real-time RFID updates (for direct scans when already on page)
+      this.unitService.data$
+        .pipe(
+          filter((d: any) => !!d),   // ignore null clears
+          takeUntil(this.destroy$)
+        ).subscribe(data => {
+          if (data?.rfid && data?.location?.locationId && data?.scannerCode) {
+            // Only update if form is empty or different RFID
+            if (!this.unitForm.value.rfid || this.unitForm.value.rfid !== data.rfid) {
+              console.log('📡 CBUDetails: Real-time RFID data received', data);
               this.scannerCode = data.scannerCode; // Store scanner code for registration
               
-              this.unitForm.controls["rfid"].patchValue(data?.rfid, {
-                emitEvent: true
-              });
+              // Check if this is a predictive update
+              if (data._predictive) {
+                console.log('⚡ CBUDetails: Predictive data received', data);
+                this.unitForm.controls["rfid"].patchValue(data?.rfid, { emitEvent: true });
+                this.unitForm.controls["locationId"].patchValue(data?.location?.locationId, { emitEvent: true });
+                this.location = data?.location;
+                
+                // Mark as predictive
+                this.isPredictiveRegistration = true;
+                this.predictiveTransactionId = data._transactionId;
+                
+                this.cdr.detectChanges();
+              } else {
+                // Regular registration flow
+                console.log('CBUDetails: Regular data received', data);
+                this.unitForm.controls["rfid"].patchValue(data?.rfid, { emitEvent: true });
+                this.unitForm.controls["locationId"].patchValue(data?.location?.locationId, { emitEvent: true });
+                this.location = data?.location;
+                this.cdr.detectChanges();
+              }
 
-              this.unitForm.controls["locationId"].patchValue(data?.location?.locationId, {
-                emitEvent: true
-              });
-
-              this.location = data?.location;
-
-              this.cdr.detectChanges();
-              this.snackBar.open('RFID Detected!', 'close', {
-                panelClass: ['style-success'],
-              });
-
-              this.modelTrig.openPanel();
+              // Open model autocomplete
+              setTimeout(() => {
+                if (this.modelTrig) {
+                  this.modelTrig.openPanel();
+                }
+              }, 300);
+              
+              // Clear scanned data after processing
               setTimeout(() => {
                 this.unitService.clearScannedData();
               }, 500);
             }
-          });
-      }
+          }
+        });
     }
     
     this.modelSearchCtrl.valueChanges
@@ -302,8 +380,15 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
     }
 
     const dialogData = new AlertDialogModel();
+    
+    // Different message for predictive registration
+    if (this.isPredictiveRegistration) {
+      dialogData.message = 'Confirm registration for scanned RFID?';
+    } else {
+      dialogData.message = this.isNew ? 'Register unit via scanner?' : 'Update unit?';
+    }
+    
     dialogData.title = 'Confirm';
-    dialogData.message = this.isNew ? 'Register unit via scanner?' : 'Update unit?';
     dialogData.confirmButton = {
       visible: true,
       text: 'yes',
@@ -328,7 +413,8 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
         let res: ApiResponse<Units>;
         
         if (this.isNew) {
-          // Use scanner registration endpoint for new units
+          // 🔥 Use PREDICTIVE registration if applicable
+          // The UI was already updated predictively, now send the actual registration
           res = await this.unitService.registerViaScanner({
             scannerCode: this.scannerCode,
             rfid: this.unitForm.value.rfid,
@@ -347,10 +433,25 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
         dialogRef.componentInstance.isProcessing = this.isProcessing;
 
         if (res.success) {
-          this.snackBar.open(this.isNew ? 'Unit registered via scanner!' : 'Unit updated!', 'close', {
+          const message = this.isPredictiveRegistration ? 
+            '✅ Unit registered!' : 
+            (this.isNew ? 'Unit registered via scanner!' : 'Unit updated!');
+          
+          this.snackBar.open(message, 'close', {
             panelClass: ['style-success'],
+            duration: 2000
           });
-          this.router.navigate(['/cbu/' + res.data.unitCode]);
+          
+          // 🔥 Navigate to unit details page to see the registered unit
+          if (res.data && res.data.unitCode) {
+            setTimeout(() => {
+              this.router.navigate([`/cbu/${res.data.unitCode}`]);
+            }, 500);
+          } else {
+            // Fallback to unit tracker if no unitCode
+            this.router.navigate(['/unit-tracker']);
+          }
+          
           dialogRef.close();
         } else {
           this.error = Array.isArray(res.message) ? res.message[0] : res.message;
@@ -374,7 +475,7 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
         this.isProcessing = false;
         dialogRef.componentInstance.isProcessing = this.isProcessing;
         this.error = Array.isArray(e.message) ? e.message[0] : e.message;
-        this.snackBar.open(this.error, 'close', {
+        this.snackBar.open('Registration failed: ' + this.error, 'close', {
           panelClass: ['style-error'],
         });
         dialogRef.close();

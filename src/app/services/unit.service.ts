@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, of, BehaviorSubject } from 'rxjs';
+import { Observable, tap, catchError, of, BehaviorSubject, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ApiResponse } from '../model/api-response.model';
 import { Units } from '../model/units.model';
@@ -12,6 +12,7 @@ import { PusherService } from './pusher.service';
 import { StorageService } from './storage.service';
 import { EmployeeUsers } from '../model/employee-users.model';
 import { Locations } from '../model/locations.model';
+import { UltraRealtimeService } from './ultra-realtime.service';
 
 @Injectable({
   providedIn: 'root'
@@ -33,13 +34,24 @@ export class UnitService implements IServices {
   }>(null);
   data$ = this.data.asObservable();
   
+  // 🎯 PREDICTIVE: New observables for different update types
+  private predictiveUpdateSubject = new Subject<any>();
+  public predictiveUpdates$ = this.predictiveUpdateSubject.asObservable();
+  
+  private confirmedUpdateSubject = new Subject<any>();
+  public confirmedUpdates$ = this.confirmedUpdateSubject.asObservable();
+  
+  // Pending predictions
+  private pendingPredictions = new Map<string, any>();
+  
   constructor(
     private http: HttpClient, 
     private appconfig: AppConfigService,
     private zone: NgZone,
     private storageService: StorageService,
     private pusher: PusherService,
-    private router: Router
+    private router: Router,
+    private ultraRealtime: UltraRealtimeService
   ) {
     this.currentUserProfile = this.storageService.getLoginProfile();
     
@@ -60,6 +72,101 @@ export class UnitService implements IServices {
     
     // 🔥 CRITICAL: Listen for global unit updates
     this.setupGlobalUpdateListener();
+    
+    // 🔥 PREDICTIVE: Setup predictive listeners
+    this.setupPredictiveListeners();
+  }
+  
+  private setupPredictiveListeners() {
+    // 🔥 Listen to UltraRealtimeService for predictive updates
+    this.ultraRealtime.predictiveUpdates$
+      .subscribe(update => {
+        this.zone.run(() => {
+          console.log('📡 UnitService: Predictive update received', update);
+          
+          // Store for confirmation
+          if (update._transactionId) {
+            this.pendingPredictions.set(update._transactionId, update);
+          }
+          
+          // Forward to components
+          this.predictiveUpdateSubject.next(update);
+        });
+      });
+    
+    // 🔥 Listen for confirmed updates
+    this.ultraRealtime.confirmedUpdates$
+      .subscribe(update => {
+        this.zone.run(() => {
+          console.log('📡 UnitService: Confirmed update received', update);
+          
+          // Clear pending prediction
+          if (update._transactionId) {
+            this.pendingPredictions.delete(update._transactionId);
+          }
+          
+          // Forward to components
+          this.confirmedUpdateSubject.next(update);
+          
+          // Also trigger refresh for backward compatibility
+          this.refreshSubject.next();
+        });
+      });
+    
+    // 🔥 Listen for immediate local updates
+    this.ultraRealtime.immediateUpdates$
+      .subscribe(update => {
+        this.zone.run(() => {
+          console.log('📡 UnitService: Immediate local update', update);
+          
+          // Update local data stream (for CBU registration)
+          if (update.rfid && !update._local) {
+            this.data.next(update);
+          }
+        });
+      });
+  }
+  
+  // 🔥 PREDICTIVE REGISTRATION: Update UI before backend confirms
+  registerUnitWithPrediction(data: any): { transactionId: string; predictiveUnit: any } {
+    const transactionId = this.ultraRealtime.predictUnitRegistration(
+      data.rfid,
+      data.scannerCode,
+      data.location
+    );
+    
+    // Create predictive unit object
+    const predictiveUnit = {
+      rfid: data.rfid,
+      scannerCode: data.scannerCode,
+      employeeUser: null as any,
+      location: data.location,
+      timestamp: new Date(),
+      _predictive: true,
+      _transactionId: transactionId,
+      _status: 'PENDING'
+    } as any;
+    
+    // Update local data stream for CBU component
+    this.zone.run(() => {
+      this.data.next(predictiveUnit);
+    });
+    
+    return { transactionId, predictiveUnit };
+  }
+  
+  // 🔥 CONFIRM PREDICTION: Called when backend confirms
+  confirmRegistrationPrediction(transactionId: string, realUnit: Units) {
+    this.ultraRealtime.confirmPrediction(transactionId, {
+      ...realUnit,
+      action: 'UNIT_REGISTERED_CONFIRMED'
+    });
+    
+    // Clear from pending
+    this.pendingPredictions.delete(transactionId);
+    
+    // Trigger refresh
+    this.refreshSubject.next();
   }
 
   // Add method to trigger refresh
@@ -205,6 +312,7 @@ export class UnitService implements IServices {
       );
   }
 
+  // 🔥 ULTRA-FAST REGISTRATION (with prediction)
   registerViaScanner(data: {
     scannerCode: string;
     rfid: string;
@@ -213,31 +321,80 @@ export class UnitService implements IServices {
     description: string;
     modelId: string;
   }): Observable<ApiResponse<Units>> {
-    return this.http.post<any>(`${environment.apiBaseUrl}/units/register`, data)
-      .pipe(
-        tap(_ => this.log('register unit via scanner')),
-        catchError(this.handleError('register unit via scanner', []))
-      );
+    // 1. PREDICTIVE: Update UI immediately
+    const { transactionId } = this.registerUnitWithPrediction({
+      rfid: data.rfid,
+      scannerCode: data.scannerCode,
+      location: null // Will be set by backend
+    });
+    
+    // 2. Send to backend
+    return this.http.post<ApiResponse<Units>>(
+      `${environment.apiBaseUrl}/units/register`,
+      data
+    ).pipe(
+      tap(response => {
+        if (response.success) {
+          // 3. CONFIRM prediction
+          this.confirmRegistrationPrediction(transactionId, response.data);
+        } else {
+          // 4. PREDICTION FAILED: Send rollback
+          this.ultraRealtime.updateLocalCache(data.rfid, {
+            _error: response.message,
+            _status: 'FAILED'
+          });
+        }
+      }),
+      catchError(error => {
+        // Prediction failed
+        this.ultraRealtime.updateLocalCache(data.rfid, {
+          _error: error.message,
+          _status: 'ERROR'
+        });
+        return this.handleError('register unit via scanner', { success: false, message: error.message, data: null } as ApiResponse<Units>)(error);
+      })
+    );
   }
 
+  // 🔥 ULTRA-FAST LOCATION UPDATE (with prediction)
   scanLocation(data: {
     scannerCode: string;
     rfid: string;
   }): Observable<ApiResponse<any>> {
-    return this.http.post<any>(`${environment.apiBaseUrl}/units/scan-location`, data)
-      .pipe(
-        tap(response => {
-          this.log('scan location');
-          // 🔥 Auto-refresh after successful scan
-          // The backend should also trigger a Pusher event, but we refresh immediately as well
-          if (response.success) {
-            this.zone.run(() => {
-              this.refreshUnits();
-            });
-          }
-        }),
-        catchError(this.handleError('scan location', []))
-      );
+    const transactionId = `loc_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // 1. PREDICTIVE: Update UI immediately
+    this.ultraRealtime.updateLocalCache(data.rfid, {
+      _locationUpdating: true,
+      _locationTransactionId: transactionId,
+      _locationUpdateTime: Date.now()
+    });
+    
+    this.predictiveUpdateSubject.next({
+      rfid: data.rfid,
+      action: 'LOCATION_UPDATED_PREDICTIVE',
+      timestamp: new Date(),
+      _predictive: true,
+      _transactionId: transactionId
+    });
+    
+    // 2. Send to backend
+    return this.http.post<ApiResponse<any>>(
+      `${environment.apiBaseUrl}/units/scan-location`,
+      data
+    ).pipe(
+      tap(response => {
+        if (response.success) {
+          // 3. CONFIRM prediction
+          this.ultraRealtime.confirmPrediction(transactionId, {
+            rfid: data.rfid,
+            action: 'LOCATION_UPDATED_CONFIRMED',
+            ...response.data
+          });
+        }
+      }),
+      catchError(this.handleError('scan location', { success: false, message: 'Error scanning location', data: null } as ApiResponse<any>))
+    );
   }
 
   getByCode(roleCode: string): Observable<ApiResponse<Units>> {
@@ -273,12 +430,19 @@ export class UnitService implements IServices {
   }
 
   update(roleCode: string, data: any): Observable<ApiResponse<Units>> {
+    // 🔥 PREDICTIVE: Update local cache immediately
+    if (data.rfid) {
+      this.ultraRealtime.updateLocalCache(data.rfid, data);
+    }
+    
     return this.http.put<any>(environment.apiBaseUrl + "/units/" + roleCode, data)
       .pipe(
-        tap(_ => {
+        tap(response => {
           this.log('units');
-          // 🔥 Auto-refresh after updating unit
-          this.refreshUnits();
+          if (response.success) {
+            // 🔥 Auto-refresh after updating unit
+            this.refreshUnits();
+          }
         }),
         catchError(this.handleError('units', []))
       );

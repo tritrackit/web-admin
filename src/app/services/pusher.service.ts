@@ -13,9 +13,18 @@ export class PusherService {
   constructor() {
     this.pusher = new Pusher(environment.pusher.key, {
       cluster: environment.pusher.cluster,
-      forceTLS: environment.production
+      forceTLS: environment.production,
+      enabledTransports: ['ws', 'wss'], // Force WebSocket
+      disableStats: true,
+      activityTimeout: 60000,
+      pongTimeout: 30000
     });
     
+    // 🔥 SIMPLIFIED: Listen to ALL channels with unified handler
+    this.setupUnifiedListener();
+  }
+  
+  private setupUnifiedListener() {
     // ⚡ STEP 1: URGENT CHANNEL - HIGHEST PRIORITY (bypasses all queues)
     // Backend sends: sendRegistrationUrgent() -> 'registration-urgent' with 'rfid-detected' event
     const urgentChannel = this.pusher.subscribe('registration-urgent');
@@ -36,13 +45,13 @@ export class PusherService {
         data: {
           rfid: data.rfid,
           scannerCode: data.scannerCode,
-          action: 'RFID_DETECTED_URGENT', // ⚡ NEW action type
+          action: 'RFID_DETECTED_URGENT',
           location: data.location,
           locationId: data.locationId,
           employeeUserCode: data.employeeUserCode,
           timestamp: data.timestamp,
           _priority: 'highest',
-          _channel: 'registration-urgent', // Identify source
+          _channel: 'registration-urgent',
           _sentAt: sentAt,
           _receiveTime: receiveTime,
           _latency: latency
@@ -51,8 +60,6 @@ export class PusherService {
     });
     
     // 🔥 STEP 2: LISTEN TO THE SAME CHANNEL AS BACKEND: 'all' channel with 'reSync' event
-    // Backend sends: pusherService.reSync('units', { rfid, action, location, status, ... })
-    // Which triggers: channel 'all', event 'reSync', payload: { type: 'units', data: {...} }
     const globalChannel = this.pusher.subscribe('all');
     
     // Listen for reSync events (this is what the backend actually sends)
@@ -76,7 +83,6 @@ export class PusherService {
     });
     
     // 🔥 STEP 3: Listen to registration-channel for immediate registration events
-    // Backend sends: sendRegistrationEventImmediate() -> 'registration-channel' with 'new-registration' event
     const registrationChannel = this.pusher.subscribe('registration-channel');
     registrationChannel.bind('new-registration', (data: any) => {
       const receiveTime = Date.now();

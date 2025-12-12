@@ -60,27 +60,59 @@ export class CBUComponent {
           takeUntil(this.destroy$)
         ).subscribe(data => {
         if(data?.rfid && data?.location?.locationId){
-          const isUrgent = data._urgent === true; // ✅ Check urgent flag
+          const isUrgent = data._urgent === true;
+          const isPredictive = data._predictive === true;
           
-          // Show immediate notification with urgent indicator
-          this.snackBar.open(
-            `${isUrgent ? '⚡ URGENT: ' : ''}RFID Detected: ${data.rfid}${data._latency ? ` (${data._latency}ms)` : ''}`, 
-            'Opening Registration...', 
-            {
-              duration: isUrgent ? 1000 : 2000,
-              horizontalPosition: 'end',
-              verticalPosition: 'top',
-              panelClass: isUrgent ? ['urgent-toast'] : ['success-toast']
-            }
-          );
+          // ⚡ PREDICTIVE: Immediate notification
+          if (isPredictive) {
+            this.snackBar.open(
+              `⚡ Scanning: ${data.rfid}...`,
+              'Opening Registration...',
+              {
+                duration: 1000,
+                horizontalPosition: 'end',
+                verticalPosition: 'top',
+                panelClass: ['predictive-toast']
+              }
+            );
+          } 
+          // ⚡ URGENT: Fast notification
+          else if (isUrgent) {
+            this.snackBar.open(
+              `⚡ RFID Detected: ${data.rfid}`,
+              'Opening Registration...',
+              {
+                duration: 1000,
+                horizontalPosition: 'end',
+                verticalPosition: 'top',
+                panelClass: ['urgent-toast']
+              }
+            );
+          }
+          // Regular notification
+          else {
+            this.snackBar.open(
+              `RFID Detected: ${data.rfid}`,
+              'Opening Registration...',
+              {
+                duration: 2000,
+                horizontalPosition: 'end',
+                verticalPosition: 'top',
+                panelClass: ['success-toast']
+              }
+            );
+          }
           
-          // Navigate immediately (navigation is intentional for full form)
+          // Navigate immediately
           router.navigate([`/cbu/add`], {
             queryParams: { 
               rfid: data.rfid,
               scannerCode: data.scannerCode,
               locationId: data.location?.locationId,
-              urgent: isUrgent ? 'true' : undefined // ✅ Pass urgent flag
+              location: data.location?.name || data.location, // Pass location name
+              urgent: isUrgent ? 'true' : undefined,
+              predictive: isPredictive ? 'true' : undefined,
+              transactionId: data._transactionId
             }
           });
           
