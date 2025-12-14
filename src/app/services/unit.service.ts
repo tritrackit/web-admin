@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, NgZone } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, tap, catchError, of, BehaviorSubject } from 'rxjs';
+import { Observable, tap, catchError, of, BehaviorSubject, Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { ApiResponse } from '../model/api-response.model';
 import { Units } from '../model/units.model';
@@ -20,18 +20,27 @@ export class UnitService implements IServices {
   currentUserProfile: EmployeeUsers = this.storageService.getLoginProfile();
   currentChannel: any;
   
-  // Add refresh observable
+
   private refreshSubject = new BehaviorSubject<void>(null);
   refresh$ = this.refreshSubject.asObservable();
 
   private data = new BehaviorSubject<{
     rfid: string;
     scannerCode: string;
-    employeeUser: EmployeeUsers;
+    employeeUser?: EmployeeUsers;
     location: Locations;
     timestamp: Date;
+    _instant?: boolean;
+    _popupNow?: boolean;
+    _latency?: number;
+    _urgent?: boolean;
+    _handled?: boolean;
   }>(null);
   data$ = this.data.asObservable();
+
+  private lastProcessedRfid: {rfid: string, time: number} = {rfid: '', time: 0};
+  
+  private eventHistory: Array<{rfid: string, time: number, action: string}> = [];
   
   constructor(
     private http: HttpClient, 
@@ -44,152 +53,152 @@ export class UnitService implements IServices {
     this.currentUserProfile = this.storageService.getLoginProfile();
     
     if (!this.pusher) throw new Error('Pusher not initialized');
+    this.pusher.onUpdate.subscribe((event: any) => {
+      const data = event.data;
+      const priority = event._priority;
+      
+      console.log(`🔍 UnitService: Event received`, {
+        type: event.type,
+        priority: priority,
+        action: data?.action,
+        rfid: data?.rfid,
+        hasInstant: data?._instantPopup,
+        currentDataValue: this.data.value?.rfid,
+        lastProcessedRfid: this.lastProcessedRfid.rfid,
+        timeSinceLastProcessed: this.lastProcessedRfid.rfid ? Date.now() - this.lastProcessedRfid.time : 'N/A'
+      });
+     
+      if (priority === 'highest' || data?._instantPopup || data?.action === 'RFID_DETECTED_URGENT' || data?.action === 'RFID_DETECTED') {
+        const now = Date.now();
+        const sentAt = data._sentAt || data.timestamp;
+        const latency = sentAt ? now - sentAt : data._latency || 0;
+        
+        const timeSinceLast = this.lastProcessedRfid.rfid ? now - this.lastProcessedRfid.time : Infinity;
+        const isDuplicate = data.rfid && this.lastProcessedRfid.rfid === data.rfid && timeSinceLast < 1000;
+        
+        console.log(`🔍 UnitService: Duplicate check`, {
+          currentRfid: data.rfid,
+          lastProcessedRfid: this.lastProcessedRfid.rfid,
+          timeSinceLast: timeSinceLast,
+          isDuplicate: isDuplicate,
+          willProcess: !isDuplicate
+        });
+        
+        if (isDuplicate) {
+          console.log(`⏭️ UnitService: Skipping duplicate RFID: ${data.rfid} (${timeSinceLast}ms ago)`);
+          return;
+        }
+        
+        this.eventHistory.push({rfid: data.rfid, time: now, action: 'PROCESSING'});
+        if (this.eventHistory.length > 10) {
+          this.eventHistory.shift(); 
+        }
+        
+        this.lastProcessedRfid = {rfid: data.rfid, time: now};
+        
+        console.log(`🎯 INSTANT CBU TRIGGER: ${latency}ms - ${data.rfid}`, {
+          scannerCode: data.scannerCode,
+          locationId: data.locationId,
+          location: data.location,
+          currentDataState: this.data.value ? 'HAS_DATA' : 'EMPTY',
+          willEmit: true
+        });
+        
+        this.zone.run(() => {
+          const eventData = {
+            rfid: data.rfid,
+            scannerCode: data.scannerCode,
+            location: data.locationId ? {
+              locationId: data.locationId,
+              name: data.location || 'Open Area'
+            } as any : { locationId: 'OPEN_AREA', name: 'Open Area' },
+            timestamp: new Date(),
+            _instant: true,
+            _latency: latency,
+            _popupNow: true, 
+            _urgent: true,
+            _handled: false 
+          };
+          
+          console.log(`🔍 UnitService: Emitting to data$`, {
+            rfid: eventData.rfid,
+            _handled: eventData._handled,
+            subscribers: 'unknown'
+          });
+          
+          this.data.next(eventData);
+          console.log(`🔍 UnitService: Data$ after emit`, {
+            hasValue: !!this.data.value,
+            rfid: this.data.value?.rfid,
+            _handled: this.data.value?._handled
+          });
+        });
+        
+        return;
+      }
+      if (event.type === 'units' && !data?.rfid) {
+        this.zone.run(() => {
+          this.refreshSubject.next();
+        });
+      }
+    });
+  }
+  
+  public openCbuInstantly(rfidData: any): void {
+    console.log('🚀 Opening CBU instantly for:', rfidData.rfid);
     
-    // Unsubscribe previous if any
-    if (this.currentChannel) {
-      this.currentChannel.unbind_all();
-      this.pusher.unsubscribe(this.currentChannel.name);
-    }
-    
-    this.currentChannel = this.pusher.init(`scanner-${this.currentUserProfile?.employeeUserCode}`);
-
-    this.currentChannel.bind('scanner', data => {
-      console.log('pusher received data', data.data);
-      this.zone.run(() => this.data.next(data?.data));
+    this.zone.run(() => {
+      this.data.next({
+        rfid: rfidData.rfid,
+        scannerCode: rfidData.scannerCode,
+        location: rfidData.location || { locationId: 'OPEN_AREA', name: 'Open Area' } as Locations,
+        timestamp: new Date(),
+        _instant: true
+      });
     });
     
-    // 🔥 CRITICAL: Listen for global unit updates
-    this.setupGlobalUpdateListener();
+    this.router.navigate(['/cbu/add'], {
+      queryParams: {
+        rfid: rfidData.rfid,
+        scannerCode: rfidData.scannerCode,
+        locationId: rfidData.location?.locationId || 'OPEN_AREA',
+        location: rfidData.location?.name || 'Open Area',
+        instant: 'true'
+      }
+    });
   }
 
-  // Add method to trigger refresh
   refreshUnits() {
     this.refreshSubject.next(null);
   }
 
-  // Method to setup global update listener
-  private setupGlobalUpdateListener() {
-    // Listen to PusherService onUpdate events
-    // Backend sends reSync events via PusherService which emits onUpdate
-    try {
-      this.pusher.onUpdate.subscribe((payload: any) => {
-        const receiveTime = Date.now();
-        console.log(`📡 UnitService: Pusher update received at ${receiveTime}`, payload);
-        
-        if (payload && payload.type === 'units') {
-          const data = payload.data;
-          
-          // Log channel source and latency
-          const sentAt = data?._sentAt || data?._pusherSentAt;
-          const latency = sentAt ? receiveTime - sentAt : data?._latency || 0;
-          const channel = data?._channel || 'unknown';
-          
-          if (sentAt || data?._latency) {
-            console.log(`⚡ Channel: ${channel}, Latency: ${latency}ms, Action: ${data?.action || 'unknown'}`);
-            
-            if (latency > 200 && data?.action !== 'BATCH_UPDATE') {
-              console.warn(`⚠️ High Pusher latency: ${latency}ms for action: ${data?.action}`);
-            }
-          }
-          
-          // ⚡ STEP 1: Handle URGENT RFID events FIRST (HIGHEST PRIORITY)
-          if (data?.action === 'RFID_DETECTED_URGENT') {
-            console.log(`⚡ UnitService: URGENT RFID event received (HIGHEST PRIORITY, ${latency}ms)`, data);
-            this.zone.run(() => {
-              // Clear any previous data first
-              this.data.next(null);
-              
-              // Emit via data$ observable so CBU component can handle registration immediately
-              // Using type assertions since we only need partial data for registration flow
-              this.data.next({
-                rfid: data.rfid,
-                scannerCode: data.scannerCode,
-                employeeUser: data.employeeUserCode ? { 
-                  employeeUserCode: data.employeeUserCode 
-                } as any : null,
-                location: data.locationId ? { 
-                  locationId: data.locationId, 
-                  name: data.location 
-                } as any : null,
-                timestamp: data.timestamp ? new Date(data.timestamp) : new Date(),
-                _urgent: true,
-                _latency: latency
-              } as any);
-            });
-            return; // ⚡ EXIT EARLY - urgent events take precedence
-          }
-          
-          // Handle BATCH_UPDATE - backend batches multiple updates together
-          if (data?.action === 'BATCH_UPDATE' && data?.updates && Array.isArray(data.updates)) {
-            console.log(`📡 UnitService: BATCH_UPDATE received with ${data.count} updates`, data);
-            // Process each update in the batch
-            const hasRfidDetected = data.updates.some((u: any) => u.action === 'RFID_DETECTED' || u.action === 'RFID_DETECTED_URGENT');
-            const hasLocationUpdate = data.updates.some((u: any) => 
-              u.action === 'LOCATION_UPDATED' || 
-              u.action === 'ENTERED_WAREHOUSE_5' || 
-              u.action === 'EXITED_WAREHOUSE_5' ||
-              u.action === 'UNIT_UPDATED'
-            );
-            
-            // If batch contains RFID_DETECTED, handle registration
-            if (hasRfidDetected) {
-              const rfidEvent = data.updates.find((u: any) => u.action === 'RFID_DETECTED' || u.action === 'RFID_DETECTED_URGENT');
-              if (rfidEvent) {
-                this.zone.run(() => {
-                  this.data.next({
-                    rfid: rfidEvent.rfid,
-                    scannerCode: rfidEvent.scannerCode,
-                    employeeUser: rfidEvent.employeeUserCode ? { employeeUserCode: rfidEvent.employeeUserCode } as any : null,
-                    location: rfidEvent.locationId ? { locationId: rfidEvent.locationId, name: rfidEvent.location } as any : null,
-                    timestamp: rfidEvent.timestamp ? new Date(rfidEvent.timestamp) : new Date()
-                  } as any);
-                });
-              }
-            }
-            
-            // If batch contains location/status updates, refresh
-            if (hasLocationUpdate) {
-              console.log('📡 UnitService: Batch contains location/status updates, refreshing...');
-              this.zone.run(() => {
-                this.refreshUnits();
-              });
-            }
-            return;
-          }
-          
-          // Handle RFID_DETECTED action - emit via data$ for registration flow (immediate, no batching)
-          if (data?.action === 'RFID_DETECTED') {
-            console.log(`📡 UnitService: RFID_DETECTED event received (immediate, ${latency}ms)`, data);
-            this.zone.run(() => {
-              // Emit via data$ observable so CBU component can handle registration
-              // Using type assertions since we only need partial data for registration flow
-              this.data.next({
-                rfid: data.rfid,
-                scannerCode: data.scannerCode,
-                employeeUser: data.employeeUserCode ? { employeeUserCode: data.employeeUserCode } as any : null,
-                location: data.locationId ? { locationId: data.locationId, name: data.location } as any : null,
-                timestamp: data.timestamp ? new Date(data.timestamp) : new Date(),
-                _latency: latency
-              } as any);
-            });
-            return;
-          } 
-          
-          // Handle other unit updates (location changes, status updates, etc.)
-          console.log('📡 UnitService: Unit update detected, refreshing...', data);
-          this.zone.run(() => {
-            this.refreshUnits(); // Trigger refresh
-          });
-        }
-      });
-      
-    } catch (error) {
-      console.error('Error setting up global update listener:', error);
-    }
-  }
-
   clearScannedData() {
+    console.log(`🔍 UnitService.clearScannedData() called`, {
+      beforeClear: {
+        hasValue: !!this.data.value,
+        rfid: this.data.value?.rfid,
+        _handled: this.data.value?._handled
+      },
+      lastProcessedRfid: this.lastProcessedRfid.rfid,
+      eventHistory: this.eventHistory.length
+    });
+    
+    // ⚡ Clear the data stream
     this.data.next(null);
+    
+    // ⚡ Reset duplicate prevention after 3 seconds (allow new scans)
+    setTimeout(() => {
+      const oldRfid = this.lastProcessedRfid.rfid;
+      this.lastProcessedRfid = {rfid: '', time: 0};
+      console.log(`🔍 UnitService: Reset lastProcessedRfid (was: ${oldRfid})`);
+    }, 3000);
+    
+    console.log(`🔍 UnitService.clearScannedData() completed`, {
+      afterClear: {
+        hasValue: !!this.data.value,
+        rfid: this.data.value?.rfid
+      }
+    });
   }
   
   getByAdvanceSearch(params: {
@@ -205,6 +214,7 @@ export class UnitService implements IServices {
       );
   }
 
+  // 🔥 ULTRA-FAST REGISTRATION
   registerViaScanner(data: {
     scannerCode: string;
     rfid: string;
@@ -213,31 +223,41 @@ export class UnitService implements IServices {
     description: string;
     modelId: string;
   }): Observable<ApiResponse<Units>> {
-    return this.http.post<any>(`${environment.apiBaseUrl}/units/register`, data)
-      .pipe(
-        tap(_ => this.log('register unit via scanner')),
-        catchError(this.handleError('register unit via scanner', []))
-      );
+    // Send to backend
+    return this.http.post<ApiResponse<Units>>(
+      `${environment.apiBaseUrl}/units/register`,
+      data
+    ).pipe(
+      tap(response => {
+        if (response.success) {
+          // Trigger refresh
+          this.refreshSubject.next();
+        }
+      }),
+      catchError(error => {
+        return this.handleError('register unit via scanner', { success: false, message: error.message, data: null } as ApiResponse<Units>)(error);
+      })
+    );
   }
 
+  // 🔥 ULTRA-FAST LOCATION UPDATE
   scanLocation(data: {
     scannerCode: string;
     rfid: string;
   }): Observable<ApiResponse<any>> {
-    return this.http.post<any>(`${environment.apiBaseUrl}/units/scan-location`, data)
-      .pipe(
-        tap(response => {
-          this.log('scan location');
-          // 🔥 Auto-refresh after successful scan
-          // The backend should also trigger a Pusher event, but we refresh immediately as well
-          if (response.success) {
-            this.zone.run(() => {
-              this.refreshUnits();
-            });
-          }
-        }),
-        catchError(this.handleError('scan location', []))
-      );
+    // Send to backend
+    return this.http.post<ApiResponse<any>>(
+      `${environment.apiBaseUrl}/units/scan-location`,
+      data
+    ).pipe(
+      tap(response => {
+        if (response.success) {
+          // Trigger refresh
+          this.refreshSubject.next();
+        }
+      }),
+      catchError(this.handleError('scan location', { success: false, message: 'Error scanning location', data: null } as ApiResponse<any>))
+    );
   }
 
   getByCode(roleCode: string): Observable<ApiResponse<Units>> {
@@ -265,7 +285,6 @@ export class UnitService implements IServices {
       .pipe(
         tap(_ => {
           this.log('units');
-          // 🔥 Auto-refresh after creating new unit
           this.refreshUnits();
         }),
         catchError(this.handleError('units', []))
@@ -275,10 +294,11 @@ export class UnitService implements IServices {
   update(roleCode: string, data: any): Observable<ApiResponse<Units>> {
     return this.http.put<any>(environment.apiBaseUrl + "/units/" + roleCode, data)
       .pipe(
-        tap(_ => {
+        tap(response => {
           this.log('units');
-          // 🔥 Auto-refresh after updating unit
-          this.refreshUnits();
+          if (response.success) {
+            this.refreshUnits();
+          }
         }),
         catchError(this.handleError('units', []))
       );
@@ -289,7 +309,6 @@ export class UnitService implements IServices {
       .pipe(
         tap(_ => {
           this.log('units');
-          // 🔥 Auto-refresh after deleting unit
           this.refreshUnits();
         }),
         catchError(this.handleError('units', []))
@@ -305,5 +324,28 @@ export class UnitService implements IServices {
   
   log(message: string) {
     console.log(message);
+  }
+  
+  getDebugState() {
+    return {
+      currentData: this.data.value,
+      lastProcessedRfid: this.lastProcessedRfid,
+      eventHistory: this.eventHistory,
+      hasSubscribers: 'unknown' 
+    };
+  }
+  
+  forceReset() {
+    console.log(`🔍 UnitService: FORCE RESET called`, {
+      beforeReset: this.getDebugState()
+    });
+    
+    this.data.next(null);
+    this.lastProcessedRfid = {rfid: '', time: 0};
+    this.eventHistory = [];
+    
+    console.log(`🔍 UnitService: FORCE RESET completed`, {
+      afterReset: this.getDebugState()
+    });
   }
 }
