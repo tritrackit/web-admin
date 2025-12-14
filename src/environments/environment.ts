@@ -4,11 +4,21 @@
 
 export const environment = {
   production: false,
-  apiBaseUrl: "https://tritrackit-api.vercel.app/api/v1",
+  apiBaseUrl: " http://localhost:3001/api/v1",
   idleTimeoutMinutes: 30,
   pusher: {
     key: "525752a480ad973116be",
     cluster: "ap1",
+  },
+  socketIo: {
+    url: "http://localhost:3001", // Socket.io server URL (same as API base)
+    options: {
+      transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 5,
+      timeout: 20000,
+    }
   }
 };
 
