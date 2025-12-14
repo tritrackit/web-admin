@@ -7,7 +7,7 @@ export const environment = {
     cluster: "ap1",
   },
   socketIo: {
-    url: "https://tritrackit-api.vercel.app", // Socket.io server URL (same as API base)
+    url: "https://socket-server-production-4c03.up.railway.app", // Railway Socket.io server URL
     options: {
       transports: ['websocket', 'polling'],
       reconnection: true,
