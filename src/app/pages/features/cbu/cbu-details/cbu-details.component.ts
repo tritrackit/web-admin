@@ -149,7 +149,7 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  async initDetails() {
+  async initDetails(retryCount: number = 0, maxRetries: number = 3) {
     try {
       forkJoin([
         this.unitService.getByCode(this.unitCode).toPromise(),
@@ -196,14 +196,42 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
           this.unitForm.markAsUntouched();
           this.isLoading = false;
         } else {
+          // 🔄 Retry logic: If unit not found and we haven't exceeded retries, retry with exponential backoff
+          const errorMessage = Array.isArray(unit.message) ? unit.message[0] : unit.message;
+          const isNotFound = errorMessage?.toLowerCase().includes('not found') || 
+                            errorMessage?.toLowerCase().includes('404') ||
+                            !unit.data;
+          
+          if (isNotFound && retryCount < maxRetries) {
+            const delay = Math.min(300 * Math.pow(2, retryCount), 2000); // Exponential backoff: 300ms, 600ms, 1200ms, max 2000ms
+            console.log(`🔄 Unit not found, retrying in ${delay}ms (attempt ${retryCount + 1}/${maxRetries})`);
+            
+            setTimeout(() => {
+              this.initDetails(retryCount + 1, maxRetries);
+            }, delay);
+            return; // Don't show error yet, will retry
+          }
+          
+          // Max retries exceeded or different error - show error
           this.isLoading = false;
-          this.error = Array.isArray(unit.message) ? unit.message[0] : unit.message;
+          this.error = errorMessage;
           this.snackBar.open(this.error, 'close', {
             panelClass: ['style-error'],
           });
         }
       });
     } catch (ex) {
+      // Handle network/connection errors with retry
+      if (retryCount < maxRetries) {
+        const delay = Math.min(300 * Math.pow(2, retryCount), 2000);
+        console.log(`🔄 Error loading unit, retrying in ${delay}ms (attempt ${retryCount + 1}/${maxRetries})`);
+        
+        setTimeout(() => {
+          this.initDetails(retryCount + 1, maxRetries);
+        }, delay);
+        return;
+      }
+      
       this.isLoading = false;
       this.error = Array.isArray(ex.message) ? ex.message[0] : ex.message;
       this.snackBar.open(this.error, 'close', {

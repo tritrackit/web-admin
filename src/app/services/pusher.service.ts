@@ -27,6 +27,23 @@ export class PusherService {
       pongTimeout: 30000
     });
     
+    // Monitor Pusher connection state
+    this.pusher.connection.bind('connected', () => {
+      console.log('✅ Pusher: Connected (ready to receive events)');
+    });
+    
+    this.pusher.connection.bind('disconnected', () => {
+      console.warn('⚠️ Pusher: Disconnected - attempting to reconnect...');
+    });
+    
+    this.pusher.connection.bind('error', (error: any) => {
+      console.error('❌ Pusher: Connection error', error);
+    });
+    
+    this.pusher.connection.bind('state_change', (states: any) => {
+      console.log('🔄 Pusher: State changed', states.previous, '->', states.current);
+    });
+    
     // ⚡ Initialize Socket.io (PRIMARY - ultra-fast)
     this.initializeSocketIo();
     
@@ -42,29 +59,85 @@ export class PusherService {
       const socketUrl = environment.socketIo?.url || environment.apiBaseUrl.replace('/api/v1', '');
       
       console.log('🔧 Socket.io: Initializing connection to', socketUrl);
+      console.log('🔧 Socket.io: Production mode:', environment.production);
+      console.log('🔧 Socket.io: API Base URL:', environment.apiBaseUrl);
       
-      this.socket = io(socketUrl, {
+      const socketOptions: any = {
         transports: environment.socketIo?.options?.transports || ['websocket', 'polling'],
         reconnection: environment.socketIo?.options?.reconnection !== false,
         reconnectionDelay: environment.socketIo?.options?.reconnectionDelay || 1000,
         reconnectionAttempts: environment.socketIo?.options?.reconnectionAttempts || 5,
         timeout: environment.socketIo?.options?.timeout || 20000,
-      });
+        // CORS options for production
+        withCredentials: false,
+        autoConnect: true,
+      };
+      
+      // Add extra options for production (HTTPS)
+      if (environment.production) {
+        socketOptions.forceNew = true;
+        socketOptions.upgrade = true;
+        // Ensure secure connection in production
+        socketOptions.secure = true;
+      }
+      
+      this.socket = io(socketUrl, socketOptions);
       
       // Connection events
       this.socket.on('connect', () => {
         this.socketConnected = true;
         console.log('⚡ Socket.io: Connected! (ID:', this.socket?.id, ')');
+        console.log('⚡ Socket.io: Connection URL:', socketUrl);
+        console.log('⚡ Socket.io: Transport:', this.socket?.io?.engine?.transport?.name || 'unknown');
       });
       
-      this.socket.on('disconnect', () => {
+      this.socket.on('disconnect', (reason) => {
         this.socketConnected = false;
-        console.log('⚠️ Socket.io: Disconnected - Falling back to Pusher');
+        console.log('⚠️ Socket.io: Disconnected - Reason:', reason, '- Falling back to Pusher');
+        console.log('⚠️ Socket.io: Pusher fallback is ALWAYS ACTIVE and will handle events');
       });
       
-      this.socket.on('connect_error', (error) => {
+      this.socket.on('connect_error', (error: any) => {
         this.socketConnected = false;
-        console.warn('⚠️ Socket.io: Connection error - Using Pusher fallback', error.message);
+        const errorDetails = {
+          message: error.message,
+          type: error.type || 'unknown',
+          description: error.description || error.message,
+          url: socketUrl,
+          production: environment.production,
+          // Additional error info
+          code: error.code || 'unknown',
+          context: error.context || 'unknown'
+        };
+        
+        console.error('⚠️ Socket.io: Connection error - Using Pusher fallback', errorDetails);
+        
+        // Log detailed error for debugging in production
+        if (environment.production) {
+          console.error('🔍 Production Socket.io Debug:', {
+            url: socketUrl,
+            error: errorDetails,
+            willUsePusher: true,
+            pusherStatus: this.pusher?.connection?.state || 'unknown',
+            note: 'Pusher is ALWAYS ACTIVE as fallback - events will still be received'
+          });
+        }
+      });
+      
+      // Add reconnection attempt logging
+      this.socket.on('reconnect_attempt', (attemptNumber) => {
+        console.log(`🔄 Socket.io: Reconnection attempt ${attemptNumber}`);
+      });
+      
+      this.socket.on('reconnect', (attemptNumber) => {
+        this.socketConnected = true;
+        console.log(`✅ Socket.io: Reconnected after ${attemptNumber} attempts`);
+      });
+      
+      this.socket.on('reconnect_failed', () => {
+        console.error('❌ Socket.io: Reconnection failed - Will use Pusher fallback');
+        this.socketConnected = false;
+        console.log('⚠️ Socket.io: Pusher fallback is ALWAYS ACTIVE and will handle all events');
       });
       
       // ⚡ PRIMARY: Listen for RFID events from Socket.io (ultra-fast)
@@ -118,33 +191,60 @@ export class PusherService {
   }
   
   /**
-   * 🔄 Setup Pusher listeners (FALLBACK - used if Socket.io fails)
+   * 🔄 Setup Pusher listeners (FALLBACK - used if Socket.io fails, ALWAYS ACTIVE)
    */
   private setupEmergencyListener() {
-    console.log('🔧 Pusher: Setting up FALLBACK listeners...');
+    console.log('🔧 Pusher: Setting up listeners (ALWAYS ACTIVE as fallback)...');
     
-    // ⚡ FALLBACK: RFID Emergency Channel (only if Socket.io not connected)
+    // ⚡ ALWAYS LISTEN: RFID Emergency Channel (Pusher always works, Socket.io is optional)
     const emergencyChannel = this.pusher.subscribe('rfid-emergency-bypass');
+    
+    emergencyChannel.bind('pusher:subscription_succeeded', () => {
+      console.log('✅ Pusher: Subscribed to rfid-emergency-bypass channel');
+    });
+    
+    emergencyChannel.bind('pusher:subscription_error', (error: any) => {
+      console.error('❌ Pusher: Subscription error for rfid-emergency-bypass', error);
+    });
+    
     emergencyChannel.bind('rfid-urgent', (data: any) => {
-      // Skip if Socket.io already processed this (prevent duplicates)
-      if (this.isSocketConnected()) {
-        console.log('⏭️ Pusher: Skipping (Socket.io is connected)');
-        return;
-      }
-      
       const now = Date.now();
       const sentAt = data._sentAt || data.timestamp;
       const latency = sentAt ? now - sentAt : 0;
       
+      // 🔥 IMPORTANT: In production, if Socket.io isn't working, Pusher MUST handle events
+      // Only skip if Socket.io is ACTUALLY connected AND we received the same RFID from Socket.io VERY recently (< 200ms)
+      const socketReceived = this.isSocketConnected() && 
+                             this.lastRfidEvent.source === 'socket.io' &&
+                             this.lastRfidEvent.rfid === data.rfid &&
+                             (now - this.lastRfidEvent.time) < 200; // Reduced from 500ms to 200ms
+      
+      if (socketReceived) {
+        console.log('⏭️ Pusher: Skipping (Socket.io already processed this RFID', (now - this.lastRfidEvent.time), 'ms ago)');
+        return;
+      }
+      
+      // 🔥 PREVENT DUPLICATES: Same RFID from Pusher within 2 seconds
       if (data.rfid && this.lastRfidEvent.rfid === data.rfid && 
+          this.lastRfidEvent.source === 'pusher' &&
           (now - this.lastRfidEvent.time) < 2000) {
         console.log(`⏭️ Pusher: Skipping duplicate RFID: ${data.rfid} (${now - this.lastRfidEvent.time}ms ago)`);
         return;
       }
       
+      console.log('🔍 Pusher: Processing RFID event', {
+        socketConnected: this.isSocketConnected(),
+        lastSource: this.lastRfidEvent.source,
+        lastRfid: this.lastRfidEvent.rfid,
+        currentRfid: data.rfid,
+        timeSinceLast: this.lastRfidEvent.rfid ? (now - this.lastRfidEvent.time) : 'N/A',
+        latency: latency,
+        production: environment.production
+      });
+      
       this.lastRfidEvent = {rfid: data.rfid, time: now, channel: 'rfid-emergency-bypass', source: 'pusher'};
       
-      console.log(`⚡ Pusher RFID (FALLBACK): ${latency}ms - ${data.rfid}`);
+      console.log(`⚡ Pusher RFID (${environment.production ? 'PRODUCTION' : 'DEV'}): ${latency}ms - ${data.rfid}`);
       
       this.onUpdate.next({
         type: 'rfid-emergency',
@@ -270,5 +370,31 @@ export class PusherService {
       this.socketConnected = false;
       console.log('🔌 Socket.io: Disconnected');
     }
+  }
+  
+  /**
+   * Get connection status for debugging
+   */
+  public getConnectionStatus(): {
+    socketIo: { connected: boolean; url?: string; id?: string };
+    pusher: { connected: boolean; state?: string };
+    lastRfidEvent: { rfid: string; source?: string; time: number };
+  } {
+    return {
+      socketIo: {
+        connected: this.isSocketConnected(),
+        url: environment.socketIo?.url,
+        id: this.socket?.id
+      },
+      pusher: {
+        connected: this.pusher?.connection?.state === 'connected',
+        state: this.pusher?.connection?.state || 'unknown'
+      },
+      lastRfidEvent: {
+        rfid: this.lastRfidEvent.rfid || 'none',
+        source: this.lastRfidEvent.source,
+        time: this.lastRfidEvent.time
+      }
+    };
   }
 }
