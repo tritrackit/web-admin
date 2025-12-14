@@ -15,7 +15,6 @@ import { EmployeeUsers } from 'src/app/model/employee-users.model';
 import { AlertDialogComponent } from 'src/app/shared/components/alert-dialog/alert-dialog.component';
 import { AlertDialogModel } from 'src/app/shared/components/alert-dialog/alert-dialog-model';
 import { BulkUpdateDialogComponent } from './unit-bulk-update/bulk-update-dialog.component';
-import { UltraRealtimeService } from 'src/app/services/ultra-realtime.service';
 
 interface UnitTableRow {
   unitId: string;
@@ -87,8 +86,6 @@ export class UnitTrackerComponent implements OnInit, OnDestroy {
   hasModifyAccess: boolean = false;
   hasViewAccess: boolean = false;
 
-  // 🔥 PREDICTIVE: New properties
-  private predictiveUnits = new Map<string, UnitTableRow>();
 
   private destroy$ = new Subject<void>();
 
@@ -99,7 +96,6 @@ export class UnitTrackerComponent implements OnInit, OnDestroy {
     private snackBar: MatSnackBar,
     private router: Router,
     private dialog: MatDialog,
-    private ultraRealtime: UltraRealtimeService,
     private zone: NgZone
   ) {
     this.currentUser = this.storageService.getLoginProfile();
@@ -156,270 +152,6 @@ export class UnitTrackerComponent implements OnInit, OnDestroy {
         // 🔥 Auto-reload silently for location updates and other changes
         this.loadUnits();
       });
-    
-    // 🔥 PREDICTIVE: Listen for ultra-fast updates
-    this.setupPredictiveListeners();
-  }
-  
-  private setupPredictiveListeners() {
-    // 🔥 PREDICTIVE UPDATES: Show unit BEFORE backend confirms (5-10ms)
-    this.unitService.predictiveUpdates$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(update => {
-        this.zone.run(() => {
-          console.log('🎯 UnitTracker: Predictive update', update);
-          this.handlePredictiveUpdate(update);
-        });
-      });
-    
-    // 🔥 CONFIRMED UPDATES: Replace predictive with real data (20-30ms)
-    this.unitService.confirmedUpdates$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(update => {
-        this.zone.run(() => {
-          console.log('✅ UnitTracker: Confirmed update', update);
-          this.handleConfirmedUpdate(update);
-        });
-      });
-  }
-  
-  // 🔥 HANDLE PREDICTIVE UPDATE: Show unit immediately
-  private handlePredictiveUpdate(update: any) {
-    if (update.action === 'UNIT_REGISTERING_PREDICTIVE') {
-      this.addPredictiveRow(update);
-    } else if (update.action === 'LOCATION_UPDATED_PREDICTIVE') {
-      this.updatePredictiveLocation(update);
-    }
-  }
-  
-  // 🔥 ADD PREDICTIVE ROW: Show unit BEFORE it exists in database
-  private addPredictiveRow(update: any) {
-    const predictiveRow: UnitTableRow = {
-      unitId: `predictive_${update.rfid}_${Date.now()}`,
-      unitCode: 'Loading...',
-      rfid: update.rfid,
-      chassisNo: '...',
-      color: '...',
-      model: '...',
-      modelId: '',
-      location: update.location || 'Scanning...',
-      locationId: '',
-      status: 'Processing...',
-      statusId: '',
-      selected: false,
-      _predictive: true,
-      _transactionId: update._transactionId,
-      _pending: true,
-      _highlight: true
-    };
-    
-    // Store in predictive map
-    this.predictiveUnits.set(update.rfid, predictiveRow);
-    
-    // Add to table IMMEDIATELY
-    this.zone.run(() => {
-      const currentData = [...this.dataSource.data];
-      currentData.unshift(predictiveRow); // Add to top
-      this.dataSource.data = currentData.slice(0, this.pageSize);
-      this.total++;
-      
-      // Visual feedback
-      this.showPredictiveNotification(update.rfid);
-      this.highlightNewRow(predictiveRow.unitId);
-    });
-  }
-  
-  // 🔥 UPDATE PREDICTIVE LOCATION: Show location change immediately (SILENT - no toast)
-  private updatePredictiveLocation(update: any) {
-    // Update existing predictive row
-    let rowUpdated = false;
-    
-    // Check predictive units first
-    const predictiveRow = this.predictiveUnits.get(update.rfid);
-    if (predictiveRow) {
-      predictiveRow.location = 'Updating...';
-      predictiveRow._updating = true;
-      rowUpdated = true;
-    }
-    
-    // Check regular table rows
-    if (!rowUpdated) {
-      const currentData = [...this.dataSource.data];
-      const rowIndex = currentData.findIndex(row => row.rfid === update.rfid);
-      
-      if (rowIndex > -1) {
-        currentData[rowIndex].location = 'Updating...';
-        currentData[rowIndex]._updating = true;
-        currentData[rowIndex]._highlight = true;
-        this.dataSource.data = currentData;
-        rowUpdated = true;
-        
-        // Visual feedback (silent - no toast for location updates)
-        this.highlightRow(currentData[rowIndex].unitId);
-      }
-    }
-    
-    // 🔥 NO TOAST for location updates - just update silently
-    // Location updates are for existing units, no need to notify user
-  }
-  
-  // 🔥 HANDLE CONFIRMED UPDATE: Replace predictive with real data
-  private handleConfirmedUpdate(update: any) {
-    if (update.action === 'UNIT_REGISTERED_CONFIRMED') {
-      this.replacePredictiveWithReal(update);
-    } else if (update.action === 'LOCATION_UPDATED_CONFIRMED' || 
-               update.action === 'LOCATION_UPDATED' ||
-               update.action === 'ENTERED_WAREHOUSE_5' ||
-               update.action === 'EXITED_WAREHOUSE_5') {
-      // 🔥 Location updates for existing units - update silently
-      this.updateRealLocation(update);
-    } else if (update.action === 'UNIT_UPDATED') {
-      this.updateExistingUnit(update);
-    } else {
-      // 🔥 Any other update - reload to ensure data consistency
-      this.loadUnits();
-    }
-  }
-  
-  // 🔥 REPLACE PREDICTIVE WITH REAL: When backend confirms registration
-  private replacePredictiveWithReal(update: any) {
-    const currentData = [...this.dataSource.data];
-    
-    // Find predictive row
-    const predictiveIndex = currentData.findIndex(row => 
-      row._predictive && (row.rfid === update.rfid || row._transactionId === update._transactionId)
-    );
-    
-    if (predictiveIndex > -1) {
-      // Replace with real data
-      const realRow = this.createRowFromUnit(update);
-      currentData[predictiveIndex] = realRow;
-      this.dataSource.data = currentData;
-      
-      // Remove from predictive map
-      this.predictiveUnits.delete(update.rfid);
-      
-      // Show success
-      this.showSuccessNotification(`Unit ${update.rfid} registered!`);
-      this.animateRowSuccess(realRow.unitId);
-      
-    } else {
-      // Add as new row (predictive might have been filtered out)
-      const realRow = this.createRowFromUnit(update);
-      currentData.unshift(realRow);
-      this.dataSource.data = currentData.slice(0, this.pageSize);
-      this.total++;
-    }
-  }
-  
-  // 🔥 UPDATE REAL LOCATION: When backend confirms location change (SILENT - no toast)
-  private updateRealLocation(update: any) {
-    const currentData = [...this.dataSource.data];
-    const rowIndex = currentData.findIndex(row => row.rfid === update.rfid);
-    
-    if (rowIndex > -1) {
-      currentData[rowIndex].location = update.location?.name || update.location || currentData[rowIndex].location;
-      currentData[rowIndex].locationId = update.locationId || update.location?.locationId || currentData[rowIndex].locationId;
-      currentData[rowIndex].status = update.status?.name || update.status || currentData[rowIndex].status;
-      currentData[rowIndex].statusId = update.statusId || update.status?.statusId || currentData[rowIndex].statusId;
-      currentData[rowIndex]._updating = false;
-      currentData[rowIndex]._highlight = false;
-      this.dataSource.data = currentData;
-      
-      // 🔥 SILENT UPDATE - No toast for location updates of existing units
-      // Just animate the row to show it was updated
-      this.animateRowUpdate(currentData[rowIndex].unitId);
-    } else {
-      // Unit not in current view - reload to get updated data
-      this.loadUnits();
-    }
-  }
-  
-  // 🔥 UPDATE EXISTING UNIT: Handle other unit updates
-  private updateExistingUnit(update: any) {
-    const currentData = [...this.dataSource.data];
-    const rowIndex = currentData.findIndex(row => row.rfid === update.rfid || row.unitId === update.unitId);
-    
-    if (rowIndex > -1) {
-      const updatedRow = this.createRowFromUnit(update);
-      currentData[rowIndex] = { ...currentData[rowIndex], ...updatedRow };
-      this.dataSource.data = currentData;
-    }
-  }
-  
-  // 🔥 VISUAL FEEDBACK METHODS
-  private showPredictiveNotification(rfid: string) {
-    this.snackBar.open(`Scanning RFID: ${rfid}...`, 'Dismiss', {
-      duration: 2000,
-      panelClass: ['predictive-toast']
-    });
-  }
-  
-  private showSuccessNotification(message: string) {
-    this.snackBar.open(`✅ ${message}`, 'Dismiss', {
-      duration: 2000,
-      panelClass: ['success-toast'],
-      horizontalPosition: 'end',
-      verticalPosition: 'top'
-    });
-  }
-  
-  private highlightNewRow(rowId: string) {
-    setTimeout(() => {
-      const rowElement = document.getElementById(`row-${rowId}`);
-      if (rowElement) {
-        rowElement.classList.add('predictive-highlight');
-        setTimeout(() => rowElement.classList.remove('predictive-highlight'), 2000);
-      }
-    }, 10);
-  }
-  
-  private highlightRow(rowId: string) {
-    const rowElement = document.getElementById(`row-${rowId}`);
-    if (rowElement) {
-      rowElement.classList.add('updating-highlight');
-      setTimeout(() => rowElement.classList.remove('updating-highlight'), 1000);
-    }
-  }
-  
-  private animateRowSuccess(rowId: string) {
-    const rowElement = document.getElementById(`row-${rowId}`);
-    if (rowElement) {
-      rowElement.animate([
-        { backgroundColor: '#e8f5e8' },
-        { backgroundColor: 'transparent' }
-      ], { duration: 1000 });
-    }
-  }
-  
-  private animateRowUpdate(rowId: string) {
-    const rowElement = document.getElementById(`row-${rowId}`);
-    if (rowElement) {
-      rowElement.animate([
-        { backgroundColor: '#fff3e0' },
-        { backgroundColor: 'transparent' }
-      ], { duration: 800 });
-    }
-  }
-  
-  // 🔥 CREATE ROW FROM UNIT: Helper method
-  private createRowFromUnit(unit: any): UnitTableRow {
-    return {
-      unitId: unit.unitId || `real_${unit.rfid}`,
-      unitCode: unit.unitCode || '',
-      rfid: unit.rfid,
-      chassisNo: unit.chassisNo || '',
-      color: unit.color || '',
-      model: unit.model?.modelName || unit.model || '',
-      modelId: unit.modelId || unit.model?.modelId || '',
-      location: unit.location?.name || unit.location || '',
-      locationId: unit.locationId || unit.location?.locationId || '',
-      status: unit.status?.name || unit.status || '',
-      statusId: unit.statusId || unit.status?.statusId || '',
-      selected: false,
-      _predictive: false,
-      _confirmed: true
-    };
   }
 
   ngOnDestroy(): void {
@@ -551,9 +283,6 @@ export class UnitTrackerComponent implements OnInit, OnDestroy {
       pageIndex: this.pageIndex
     };
 
-    // Keep predictive rows visible during load
-    const predictiveRows = Array.from(this.predictiveUnits.values());
-    
     this.unitService.getByAdvanceSearch(params).subscribe({
       next: (response) => {
         this.loading = false;
@@ -577,28 +306,18 @@ export class UnitTrackerComponent implements OnInit, OnDestroy {
           // Extract unique colors for filter
           const uniqueColors = [...new Set(apiRows.map(u => u.color))].sort();
           this.colors = uniqueColors;
-
-          // Combine API rows with predictive rows
-          // Filter out predictive rows that might have been confirmed
-          const filteredPredictiveRows = predictiveRows.filter(predRow => 
-            !apiRows.some(apiRow => apiRow.rfid === predRow.rfid)
-          );
           
-          this.dataSource.data = [...filteredPredictiveRows, ...apiRows];
-          this.total = response.data.total + filteredPredictiveRows.length;
+          this.dataSource.data = apiRows;
+          this.total = response.data.total;
           
           // Update select all state
           this.updateSelectAllState();
         } else {
-          // Keep predictive rows even on error
-          this.dataSource.data = predictiveRows;
           this.snackBar.open(response.message || 'Failed to load units', 'Close', { duration: 3000 });
         }
       },
       error: (error) => {
         this.loading = false;
-        // Keep predictive rows even on error
-        this.dataSource.data = predictiveRows;
         this.snackBar.open('Error loading units', 'Close', { duration: 3000 });
       }
     });

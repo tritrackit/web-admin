@@ -394,6 +394,29 @@ button {
         border-left: 4px solid #2196f3;
       }
 
+      &.instant-toast {
+        --mdc-snackbar-container-color: #4caf50;
+        --mdc-snackbar-supporting-text-color: #ffffff;
+        --mat-mdc-snack-bar-button-color: #ffffff;
+        border-left: 4px solid #2e7d32;
+        font-weight: 600;
+        animation: instant-pulse 0.5s ease-in-out;
+      }
+
+      @keyframes instant-pulse {
+        0% {
+          transform: scale(0.95);
+          opacity: 0.8;
+        }
+        50% {
+          transform: scale(1.02);
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
       @keyframes urgent-pulse {
         0%, 100% {
           opacity: 1;

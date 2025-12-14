@@ -1,0 +1,17 @@
+::ng-deep {
+  .hidden {
+    display: none !important;
+  }
+}
+
+mat-form-field {
+  mat-spinner {
+    width: 30px !important;
+    height: 30px !important;
+    position: absolute;
+    display: block;
+    top: 15px;
+    right: 0;
+  }
+}
+

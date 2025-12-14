@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Router } from '@angular/router';
-import { filter, Subject, takeUntil } from 'rxjs';
+import { filter, Subject, takeUntil, distinctUntilChanged } from 'rxjs';
 import { AppConfigService } from 'src/app/services/app-config.service';
 import { StorageService } from 'src/app/services/storage.service';
 import { UnitService } from 'src/app/services/unit.service';
@@ -54,72 +54,81 @@ export class CBUComponent {
       if(this.route.snapshot.data) {
       }
 
+      // 🔥 Listen for RFID events ONLY when on CBU list page
+      // If user is already on /cbu/register, RegisterCbuComponent will handle it
+      console.log(`🔍 CBU List: Setting up data$ subscription`);
+      
       this.unitService.data$
         .pipe(
-          filter((d: any) => !!d),   // ignore null clears
+          filter((d: any) => {
+            const shouldProcess = !!d && d._instant && !d._handled;
+            console.log(`🔍 CBU List: Filter check`, {
+              hasData: !!d,
+              isInstant: d?._instant,
+              isHandled: d?._handled,
+              shouldProcess: shouldProcess,
+              rfid: d?.rfid
+            });
+            return shouldProcess;
+          }), // ⚡ Only instant, unhandled events
+          distinctUntilChanged((prev, curr) => {
+            const isSame = prev?.rfid === curr?.rfid;
+            console.log(`🔍 CBU List: distinctUntilChanged check`, {
+              prevRfid: prev?.rfid,
+              currRfid: curr?.rfid,
+              isSame: isSame,
+              willEmit: !isSame
+            });
+            return isSame;
+          }), // ⚡ Prevent duplicate RFIDs
           takeUntil(this.destroy$)
-        ).subscribe(data => {
-        if(data?.rfid && data?.location?.locationId){
-          const isUrgent = data._urgent === true;
-          const isPredictive = data._predictive === true;
-          
-          // ⚡ PREDICTIVE: Immediate notification
-          if (isPredictive) {
-            this.snackBar.open(
-              `⚡ Scanning: ${data.rfid}...`,
-              'Opening Registration...',
-              {
-                duration: 1000,
-                horizontalPosition: 'end',
-                verticalPosition: 'top',
-                panelClass: ['predictive-toast']
-              }
-            );
-          } 
-          // ⚡ URGENT: Fast notification
-          else if (isUrgent) {
-            this.snackBar.open(
-              `⚡ RFID Detected: ${data.rfid}`,
-              'Opening Registration...',
-              {
-                duration: 1000,
-                horizontalPosition: 'end',
-                verticalPosition: 'top',
-                panelClass: ['urgent-toast']
-              }
-            );
-          }
-          // Regular notification
-          else {
-            this.snackBar.open(
-              `RFID Detected: ${data.rfid}`,
-              'Opening Registration...',
-              {
-                duration: 2000,
-                horizontalPosition: 'end',
-                verticalPosition: 'top',
-                panelClass: ['success-toast']
-              }
-            );
+        )
+        .subscribe(data => {
+          // 🔥 Check if already on register page - if so, don't navigate (RegisterCbuComponent handles it)
+          const currentUrl = this.router.url;
+          if (currentUrl.includes('/cbu/register')) {
+            console.log('⏭️ CBU List: Already on register page, skipping navigation');
+            return; // RegisterCbuComponent will handle form population
           }
           
-          // Navigate immediately
-          router.navigate([`/cbu/add`], {
-            queryParams: { 
+          const navStart = Date.now();
+          console.log('🚀 CBU List: Instant navigation triggered', `(latency: ${data._latency || 0}ms)`);
+          
+          // ⚡ INSTANT navigation - no delay, no toast
+          // Mark as handled to prevent duplicate processing
+          data._handled = true;
+          
+          this.router.navigate(['/cbu/register'], {
+            queryParams: {
               rfid: data.rfid,
               scannerCode: data.scannerCode,
               locationId: data.location?.locationId,
-              location: data.location?.name || data.location, // Pass location name
-              urgent: isUrgent ? 'true' : undefined,
-              predictive: isPredictive ? 'true' : undefined,
-              transactionId: data._transactionId
-            }
+              location: data.location?.name,
+              instant: 'true', // ⚡ Critical flag
+              urgent: data._urgent ? 'true' : undefined
+            },
+            skipLocationChange: false
+          }).then(() => {
+            const navTime = Date.now() - navStart;
+            console.log(`⚡ Navigation completed in ${navTime}ms`);
+            
+            // 🔍 DEBUG: Clear data after navigation
+            console.log(`🔍 CBU List: Clearing scanned data after navigation`, {
+              rfid: data.rfid,
+              navigationTime: navTime
+            });
+            
+            // ⚡ Clear immediately after navigation
+            setTimeout(() => {
+              this.unitService.clearScannedData();
+              console.log(`🔍 CBU List: Scanned data cleared`);
+            }, 300);
+          }).catch((error) => {
+            console.error(`🔍 CBU List: Navigation failed`, error);
+            // Still clear data even if navigation fails
+            this.unitService.clearScannedData();
           });
-          
-          // Clear the data after navigation
-          this.unitService.clearScannedData();
-        }
-      });
+        });
     }
 
   ngOnInit(): void {

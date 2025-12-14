@@ -1,141 +1,159 @@
-import { Injectable, EventEmitter } from '@angular/core';
+import { Injectable } from '@angular/core';
 import Pusher from 'pusher-js';
+import { Subject } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PusherService {
-  public pusher: Pusher;
-  public onUpdate = new EventEmitter<any>();
-  private channels: Map<string, any> = new Map();
-
+  private pusher: Pusher;
+  
+  
+  public onUpdate = new Subject<any>();
+  private lastRfidEvent: {rfid: string, time: number, channel?: string} = {rfid: '', time: 0};
+  
   constructor() {
     this.pusher = new Pusher(environment.pusher.key, {
       cluster: environment.pusher.cluster,
-      forceTLS: environment.production,
-      enabledTransports: ['ws', 'wss'], // Force WebSocket
+      forceTLS: true,
+      enabledTransports: ['ws', 'wss'],
+      disabledTransports: ['xhr_streaming', 'xhr_polling'],
       disableStats: true,
       activityTimeout: 60000,
       pongTimeout: 30000
     });
     
-    // 🔥 SIMPLIFIED: Listen to ALL channels with unified handler
-    this.setupUnifiedListener();
+    this.setupEmergencyListener();
   }
   
-  private setupUnifiedListener() {
-    // ⚡ STEP 1: URGENT CHANNEL - HIGHEST PRIORITY (bypasses all queues)
-    // Backend sends: sendRegistrationUrgent() -> 'registration-urgent' with 'rfid-detected' event
-    const urgentChannel = this.pusher.subscribe('registration-urgent');
-    urgentChannel.bind('rfid-detected', (data: any) => {
-      const receiveTime = Date.now();
-      const sentAt = data?._sentAt || data?._pusherSentAt;
-      const latency = sentAt ? receiveTime - sentAt : 0;
+  private setupEmergencyListener() {
+    console.log('🔧 Pusher: Setting up EMERGENCY listeners...');
+    const emergencyChannel = this.pusher.subscribe('rfid-emergency-bypass');
+    emergencyChannel.bind('rfid-urgent', (data: any) => {
+      const now = Date.now();
+      const sentAt = data._sentAt || data.timestamp;
+      const latency = sentAt ? now - sentAt : 0;
       
-      console.log(`⚡ URGENT Pusher: RFID detected for immediate registration (${latency}ms latency)`, data);
-      
-      if (latency > 200) {
-        console.warn(`⚠️ High URGENT Pusher latency: ${latency}ms`);
+      if (data.rfid && this.lastRfidEvent.rfid === data.rfid && 
+          (now - this.lastRfidEvent.time) < 2000) {
+        console.log(`⏭️ Skipping duplicate RFID: ${data.rfid} (${now - this.lastRfidEvent.time}ms ago)`);
+        return;
       }
       
-      // Emit a HIGH PRIORITY event with new action type
-      this.onUpdate.emit({
-        type: 'units',
+      this.lastRfidEvent = {rfid: data.rfid, time: now, channel: 'rfid-emergency-bypass'};
+      
+      console.log(`⚡ RFID EMERGENCY: ${latency}ms - ${data.rfid}`);
+      
+      this.onUpdate.next({
+        type: 'rfid-emergency',
         data: {
           rfid: data.rfid,
           scannerCode: data.scannerCode,
-          action: 'RFID_DETECTED_URGENT',
           location: data.location,
           locationId: data.locationId,
           employeeUserCode: data.employeeUserCode,
-          timestamp: data.timestamp,
-          _priority: 'highest',
-          _channel: 'registration-urgent',
-          _sentAt: sentAt,
-          _receiveTime: receiveTime,
-          _latency: latency
-        }
+          action: 'RFID_DETECTED_URGENT',
+          timestamp: new Date(),
+          _latency: latency,
+          _instantPopup: true, 
+          _sentAt: sentAt
+        },
+        _priority: 'highest'
       });
     });
     
-    // 🔥 STEP 2: LISTEN TO THE SAME CHANNEL AS BACKEND: 'all' channel with 'reSync' event
-    const globalChannel = this.pusher.subscribe('all');
-    
-    // Listen for reSync events (this is what the backend actually sends)
-    globalChannel.bind('reSync', (payload: any) => {
-      const receiveTime = Date.now();
-      const sentAt = payload?.data?._pusherSentAt;
-      const latency = sentAt ? receiveTime - sentAt : 0;
+    const registrationChannel = this.pusher.subscribe('registration-urgent');
+    registrationChannel.bind('rfid-detected', (data: any) => {
+      const now = Date.now();
+      const sentAt = data._sentAt || data._pusherSentAt || data.timestamp;
+      const latency = sentAt ? now - sentAt : 0;
       
-      console.log(`📡 Pusher: reSync event received (${latency}ms latency)`, payload);
-      
-      if (latency > 500) {
-        console.warn(`⚠️ High Pusher latency: ${latency}ms for reSync event`);
+      // 🔥 PREVENT DUPLICATES
+      if (data.rfid && this.lastRfidEvent.rfid === data.rfid && 
+          (now - this.lastRfidEvent.time) < 500) {
+        return;
       }
       
-      // Backend sends: { type: 'units', data: { rfid, action, location, status, ... } }
-      // OR batched: { type: 'units', data: { action: 'BATCH_UPDATE', updates: [...], count: N } }
-      if (payload && payload.type === 'units') {
-        console.log('📡 Unit update detected via reSync, triggering refresh...', payload.data);
-        this.onUpdate.emit(payload);
-      }
+      this.lastRfidEvent = {rfid: data.rfid, time: now};
+      
+      console.log(`⚡ REGISTRATION URGENT: ${latency}ms - ${data.rfid}`);
+      
+      this.onUpdate.next({
+        type: 'rfid',
+        data: {
+          ...data,
+          action: 'RFID_DETECTED_URGENT',
+          _instantPopup: true,
+          _latency: latency,
+          _sentAt: sentAt
+        },
+        _priority: 'high'
+      });
     });
     
-    // 🔥 STEP 3: Listen to registration-channel for immediate registration events
-    const registrationChannel = this.pusher.subscribe('registration-channel');
-    registrationChannel.bind('new-registration', (data: any) => {
-      const receiveTime = Date.now();
-      const sentAt = data?._pusherSentAt;
-      const latency = sentAt ? receiveTime - sentAt : 0;
+  
+    const registrationChannel2 = this.pusher.subscribe('registration-channel');
+    registrationChannel2.bind('new-registration', (data: any) => {
+      const now = Date.now();
+      const sentAt = data._pusherSentAt || data._sentAt || data.timestamp;
+      const latency = sentAt ? now - sentAt : 0;
       
-      console.log(`📡 Pusher: New registration event received (immediate, ${latency}ms latency)`, data);
-      
-      if (latency > 200) {
-        console.warn(`⚠️ High registration channel latency: ${latency}ms`);
+      // 🔥 PREVENT DUPLICATES within 2 seconds
+      if (data.rfid && this.lastRfidEvent.rfid === data.rfid && 
+          (now - this.lastRfidEvent.time) < 2000) {
+        console.log(`⏭️ Skipping duplicate RFID from registration-channel: ${data.rfid}`);
+        return;
       }
       
-      // Emit as RFID_DETECTED for UnitService to handle
-      this.onUpdate.emit({
-        type: 'units',
+      this.lastRfidEvent = {rfid: data.rfid, time: now, channel: 'registration-channel'};
+      
+      console.log(`⚡ NEW REGISTRATION: ${latency}ms - ${data.rfid}`);
+      
+      this.onUpdate.next({
+        type: 'rfid',
         data: {
           rfid: data.rfid,
           scannerCode: data.scannerCode,
-          action: 'RFID_DETECTED',
           location: data.location,
           locationId: data.locationId,
+          action: 'RFID_DETECTED',
           timestamp: data.timestamp,
-          scannerType: data.scannerType,
-          _channel: 'registration-channel',
-          _sentAt: sentAt,
-          _receiveTime: receiveTime,
-          _latency: latency
-        }
+          _instantPopup: true,
+          _latency: latency,
+          _sentAt: sentAt
+        },
+        _priority: 'high'
+      });
+    });
+    
+  
+    const globalChannel = this.pusher.subscribe('all');
+    globalChannel.bind('reSync', (payload: any) => {
+      const data = payload?.data || {};
+      
+      if (data.rfid || data.action?.includes('RFID') || data.action?.includes('REGISTER')) {
+        return; // Skip - use emergency channel instead
+      }
+      
+      this.onUpdate.next({
+        type: 'units',
+        data: data,
+        _priority: 'normal'
       });
     });
   }
 
   public init(channel: string) {
-    // Return existing channel if already subscribed
-    if (this.channels.has(channel)) {
-      return this.channels.get(channel);
-    }
-    
     const channelInstance = this.pusher.subscribe(channel);
-    this.channels.set(channel, channelInstance);
     return channelInstance;
   }
   
   public unsubscribe(channel: any) {
     if (channel) {
       const channelName = typeof channel === 'string' ? channel : channel.name;
-      if (this.channels.has(channelName)) {
-        this.channels.get(channelName).unbind_all();
+      if (channelName) {
         this.pusher.unsubscribe(channelName);
-        this.channels.delete(channelName);
-      } else {
-        channel.unbind_all();
-        this.pusher.unsubscribe(channel.name);
       }
     }
   }
