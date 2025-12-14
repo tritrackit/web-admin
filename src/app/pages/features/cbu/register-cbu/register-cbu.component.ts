@@ -452,22 +452,27 @@ export class RegisterCbuComponent implements OnInit, OnDestroy {
           // ⚡ Clear scanned data immediately after successful registration
           this.unitService.clearScannedData();
           
+          dialogRef.close();
+          
           this.snackBar.open('✅ Unit registered successfully!', 'close', {
             panelClass: ['style-success'],
             duration: 2000
           });
           
-          // 🔥 Navigate to unit details page to see the registered unit
+          // 🔥 Navigate immediately to unit details page (backend already returned success)
           if (res.data && res.data.unitCode) {
-            setTimeout(() => {
-              this.router.navigate([`/cbu/${res.data.unitCode}`]);
-            }, 500);
+            // Navigate immediately - no delay needed since backend already confirmed creation
+            this.router.navigate([`/cbu/${res.data.unitCode}`], {
+              replaceUrl: false
+            }).catch((err) => {
+              console.error('Navigation error:', err);
+              // Fallback to CBU list if navigation fails
+              this.router.navigate(['/cbu']);
+            });
           } else {
-            // Fallback to CBU list
+            // Fallback to CBU list if no unitCode
             this.router.navigate(['/cbu']);
           }
-          
-          dialogRef.close();
         } else {
           this.error = Array.isArray(res.message) ? res.message[0] : res.message;
           this.snackBar.open(this.error, 'close', {
