@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, NgZone } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
@@ -30,6 +30,12 @@ interface UnitTableRow {
   statusId: string;
   description?: string;
   selected?: boolean;
+  _predictive?: boolean;
+  _transactionId?: string;
+  _pending?: boolean;
+  _highlight?: boolean;
+  _updating?: boolean;
+  _confirmed?: boolean;
 }
 
 @Component({
@@ -80,6 +86,7 @@ export class UnitTrackerComponent implements OnInit, OnDestroy {
   hasModifyAccess: boolean = false;
   hasViewAccess: boolean = false;
 
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -88,7 +95,8 @@ export class UnitTrackerComponent implements OnInit, OnDestroy {
     private storageService: StorageService,
     private snackBar: MatSnackBar,
     private router: Router,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private zone: NgZone
   ) {
     this.currentUser = this.storageService.getLoginProfile();
     this.checkAccessRights();
@@ -135,9 +143,13 @@ export class UnitTrackerComponent implements OnInit, OnDestroy {
 
     // Subscribe to real-time updates via Pusher
     this.unitService.refresh$
-      .pipe(takeUntil(this.destroy$))
+      .pipe(
+        takeUntil(this.destroy$),
+        debounceTime(300) // Small debounce to avoid rapid refreshes
+      )
       .subscribe(() => {
         console.log('🔄 UnitTracker: Pusher update received, reloading units...');
+        // 🔥 Auto-reload silently for location updates and other changes
         this.loadUnits();
       });
   }
@@ -275,7 +287,7 @@ export class UnitTrackerComponent implements OnInit, OnDestroy {
       next: (response) => {
         this.loading = false;
         if (response.success && response.data) {
-          const units: UnitTableRow[] = response.data.results.map((unit: Units) => ({
+          const apiRows: UnitTableRow[] = response.data.results.map((unit: Units) => ({
             unitId: unit.unitId,
             unitCode: unit.unitCode || '',
             rfid: unit.rfid,
@@ -292,10 +304,10 @@ export class UnitTrackerComponent implements OnInit, OnDestroy {
           }));
 
           // Extract unique colors for filter
-          const uniqueColors = [...new Set(units.map(u => u.color))].sort();
+          const uniqueColors = [...new Set(apiRows.map(u => u.color))].sort();
           this.colors = uniqueColors;
-
-          this.dataSource.data = units;
+          
+          this.dataSource.data = apiRows;
           this.total = response.data.total;
           
           // Update select all state

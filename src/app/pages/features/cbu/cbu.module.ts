@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CBUComponent } from './cbu.component';
 import { CBUDetailsComponent } from './cbu-details/cbu-details.component';
+import { RegisterCbuComponent } from './register-cbu/register-cbu.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Routes, RouterModule } from '@angular/router';
 import { FlexLayoutModule } from '@ngbracket/ngx-layout';
@@ -18,9 +19,9 @@ export const routes: Routes = [
     data: { title: "CBU" }
   },
   {
-    path: 'add',
-    component: CBUDetailsComponent,
-    data: { title: "CBU", details: true, isNew: true }
+    path: 'register',
+    component: RegisterCbuComponent,
+    data: { title: "Register CBU", details: true }
   },
   {
     path: ':unitCode',
@@ -38,6 +39,7 @@ export const routes: Routes = [
   declarations: [
     CBUComponent,
     CBUDetailsComponent,
+    RegisterCbuComponent,
   ],
   imports: [
     CommonModule,

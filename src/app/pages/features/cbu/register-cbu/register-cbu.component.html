@@ -1,83 +1,66 @@
 <mat-toolbar color="#fff" class="mat-elevation-z4">
-  <button [disabled]="isLoading" style="margin-right: 10px!important;" mat-icon-button
-    matTooltip="{{ isReadOnly? 'Back' : 'Cancel'}}"
-    [routerLink]="isReadOnly ? '/cbu/' : isNew ? '/cbu': '/cbu/' + unitCode">
-    <mat-icon>
-      {{
-      isReadOnly? 'keyboard_arrow_left' : 'close'
-      }}
-    </mat-icon>
+  <button [disabled]="isProcessing" style="margin-right: 10px!important;" mat-icon-button
+    matTooltip="Cancel"
+    routerLink="/cbu">
+    <mat-icon>close</mat-icon>
   </button>
   <span id="title">
     <span [ngStyle.md]="{ 'display': 'none'}" [ngStyle.sm]="{ 'display': 'none'}" [ngStyle.xs]="{ 'display': 'none'}">
-      {{ isNew ? 'New CBU' : '#' + unitCode + ' ' + ( !isLoading ? unit?.model?.modelName : '')}}
+      Register New CBU
     </span>
   </span>
   <span class="toolbar-item-spacer"></span>
   <div class="toolbar-action">
-    <button *ngIf="!isNew && isReadOnly" mat-raised-button color="primary" matTooltip="Delete"
-      (click)="onDeleteProduct()">
-      Delete
-    </button>
-    <button mat-raised-button color="primary" matTooltip="Edit" *ngIf="!isNew && isReadOnly"
-      routerLink="/cbu/{{unitCode}}/edit" replaceUrl="true">
-      Edit
-    </button>
-    <button *ngIf="!isReadOnly" mat-raised-button color="primary" matTooltip="{{isNew ? 'Save' : 'Update'}}"
-      [disabled]="!formIsReady || !formIsValid" form="unitForm" type="submit">
-      {{isNew ? 'Save' : 'Update'}}
+    <button mat-raised-button color="primary" matTooltip="Register"
+      [disabled]="!formIsReady || !formIsValid || isProcessing" form="unitForm" type="submit">
+      Register
     </button>
   </div>
 </mat-toolbar>
 <div class="content">
   <div class="inner-content">
-    <h4 *ngIf="!isNew" class="inner-content-title">Product details</h4>
+    <h4 class="inner-content-title">CBU Registration</h4>
     <mat-card>
       <mat-card-content>
         <div fxLayout="column" fxLayoutGap="16px">
           <div fxFlex="100" class="content-inner" fxLayout="column">
-            <form [formGroup]="unitForm" fxLayout="row wrap" id="unitForm" (ngSubmit)="onSubmit()"
-              [ngClass]="{'readonly' : isReadOnly}">
+            <form [formGroup]="unitForm" fxLayout="row wrap" id="unitForm" (ngSubmit)="onSubmit()">
               <fieldset fxFlex="100" fxLayout="row wrap" style="row-gap: 16px">
-                <div *ngIf="!isNew" fxFlex="100" fxLayout="column" fxLayout.gt-sm="row" style="gap: 16px">
-                  <mat-form-field appearance="outline" fxFlex.gt-sm="33.33%" fxFlex="100" class="cell"
-                    [ngClass.gt-sm]="{ isLargeScreen: true }">
-                    <mat-label>Unit Code</mat-label>
-                    <input matInput readonly placeholder="Unit Code" [value]="unit?.unitCode" />
-                  </mat-form-field>
-                </div>
-
-                <div fxLayout="column" fxLayout.gt-sm="row" fxFlex="100" class="content-inner" fxLayoutGap="16px"
-                  [ngClass]="{'readonly' : isReadOnly}">
+                <!-- RFID and Location (Readonly) -->
+                <div fxLayout="column" fxLayout.gt-sm="row" fxFlex="100" class="content-inner" fxLayoutGap="16px">
                   <mat-form-field appearance="outline" fxFlex.gt-sm="50%" fxFlex="100" class="cell"
                     [ngClass.gt-sm]="{ isLargeScreen: true }">
                     <mat-label>Location</mat-label>
-                    <input readonly matInput [value]="location?.name"/>
+                    <input readonly matInput [value]="location?.name || 'Waiting for RFID scan...'"/>
                   </mat-form-field>
 
                   <mat-form-field appearance="outline" fxFlex.gt-sm="50%" fxFlex="100" class="cell"
                     [ngClass.gt-sm]="{ isLargeScreen: true }">
                     <mat-label>RFID</mat-label>
-                    <input readonly matInput placeholder="RFID" formControlName="rfid" />
+                    <input readonly matInput placeholder="Scan RFID to register" formControlName="rfid" />
                     <mat-error *ngIf="getError('rfid')">{{
                       (getError("rfid") &&
                       getError("rfid")["required"]
                       ? "Please scan RFID"
+                      : "") ||
+                      (getError("rfid") &&
+                      getError("rfid")["exist"]
+                      ? "RFID already exists"
                       : "")
                       }}</mat-error>
                   </mat-form-field>
                 </div>
 
-                <!-- Form fields for editing existing units -->
+                <!-- Model and Chassis No (Always visible - ready for input) -->
                 <div fxLayout="column" fxLayout.gt-sm="row" fxFlex="100" class="content-inner"
-                  [ngClass]="{'readonly' : isReadOnly}" fxLayoutGap="16px">
+                  fxLayoutGap="16px">
                   <mat-form-field class="example-full-width" appearance="outline" fxFlex.gt-sm="50%" fxFlex="100"
                     style="position: relative!important;">
                     <mat-label>Model</mat-label>
                     <input type="text" placeholder="Select model" aria-label="Select model" matInput
                       [formControl]="modelSearchCtrl" [matAutocomplete]="autoModel"
-                      (focusout)="mapSearchModel();" #modelSearchInput (input)="isOptionsModelLoading = true;" #modelTrig="matAutocompleteTrigger"
-           matAutocompleteTrigger>
+                      (focusout)="mapSearchModel();" #modelSearchInput (input)="isOptionsModelLoading = true;" 
+                      #modelTrig="matAutocompleteTrigger" matAutocompleteTrigger>
                     <mat-autocomplete #autocompleteModel #autoModel="matAutocomplete"
                       [displayWith]="displayModelName"
                       (optionSelected)="onModelSelected($event.option.value)">
@@ -100,7 +83,7 @@
                   <mat-form-field appearance="outline" fxFlex.gt-sm="50%" fxFlex="100" class="cell"
                     [ngClass.gt-sm]="{ isLargeScreen: true }">
                     <mat-label>Chassis no</mat-label>
-                    <input matInput placeholder="Chassis no" formControlName="chassisNo" />
+                    <input matInput placeholder="Enter chassis number" formControlName="chassisNo" />
                     <mat-error *ngIf="getError('chassisNo')">{{
                       (getError("chassisNo") &&
                       getError("chassisNo")["required"]
@@ -109,11 +92,14 @@
                       }}</mat-error>
                   </mat-form-field>
                 </div>
+
+                <!-- Color (Always visible) -->
                 <div fxFlex="100" fxLayout="column" fxLayout.gt-sm="row" style="gap: 16px">
                   <mat-form-field appearance="outline" fxFlex.gt-sm="100%" fxFlex="100" class="cell"
                     [ngClass.gt-sm]="{ isLargeScreen: true }">
                     <mat-label>Color</mat-label>
-                    <input matInput placeholder="Color" formControlName="color" (input)="unitForm.controls['color'].setValue(unitForm.controls['color'].value.toUpperCase())"/>
+                    <input matInput placeholder="Enter color" formControlName="color" 
+                      (input)="unitForm.controls['color'].setValue(unitForm.controls['color'].value.toUpperCase())"/>
                     <mat-error *ngIf="getError('color')">{{
                       (getError("color") &&
                       getError("color")["required"]
@@ -122,11 +108,13 @@
                       }}</mat-error>
                   </mat-form-field>
                 </div>
+
+                <!-- Description (Always visible) -->
                 <div fxFlex="100" fxLayout="column" fxLayout.gt-sm="row" style="gap: 16px">
                   <mat-form-field appearance="outline" fxFlex.gt-sm="100%" fxFlex="100" class="cell"
                     [ngClass.gt-sm]="{ isLargeScreen: true }">
                     <mat-label>Description</mat-label>
-                    <textarea matInput placeholder="Description" formControlName="description"></textarea>
+                    <textarea matInput placeholder="Enter description" formControlName="description"></textarea>
                     <mat-error *ngIf="getError('description')">{{
                       (getError("description") &&
                       getError("description")["required"]
@@ -137,10 +125,10 @@
                 </div>
               </fieldset>
             </form>
-
           </div>
         </div>
       </mat-card-content>
     </mat-card>
   </div>
 </div>
+

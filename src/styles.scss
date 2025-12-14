@@ -379,6 +379,44 @@ button {
         animation: urgent-pulse 1s ease-in-out infinite;
       }
 
+      &.predictive-toast {
+        --mdc-snackbar-container-color: #fff3e0;
+        --mdc-snackbar-supporting-text-color: #ef6c00;
+        --mat-mdc-snack-bar-button-color: #ef6c00;
+        border-left: 4px solid #ffb300;
+        font-weight: 500;
+      }
+
+      &.info-toast {
+        --mdc-snackbar-container-color: #e3f2fd;
+        --mdc-snackbar-supporting-text-color: #1976d2;
+        --mat-mdc-snack-bar-button-color: #1976d2;
+        border-left: 4px solid #2196f3;
+      }
+
+      &.instant-toast {
+        --mdc-snackbar-container-color: #4caf50;
+        --mdc-snackbar-supporting-text-color: #ffffff;
+        --mat-mdc-snack-bar-button-color: #ffffff;
+        border-left: 4px solid #2e7d32;
+        font-weight: 600;
+        animation: instant-pulse 0.5s ease-in-out;
+      }
+
+      @keyframes instant-pulse {
+        0% {
+          transform: scale(0.95);
+          opacity: 0.8;
+        }
+        50% {
+          transform: scale(1.02);
+        }
+        100% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
       @keyframes urgent-pulse {
         0%, 100% {
           opacity: 1;
