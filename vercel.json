@@ -1,6 +1,6 @@
 {
   "buildCommand": "npm run build:prod",
-  "outputDirectory": "dist/tritrackit-web/browser",
+  "outputDirectory": "dist/tritrackit-web",
   "rewrites": [
     { "source": "/api/pusher/auth", "destination": "/api/pusher/auth" },
     { "source": "/api/pusher/trigger", "destination": "/api/pusher/trigger" }
