@@ -7,7 +7,7 @@ export const environment = {
     cluster: "ap1",
   },
   socketIo: {
-    url: "https://socket-server-production-4c03.up.railway.app", // Railway Socket.io server URL
+    url: "https://socket-server-production-4c03.up.railway.app", 
     options: {
       transports: ['websocket', 'polling'],
       reconnection: true,
