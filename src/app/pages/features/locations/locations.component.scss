@@ -1,3 +1,4 @@
+
 .inner-content {
   padding: 10px;
   margin-top: 20px;
@@ -12,7 +13,8 @@
   width: 100%;
 
   .search-field {
-    width: 330px;
+    width: 100%;
+    max-width: 400px;
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -60,14 +62,21 @@
   border-left: 4px solid #2196F3;
   border-radius: 8px;
   
+  .info-content {
+    display: flex;
+    align-items: flex-start;
+  }
+  
   mat-card-content {
     padding: 16px !important;
     
-    mat-icon {
+    .info-icon {
       color: #2196F3;
+      flex-shrink: 0;
+      margin-top: 2px;
     }
     
-    span {
+    .info-text {
       font-size: 14px;
       color: #1976d2;
       line-height: 1.5;
@@ -75,9 +84,110 @@
       strong {
         color: #0d47a1;
         font-weight: 600;
+        display: inline-block;
+        word-break: break-word;
       }
     }
   }
+}
+
+.table-card {
+  mat-card-content {
+    padding: 0 !important;
+  }
+}
+
+/* Mobile Table Styles */
+.mobile-table {
+  padding: 16px;
+  
+  .mobile-item {
+    margin-bottom: 16px;
+    padding: 12px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+  
+  .mobile-row {
+    display: flex;
+    margin-bottom: 8px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    .mobile-label {
+      font-weight: 500;
+      color: #666;
+      width: 70px;
+      flex-shrink: 0;
+      font-family: "Chakra Petch", sans-serif;
+    }
+    
+    .mobile-value {
+      flex: 1;
+      color: #333;
+      word-break: break-word;
+      font-family: "Chakra Petch", sans-serif;
+    }
+  }
+  
+  mat-divider {
+    margin: 12px 0;
+  }
+  
+  .mobile-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 20px;
+    padding: 12px;
+    
+    .page-info {
+      font-family: "Chakra Petch", sans-serif;
+      font-size: 14px;
+      color: #666;
+    }
+    
+    button {
+      background: #f5f5f5;
+      border-radius: 4px;
+    }
+  }
+  
+  .no-data {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    text-align: center;
+    
+    mat-icon {
+      font-size: 48px;
+      height: 48px;
+      width: 48px;
+      color: #ccc;
+      margin-bottom: 16px;
+    }
+    
+    span {
+      font-family: "Chakra Petch", sans-serif;
+      color: #999;
+      font-size: 16px;
+    }
+  }
+}
+
+/* Desktop Table Styles */
+.desktop-table {
+  padding: 16px;
 }
 
 ::ng-deep .table-container {
@@ -197,7 +307,7 @@
   }
 }
 
-// Responsive adjustments for mobile (768px and below)
+// Mobile view (768px and below)
 @media (max-width: 768px) {
   .inner-content {
     padding: 10px;
@@ -235,6 +345,10 @@
     mat-card-content {
       padding: 12px !important;
       
+      .info-content {
+        align-items: flex-start;
+      }
+      
       .info-text {
         font-size: 12px;
         line-height: 1.5;
@@ -243,6 +357,7 @@
         strong {
           font-weight: 600;
           display: inline;
+          font-size: 12px;
         }
       }
       
@@ -254,9 +369,35 @@
       }
     }
   }
+  
+  .mobile-table {
+    padding: 12px;
+    
+    .mobile-item {
+      padding: 10px;
+      margin-bottom: 12px;
+    }
+    
+    .mobile-row {
+      .mobile-label {
+        font-size: 12px;
+        width: 60px;
+      }
+      
+      .mobile-value {
+        font-size: 13px;
+      }
+    }
+    
+    .mobile-pagination {
+      .page-info {
+        font-size: 13px;
+      }
+    }
+  }
 }
 
-// Responsive adjustments for small mobile (600px and below)
+// Small mobile (600px and below)
 @media (max-width: 600px) {
   .inner-content {
     padding: 8px;
@@ -295,8 +436,9 @@
     mat-card-content {
       padding: 10px !important;
       
-      div {
-        flex-wrap: wrap;
+      .info-content {
+        flex-direction: column;
+        gap: 6px;
       }
       
       .info-text {
@@ -306,7 +448,7 @@
         strong {
           font-size: 11px;
           display: inline-block;
-          margin-top: 2px;
+          margin-top: 4px;
         }
       }
       
@@ -314,31 +456,33 @@
         font-size: 16px;
         width: 16px;
         height: 16px;
-        margin-top: 2px;
+        margin-top: 0;
       }
     }
   }
-
-  ::ng-deep .table-container {
-    padding-bottom: 12px;
+  
+  .mobile-table {
+    padding: 10px;
     
-    .table {
-      min-width: 600px !important;
-      font-size: 13px;
-      
-      th, td {
-        font-size: 13px;
-        padding: 8px 12px !important;
+    .mobile-item {
+      padding: 8px;
+      margin-bottom: 10px;
+    }
+    
+    .mobile-row {
+      .mobile-label {
+        font-size: 11px;
+        width: 50px;
       }
       
-      th {
-        padding-bottom: 6px !important;
+      .mobile-value {
+        font-size: 12px;
       }
     }
   }
 }
 
-// Responsive adjustments for extra small mobile (400px and below)
+// Extra small mobile (400px and below)
 @media (max-width: 400px) {
   .inner-content {
     padding: 6px;
@@ -374,6 +518,7 @@
         
         strong {
           font-size: 10px;
+          display: inline;
         }
       }
       
@@ -381,6 +526,24 @@
         font-size: 14px;
         width: 14px;
         height: 14px;
+      }
+    }
+  }
+  
+  .mobile-table {
+    padding: 8px;
+    
+    .mobile-item {
+      padding: 6px;
+    }
+    
+    .mobile-row {
+      flex-direction: column;
+      margin-bottom: 6px;
+      
+      .mobile-label {
+        width: 100%;
+        margin-bottom: 2px;
       }
     }
   }

@@ -321,7 +321,7 @@ export class ScannerDetailsComponent implements OnInit {
 
     const dialogData = new AlertDialogModel();
     dialogData.title = 'Confirm';
-    dialogData.message = 'Save user?';
+    dialogData.message = 'Save scanner?';
     dialogData.confirmButton = {
       visible: true,
       text: 'yes',

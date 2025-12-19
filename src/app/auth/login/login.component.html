@@ -6,7 +6,7 @@
         <span class="desc">Please enter your details</span>
         <mat-form-field appearance="outline">
           <mat-label>Email</mat-label>
-          <input matInput placeholder="Enter your  username:" formControlName="userName">
+          <input matInput placeholder="Enter your email:" formControlName="userName">
           <mat-error *ngIf="logInForm.controls['userName']?.errors">
             {{
             ( logInForm.controls['userName'].errors['required'] ? 'Enter your email:' : '') ||

@@ -1,0 +1,349 @@
+/* Toolbar Styles */
+.mat-toolbar {
+    min-height: 64px;
+    padding: 0 16px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+  
+  .title-text {
+    font-family: "Chakra Petch", sans-serif;
+    font-weight: 500;
+    font-size: 18px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 300px;
+    
+    .mobile-title {
+      font-size: 16px;
+    }
+  }
+  
+  .toolbar-item-spacer {
+    flex: 1 1 auto;
+  }
+  
+  .toolbar-action {
+    display: flex;
+    gap: 8px;
+    
+    .desktop-buttons {
+      display: flex;
+      gap: 8px;
+      
+      button {
+        white-space: nowrap;
+        font-family: "Chakra Petch", sans-serif;
+        font-weight: 500;
+        border-radius: 6px;
+        min-width: 80px;
+      }
+    }
+    
+    .mobile-buttons {
+      display: flex;
+      gap: 4px;
+      
+      button {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        
+        mat-icon {
+          font-size: 20px;
+          width: 20px;
+          height: 20px;
+        }
+      }
+    }
+  }
+  
+  /* Content Styles */
+  .content {
+    padding: 16px;
+  }
+  
+  .inner-content {
+    margin-top: 16px;
+  }
+  
+  .inner-content-title {
+    font-family: "Chakra Petch", sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin: 20px 0 12px 0;
+  }
+  
+  mat-card {
+    margin-bottom: 20px;
+    border-radius: 8px;
+    
+    mat-card-content {
+      padding: 16px !important;
+    }
+  }
+  
+  /* Mobile Responsive Styles */
+  @media (max-width: 768px) {
+    .mat-toolbar {
+      min-height: 56px;
+      padding: 0 12px;
+    }
+    
+    .title-text {
+      font-size: 16px;
+      max-width: 200px;
+      
+      .mobile-title {
+        font-size: 14px;
+      }
+    }
+    
+    .toolbar-action {
+      .mobile-buttons button {
+        width: 36px;
+        height: 36px;
+        
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+      }
+    }
+    
+    .content {
+      padding: 12px;
+    }
+    
+    .inner-content {
+      margin-top: 12px;
+    }
+    
+    .inner-content-title {
+      font-size: 16px;
+      margin: 16px 0 10px 0;
+    }
+    
+    mat-card {
+      margin-bottom: 16px;
+      
+      mat-card-content {
+        padding: 12px !important;
+      }
+    }
+  }
+  
+  @media (max-width: 600px) {
+    .mat-toolbar {
+      min-height: 52px;
+      padding: 0 10px;
+    }
+    
+    .title-text {
+      font-size: 14px;
+      max-width: 150px;
+      
+      .mobile-title {
+        font-size: 13px;
+      }
+    }
+    
+    .toolbar-action {
+      .mobile-buttons {
+        gap: 3px;
+        
+        button {
+          width: 34px;
+          height: 34px;
+          
+          mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
+          }
+        }
+      }
+    }
+    
+    .content {
+      padding: 10px;
+    }
+    
+    .inner-content-title {
+      font-size: 15px;
+      margin: 14px 0 8px 0;
+    }
+    
+    mat-card {
+      margin-bottom: 14px;
+      
+      mat-card-content {
+        padding: 10px !important;
+      }
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .mat-toolbar {
+      min-height: 48px;
+      padding: 0 8px;
+    }
+    
+    .title-text {
+      font-size: 13px;
+      max-width: 120px;
+      
+      .mobile-title {
+        font-size: 12px;
+      }
+    }
+    
+    button[mat-icon-button] {
+      margin-right: 6px !important;
+      width: 32px;
+      height: 32px;
+      
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+    }
+    
+    .toolbar-action {
+      .mobile-buttons {
+        gap: 2px;
+        
+        button {
+          width: 32px;
+          height: 32px;
+          
+          mat-icon {
+            font-size: 15px;
+            width: 15px;
+            height: 15px;
+          }
+        }
+      }
+    }
+    
+    .content {
+      padding: 8px;
+    }
+    
+    .inner-content-title {
+      font-size: 14px;
+      margin: 12px 0 6px 0;
+    }
+    
+    mat-card {
+      margin-bottom: 12px;
+      
+      mat-card-content {
+        padding: 8px !important;
+      }
+    }
+  }
+  
+  @media (max-width: 360px) {
+    .mat-toolbar {
+      min-height: 44px;
+      padding: 0 6px;
+    }
+    
+    .title-text {
+      font-size: 12px;
+      max-width: 100px;
+      
+      .mobile-title {
+        font-size: 11px;
+      }
+    }
+    
+    button[mat-icon-button] {
+      margin-right: 4px !important;
+      width: 30px;
+      height: 30px;
+      
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+      }
+    }
+    
+    .toolbar-action {
+      .mobile-buttons {
+        button {
+          width: 30px;
+          height: 30px;
+          
+          mat-icon {
+            font-size: 14px;
+            width: 14px;
+            height: 14px;
+          }
+        }
+      }
+    }
+    
+    .content {
+      padding: 6px;
+    }
+    
+    .inner-content-title {
+      font-size: 13px;
+      margin: 10px 0 5px 0;
+    }
+    
+    mat-card {
+      margin-bottom: 10px;
+      
+      mat-card-content {
+        padding: 6px !important;
+      }
+    }
+  }
+  
+  /* Touch-friendly improvements */
+  @media (hover: none) and (pointer: coarse) {
+    .toolbar-action {
+      .mobile-buttons button {
+        min-width: 44px;
+        min-height: 44px;
+        
+        mat-icon {
+          font-size: 20px !important;
+          width: 20px !important;
+          height: 20px !important;
+        }
+      }
+      
+      button[mat-icon-button] {
+        min-width: 44px;
+        min-height: 44px;
+      }
+    }
+  }
+  
+  /* Ensure proper stacking on very small screens */
+  @media (max-width: 320px) {
+    .toolbar-action {
+      .mobile-buttons {
+        button {
+          padding: 0;
+          min-width: 28px;
+        }
+      }
+    }
+    
+    .title-text {
+      max-width: 80px;
+    }
+  }

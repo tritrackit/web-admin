@@ -8,38 +8,83 @@
       }}
     </mat-icon>
   </button>
-  <span id="title">{{ '#' + code + ' ' + roleForm.getFormData.name}}</span>
+  
+  <span id="title" class="title-text">
+    <span class="desktop-title">{{ roleForm.getFormData.name}}</span>
+    <span class="mobile-title" fxHide.gt-xs="true">
+      <span *ngIf="code">{{ '#' + code }}</span>
+      <span *ngIf="!code">New Role</span>
+    </span>
+  </span>
+  
   <span class="toolbar-item-spacer"></span>
+  
   <div class="toolbar-action">
-    <button
-      *ngIf="isReadOnly"
-      mat-raised-button
-      color="primary"
-      matTooltip="Edit"
-      routerLink="/roles/{{code}}/edit"
-      replaceUrl="true"
-    >
-      Edit
-    </button>
-    <button
-      mat-raised-button
-      color="primary"
-      matTooltip="Delete"
-      (click)="onDelete()"
-      replaceUrl="true"
-    >
-      Delete
-    </button>
-    <button
-      *ngIf="!isReadOnly"
-      mat-flat-button
-      [disabled]="!roleForm.valid || !roleForm.ready"
-      color="primary"
-      (click)="onUpdate(roleForm.getFormData)">
-      Update
-    </button>
+    <!-- Desktop buttons -->
+    <div class="desktop-buttons" fxHide.xs="true">
+      <button
+        *ngIf="isReadOnly"
+        mat-raised-button
+        color="primary"
+        matTooltip="Edit"
+        routerLink="/roles/{{code}}/edit"
+        replaceUrl="true"
+      >
+        Edit
+      </button>
+      <button
+        mat-raised-button
+        color="primary"
+        matTooltip="Delete"
+        (click)="onDelete()"
+        replaceUrl="true"
+      >
+        Delete
+      </button>
+      <button
+        *ngIf="!isReadOnly"
+        mat-flat-button
+        [disabled]="!roleForm.valid || !roleForm.ready"
+        color="primary"
+        (click)="onUpdate(roleForm.getFormData)">
+        Update
+      </button>
+    </div>
+    
+    <!-- Mobile buttons -->
+    <div class="mobile-buttons" fxHide.gt-xs="true">
+      <button
+        *ngIf="isReadOnly"
+        mat-icon-button
+        color="primary"
+        matTooltip="Edit"
+        routerLink="/roles/{{code}}/edit"
+        replaceUrl="true"
+      >
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        color="warn"
+        matTooltip="Delete"
+        (click)="onDelete()"
+        replaceUrl="true"
+      >
+        <mat-icon>delete</mat-icon>
+      </button>
+      <button
+        *ngIf="!isReadOnly"
+        mat-icon-button
+        color="primary"
+        [disabled]="!roleForm.valid || !roleForm.ready"
+        matTooltip="Update"
+        (click)="onUpdate(roleForm.getFormData)">
+        <mat-icon>save</mat-icon>
+      </button>
+    </div>
   </div>
 </mat-toolbar>
+
 <div class="content">
   <div class="inner-content">
     <h4 class="inner-content-title">Role details</h4>

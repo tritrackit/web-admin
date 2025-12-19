@@ -10,7 +10,7 @@
   </button>
   <span id="title">
     <span [ngStyle.md]="{ 'display': 'none'}" [ngStyle.sm]="{ 'display': 'none'}" [ngStyle.xs]="{ 'display': 'none'}">
-      {{ isNew ? 'Register New User' : '#' + employeeUserCode + ' ' + ( !isLoading ? employeeUser?.firstName + ' ' +
+      {{ isNew ? 'Register New User' : ( !isLoading ? employeeUser?.firstName + ' ' +
       employeeUser?.lastName : '')}}
     </span>
   </span>
@@ -83,20 +83,6 @@
                   <mat-label>Email</mat-label>
                   <input matInput type="email" placeholder="Email" formControlName="email"
                     (input)="employeeUserForm.get('email').setValue($event.target.value.toLowerCase(), { emitEvent: false })" />
-                  <mat-error *ngIf="getError('email') !== (null || undefined)">{{
-                    (getError("email") &&
-                    getError("email").required
-                    ? "Please enter Email"
-                    : "") ||
-                    (getError("email") &&
-                    getError("email").email
-                    ? "Please enter a valid email"
-                    : "") ||
-                    (getError("email") &&
-                    getError("email").exists
-                    ? error
-                    : "")
-                    }}</mat-error>
                 </mat-form-field>
                 <div fxFlex="50%">
                   <mat-form-field fxFlex="100%" appearance="outline" class="cell"
@@ -152,6 +138,9 @@
                     : "") ||
                     (getError("password") && getError("password").maxlength
                     ? "Only maximum of 16 characters are allowed"
+                    : "") ||
+                    (getError("password") && getError("password").pattern
+                    ? "Password must contain uppercase, lowercase, number, and special character"
                     : "")
                     }}</mat-error>
                 </mat-form-field>
@@ -216,12 +205,21 @@
                 : "")
                 }}
               </mat-error>
-              <mat-spinner *ngIf="isOptionsRoleLoading" style="position: absolute;
-              width: calc(48px / 2);
-              height: calc(48px / 2);
-              display: block;
-              top: calc(48px /3);
-              right: 0;"></mat-spinner>
+              <mat-autocomplete #autocompleteAccess #autoAccess="matAutocomplete"
+              [displayWith]="displayRoleName.bind(this)"
+              (optionSelected)="f['roleCode'].setValue($event.option.value)">
+              
+              <mat-option *ngIf="isOptionsRoleLoading">
+                <div style="display: flex; align-items: center; justify-content: center;">
+                  <mat-spinner diameter="16"></mat-spinner>
+                  <span style="margin-left: 8px;">Loading roles...</span>
+                </div>
+              </mat-option>
+              
+              <mat-option *ngFor="let option of optionsRole" [value]="option.code">
+                {{option.name}}
+              </mat-option>
+            </mat-autocomplete>
             </mat-form-field>
             <app-access-pages-table
               [ngClass]="{ 'hidden': formData.roleCode && formData.roleCode !== '' ? '' : 'none!important'}"
