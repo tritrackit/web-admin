@@ -4,14 +4,18 @@
        fxLayout="row" 
        fxLayout.xs="column" 
        fxLayout.sm="column"
+       fxLayout.lt-md="column"
        fxLayoutAlign="space-between center"
        fxLayoutAlign.xs="stretch"
        fxLayoutAlign.sm="stretch"
+       fxLayoutAlign.lt-md="stretch"
        fxLayoutGap="24px"
        fxLayoutGap.xs="16px"
-       fxLayoutGap.sm="16px">
+       fxLayoutGap.sm="16px"
+       fxLayoutGap.lt-md="16px">
+    
     <!-- Search Bar -->
-    <div class="search-section" fxFlex="1 1 auto" fxFlex.xs="100" fxFlex.sm="100">
+    <div class="search-section" fxFlex="1 1 auto" fxFlex.xs="100" fxFlex.sm="100" fxFlex.lt-md="100">
       <mat-form-field appearance="outline" class="search-field">
         <mat-label>Search by Chassis No</mat-label>
         <input matInput [formControl]="searchControl" placeholder="Search by Chassis No">
@@ -19,21 +23,41 @@
       </mat-form-field>
     </div>
 
-    <!-- Filter Buttons -->
+    <!-- Filter Buttons - FIXED FOR ALL MOBILE SIZES -->
     <div class="filter-section" 
-         fxLayout="row" 
+         fxLayout="row wrap" 
          fxLayout.xs="column" 
          fxLayout.sm="row wrap"
+         fxLayout.lt-md="column"
          fxLayoutGap="12px" 
          fxLayoutGap.xs="8px"
          fxLayoutGap.sm="8px"
+         fxLayoutGap.lt-md="8px"
          fxLayoutAlign="end center"
          fxLayoutAlign.xs="stretch"
-         fxLayoutAlign.sm="start">
-      <span class="filter-label" fxHide.xs="false" fxHide.sm="false">FILTER BY:</span>
+         fxLayoutAlign.sm="start stretch"
+         fxLayoutAlign.lt-md="stretch"
+         fxFlex="nogrow">
+      
+      <!-- Filter Label - Always show on mobile -->
+      <span class="filter-label" 
+            fxHide="false"
+            fxShow.xs="true"
+            fxShow.sm="true"
+            fxShow.lt-md="true"
+            fxFlex="100"
+            fxFlex.xs="100"
+            fxFlex.sm="100"
+            fxFlex.lt-md="100">
+        FILTER BY:
+      </span>
       
       <!-- Color Filter -->
-      <mat-form-field appearance="outline" class="filter-dropdown" fxFlex.xs="100" fxFlex.sm="1 1 calc(50% - 6px)">
+      <mat-form-field appearance="outline" class="filter-dropdown" 
+                      fxFlex="0 1 140px"
+                      fxFlex.xs="100"
+                      fxFlex.sm="1 1 calc(50% - 8px)"
+                      fxFlex.lt-md="100">
         <mat-select [value]="selectedColorFilter" (selectionChange)="onColorFilterChange($event.value)" placeholder="Color">
           <mat-option [value]="null">All Colors</mat-option>
           <mat-option *ngFor="let color of colors" [value]="color">{{ color }}</mat-option>
@@ -41,7 +65,11 @@
       </mat-form-field>
 
       <!-- Model Filter -->
-      <mat-form-field appearance="outline" class="filter-dropdown" fxFlex.xs="100" fxFlex.sm="1 1 calc(50% - 6px)">
+      <mat-form-field appearance="outline" class="filter-dropdown" 
+                      fxFlex="0 1 140px"
+                      fxFlex.xs="100"
+                      fxFlex.sm="1 1 calc(50% - 8px)"
+                      fxFlex.lt-md="100">
         <mat-select [value]="selectedModelFilter" (selectionChange)="onModelFilterChange($event.value)" placeholder="Model">
           <mat-option [value]="null">All Models</mat-option>
           <mat-option *ngFor="let model of models" [value]="model.modelId">{{ model.modelName }}</mat-option>
@@ -49,7 +77,11 @@
       </mat-form-field>
 
       <!-- Warehouse Filter -->
-      <mat-form-field appearance="outline" class="filter-dropdown" fxFlex.xs="100" fxFlex.sm="1 1 calc(50% - 6px)">
+      <mat-form-field appearance="outline" class="filter-dropdown" 
+                      fxFlex="0 1 140px"
+                      fxFlex.xs="100"
+                      fxFlex.sm="1 1 calc(50% - 8px)"
+                      fxFlex.lt-md="100">
         <mat-select [value]="selectedWarehouseFilter" (selectionChange)="onWarehouseFilterChange($event.value)" placeholder="Warehouse">
           <mat-option [value]="null">All Locations</mat-option>
           <mat-option *ngFor="let location of locations" [value]="location.locationId">{{ location.name }}</mat-option>
@@ -57,7 +89,11 @@
       </mat-form-field>
 
       <!-- Status Filter -->
-      <mat-form-field appearance="outline" class="filter-dropdown" fxFlex.xs="100" fxFlex.sm="1 1 calc(50% - 6px)">
+      <mat-form-field appearance="outline" class="filter-dropdown" 
+                      fxFlex="0 1 140px"
+                      fxFlex.xs="100"
+                      fxFlex.sm="1 1 calc(50% - 8px)"
+                      fxFlex.lt-md="100">
         <mat-select [value]="selectedStatusFilter" (selectionChange)="onStatusFilterChange($event.value)" placeholder="Status">
           <mat-option [value]="null">All Statuses</mat-option>
           <mat-option *ngFor="let status of statuses" [value]="status.statusId">{{ status.name }}</mat-option>
@@ -66,6 +102,7 @@
     </div>
   </div>
 
+  <!-- Rest of your HTML remains the same -->
   <!-- Divider -->
   <mat-divider class="section-divider"></mat-divider>
 
@@ -277,9 +314,11 @@
        fxLayout="row" 
        fxLayout.xs="column"
        fxLayout.sm="column"
+       fxLayout.lt-md="column"
        fxLayoutAlign="space-between center"
        fxLayoutAlign.xs="stretch"
        fxLayoutAlign.sm="stretch"
+       fxLayoutAlign.lt-md="stretch"
        fxLayoutGap="8px">
     <div class="selection-info">
       <span class="selection-count">{{ getSelectedCount() }} unit(s) selected</span>
@@ -288,15 +327,17 @@
          fxLayout="row" 
          fxLayout.xs="column"
          fxLayout.sm="row"
+         fxLayout.lt-md="column"
          fxLayoutGap="8px"
          fxLayoutAlign.xs="stretch"
-         fxLayoutAlign.sm="end">
-      <button mat-raised-button color="primary" (click)="openBulkUpdateDialog()" [disabled]="!hasModifyAccess || bulkUpdating" fxFlex.xs="100" fxFlex.sm="none">
+         fxLayoutAlign.sm="end"
+         fxLayoutAlign.lt-md="stretch">
+      <button mat-raised-button color="primary" (click)="openBulkUpdateDialog()" [disabled]="!hasModifyAccess || bulkUpdating" fxFlex.xs="100" fxFlex.sm="none" fxFlex.lt-md="100">
         <mat-icon>edit</mat-icon>
-        <span fxHide.xs="false" fxHide.sm="false">Update Selected</span>
-        <span fxShow.xs="false" fxShow.sm="false">Update</span>
+        <span fxHide.xs="false" fxHide.sm="false" fxHide.lt-md="false">Update Selected</span>
+        <span fxShow.xs="false" fxShow.sm="false" fxShow.lt-md="false">Update</span>
       </button>
-      <button mat-button color="warn" (click)="clearSelection()" [disabled]="bulkUpdating" fxFlex.xs="100" fxFlex.sm="none">
+      <button mat-button color="warn" (click)="clearSelection()" [disabled]="bulkUpdating" fxFlex.xs="100" fxFlex.sm="none" fxFlex.lt-md="100">
         <mat-icon>clear</mat-icon>
         Clear Selection
       </button>
@@ -308,9 +349,11 @@
        fxLayout="row" 
        fxLayout.xs="column"
        fxLayout.sm="row"
+       fxLayout.lt-md="column"
        fxLayoutAlign="space-between center"
        fxLayoutAlign.xs="center"
        fxLayoutAlign.sm="space-between"
+       fxLayoutAlign.lt-md="center"
        fxLayoutGap="16px">
     <div class="pagination-info">
       <span>Showing {{ getStartRecord() }}-{{ getEndRecord() }} from {{ total }} records</span>

@@ -1,12 +1,354 @@
-.inner-content{
+.inner-content {
   padding: 10px;
   margin-top: 20px;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  width: 100%;
+  flex-wrap: wrap;
+
+  .search-field {
+    flex: 1;
+    min-width: 200px;
+    max-width: 400px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    height: 45px;
+  }
+
+  /* make gray background fill the whole box */
+  ::ng-deep .search-field .mat-mdc-text-field-wrapper {
+    background: #d9d9d9 !important;
+    border-radius: 8px !important;
+    padding: 0 8px !important;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    box-shadow: none !important;
+  }
+
+  /* remove default white layers from Angular Material */
+  ::ng-deep .search-field .mat-mdc-form-field-flex {
+    background: transparent !important;
+    height: 100%;
+    align-items: center;
+  }
+
+  ::ng-deep .search-field .mat-mdc-form-field-outline,
+  ::ng-deep .search-field .mat-mdc-form-field-subscript-wrapper {
+    display: none !important;
+  }
+
+  ::ng-deep .search-field input {
+    font-family: "Chakra Petch", sans-serif;
+    font-size: 17px;
+    color: #333;
+  }
+
+  ::ng-deep .search-field .mat-icon {
+    color: black !important;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .add-user-btn {
+    background: #ff7b29 !important;
+    color: #fff !important;
+    border-radius: 8px;
+    font-weight: 500;
+    text-transform: none;
+    height: 40px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    .btn-icon-only {
+      display: none;
+    }
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    &:hover {
+      background: #e56f20 !important;
+    }
+  }
+}
+
+/* Scanner Type Badge */
+.scanner-type-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &.location {
+    background: #e3f2fd;
+    color: #1976d2;
+    border: 1px solid #90caf9;
+  }
+
+  &.registration {
+    background: #e8f5e9;
+    color: #388e3c;
+    border: 1px solid #a5d6a7;
+  }
+}
+
+/* Mobile View Styles */
+.mobile-view {
+  padding: 16px;
+  
+  /* Ensure Material Icons display properly */
+  mat-icon {
+    font-family: 'Material Icons' !important;
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: 'liga';
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+.mobile-scanner-card {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid #f0f0f0;
+  background: #f8f9fa;
+
+  .scanner-code {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .label {
+      font-weight: 500;
+      color: #666;
+      font-size: 12px;
+      font-family: "Chakra Petch", sans-serif;
+    }
+
+    .value {
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+      font-family: "Chakra Petch", sans-serif;
+    }
+  }
+
+  .scanner-type-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+}
+
+.mobile-card-content {
+  padding: 16px;
+
+  .mobile-row {
+    display: flex;
+    margin-bottom: 12px;
+    align-items: flex-start;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .label {
+      font-weight: 500;
+      color: #666;
+      width: 100px;
+      flex-shrink: 0;
+      font-size: 12px;
+      font-family: "Chakra Petch", sans-serif;
+    }
+
+    .value {
+      flex: 1;
+      color: #333;
+      font-size: 13px;
+      line-height: 1.4;
+      word-break: break-word;
+      font-family: "Chakra Petch", sans-serif;
+    }
+  }
+}
+
+.mobile-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 16px;
+  border-top: 1px solid #f0f0f0;
+  background: #fafafa;
+  gap: 8px;
+
+  button {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px !important;
+    min-height: 36px !important;
+
+    &.view-btn {
+      background: #ff7b29;
+      color: white;
+    }
+
+    &.edit-btn {
+      background: #007bff;
+      color: white;
+    }
+
+    /* Fix for Material Icons inside buttons */
+    ::ng-deep .mat-icon {
+      font-size: 18px !important;
+      height: 18px !important;
+      width: 18px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      line-height: 18px !important;
+    }
+    
+    mat-icon {
+      font-size: 18px;
+      height: 18px;
+      width: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 18px;
+    }
+  }
+}
+
+.mobile-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 24px;
+  padding: 16px;
+
+  .page-info {
+    font-family: "Chakra Petch", sans-serif;
+    font-size: 14px;
+    color: #666;
+  }
+
+  button {
+    background: #f5f5f5;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    ::ng-deep .mat-icon {
+      font-size: 20px !important;
+      height: 20px !important;
+      width: 20px !important;
+      line-height: 20px !important;
+    }
+    
+    mat-icon {
+      font-size: 20px;
+      height: 20px;
+      width: 20px;
+      line-height: 20px;
+    }
+  }
+}
+
+.no-data-mobile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+
+  mat-icon {
+    font-size: 48px;
+    height: 48px;
+    width: 48px;
+    color: #ccc;
+    margin-bottom: 16px;
+  }
+
+  span {
+    font-family: "Chakra Petch", sans-serif;
+    color: #999;
+    font-size: 16px;
+  }
+}
+
+.loading-mobile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+
+  mat-spinner {
+    margin-bottom: 16px;
+  }
+
+  span {
+    font-family: "Chakra Petch", sans-serif;
+    color: #666;
+    font-size: 14px;
+  }
+}
+
+/* Desktop Table Styles */
+.desktop-view {
+  padding: 0;
 }
 
 ::ng-deep .table-container {
   overflow: auto;
   padding-bottom: 16px;
-  
 
   .table {
     min-width: 1200px !important;
@@ -14,10 +356,9 @@
     background: #fff;
 
     th, td {
-     
       text-align: left;
       vertical-align: middle;
-      font-family: "Chackra Petch", sans-serif;
+      font-family: "Chakra Petch", sans-serif;
       font-size: 15px;
       color: black;
       border-bottom: 1px solid #dee2e6;
@@ -74,89 +415,218 @@
 
     .mat-icon {
       font-size: 16px;
+      width: 16px;
+      height: 16px;
     }
   }
 }
 
-
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .inner-content {
+    padding: 8px;
+    margin-top: 16px;
+  }
 
   .search-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: stretch;
     gap: 12px;
-    margin-bottom: 20px;
-    width: 100%;
 
     .search-field {
-      width: 330px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      height: 45px;
-    }
-    
-    
-    
-  /* make gray background fill the whole box */
-  ::ng-deep .search-field .mat-mdc-text-field-wrapper {
-    background: #d9d9d9 !important;
-    border-radius: 8px !important;
-    padding: 0 8px !important;
-    height: 45px;
-    display: flex;
-    align-items: center;
-    box-shadow: none !important;
-  }
-
-  /* remove default white layers from Angular Material */
-  ::ng-deep .search-field .mat-mdc-form-field-flex {
-    background: transparent !important;
-    height: 100%;
-    align-items: center;
-  }
-
-  ::ng-deep .search-field .mat-mdc-form-field-outline,
-  ::ng-deep .search-field .mat-mdc-form-field-subscript-wrapper {
-    display: none !important;
-  }
-
-  ::ng-deep .search-field input {
-    font-family: "Chakra Petch", sans-serif;
-    font-size: 17px;
-    color: #333;
-  }
-
-  ::ng-deep .search-field .mat-icon {
-    color: black !important;
-    font-size: 18px;
-  }
+      width: 100%;
+      max-width: 100%;
+      height: 42px;
       
-    .add-user-btn {
-      background: #ff7b29 !important;
-      color: #fff !important;
-      border-radius: 8px;
-      font-weight: 500;
-      text-transform: none;
-      height: 40px;
-      padding: 0 16px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-left: auto; // This is key - pushes it to the right
-      white-space: nowrap;
-
-      mat-icon {
-        font-size: 20px;
-        border-radius: 10px;
-        border-color: white;
+      ::ng-deep .mat-mdc-text-field-wrapper {
+        height: 42px;
       }
-
-      &:hover {
-        background: #e56f20 !important;
+      
+      ::ng-deep input {
+        font-size: 15px;
+      }
+      
+      ::ng-deep .mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
       }
     }
-  
+
+    .add-user-btn {
+      width: 100%;
+      justify-content: center;
+      height: 42px;
+      
+      .btn-text {
+        display: none;
+      }
+      
+      .btn-icon-only {
+        display: inline;
+        font-size: 18px;
+        font-weight: bold;
+      }
+      
+      mat-icon {
+        display: none;
+      }
+    }
+  }
+
+  .mobile-card-header {
+    padding: 12px;
+    
+    .scanner-code {
+      .label {
+        font-size: 11px;
+      }
+      
+      .value {
+        font-size: 13px;
+      }
+    }
+  }
+
+  .mobile-card-content {
+    padding: 12px;
+    
+    .mobile-row {
+      margin-bottom: 10px;
+      
+      .label {
+        width: 90px;
+        font-size: 11px;
+      }
+      
+      .value {
+        font-size: 12px;
+      }
+    }
+  }
+
+  .mobile-card-actions {
+    padding: 10px 12px;
+    
+    button {
+      width: 34px;
+      height: 34px;
+      
+      ::ng-deep .mat-icon {
+        font-size: 16px !important;
+        height: 16px !important;
+        width: 16px !important;
+      }
+      
+      mat-icon {
+        font-size: 16px;
+        height: 16px;
+        width: 16px;
+      }
+    }
+  }
 }
 
+@media (max-width: 480px) {
+  .inner-content {
+    padding: 6px;
+    margin-top: 12px;
+  }
 
+  .search-container {
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .mobile-scanner-card {
+    margin-bottom: 12px;
+    border-radius: 10px;
+  }
+
+  .mobile-card-header {
+    padding: 10px;
+    
+    .scanner-code {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+  }
+
+  .mobile-card-content {
+    padding: 10px;
+    
+    .mobile-row {
+      flex-direction: column;
+      margin-bottom: 8px;
+      
+      .label {
+        width: 100%;
+        margin-bottom: 2px;
+      }
+    }
+  }
+
+  .mobile-pagination {
+    padding: 12px;
+    gap: 12px;
+    
+    button {
+      width: 36px;
+      height: 36px;
+    }
+    
+    .page-info {
+      font-size: 13px;
+    }
+  }
+
+  .no-data-mobile,
+  .loading-mobile {
+    padding: 30px 16px;
+    
+    mat-icon {
+      font-size: 36px;
+      height: 36px;
+      width: 36px;
+    }
+  }
+}
+
+@media (max-width: 360px) {
+  .mobile-card-actions {
+    justify-content: center;
+    
+    button {
+      width: 32px;
+      height: 32px;
+      
+      ::ng-deep .mat-icon {
+        font-size: 14px !important;
+        height: 14px !important;
+        width: 14px !important;
+      }
+      
+      mat-icon {
+        font-size: 14px;
+        height: 14px;
+        width: 14px;
+      }
+    }
+  }
+  
+  .scanner-type-badge {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
+  
+  .mobile-pagination {
+    button {
+      width: 32px;
+      height: 32px;
+    }
+  }
+}
+
+/* Fix for Material Icons font loading */
+@import url('https://fonts.googleapis.com/css2?family=Material+Icons&display=swap');

@@ -132,6 +132,7 @@
   }
 }
 
+/* Table Styles */
 ::ng-deep .table-container {
   th, td {
     text-align: left;
@@ -290,11 +291,70 @@
   }
 }
 
-/* Responsive design */
-@media (max-width: 600px) {
+/* MOBILE RESPONSIVE STYLES */
+@media (max-width: 768px) {
+  .inner-content {
+    padding: 8px;
+    margin-top: 16px;
+  }
+
+  .button-container {
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  .add-role-btn {
+    width: 100%;
+    justify-content: center;
+    height: 42px;
+    
+    mat-icon {
+      font-size: 18px;
+    }
+  }
+
+  /* Form responsive styles */
+  ::ng-deep .inner-content form {
+    fieldset {
+      row-gap: 12px !important;
+    }
+
+    .mat-mdc-form-field {
+      margin-bottom: 12px;
+      
+      .mat-mdc-form-field-label {
+        font-size: 14px;
+      }
+      
+      .mat-mdc-input-element {
+        font-size: 14px;
+        padding: 10px 14px;
+        height: 44px;
+      }
+      
+      .mat-mdc-form-field-error {
+        font-size: 11px;
+      }
+      
+      /* Adjust form field height for mobile */
+      .mdc-text-field--outlined {
+        padding: 0 10px !important;
+      }
+    }
+  }
+
+  /* Dialog responsive */
   ::ng-deep .dialog-container {
     min-width: 90vw !important;
     max-width: 95vw !important;
+  }
+  
+  .dialog-title {
+    padding: 16px 20px 0 20px;
+    
+    h4 {
+      font-size: 36px;
+    }
   }
   
   .dialog-content {
@@ -309,20 +369,170 @@
       width: 100%;
     }
   }
-  
-  .button-container {
-    justify-content: center;
-  }
-  
-  .add-role-btn {
-    width: 100%;
-    justify-content: center;
-  }
-  
-  /* Form responsive */
-  ::ng-deep .inner-content form {
-    .mat-mdc-form-field {
-      margin-bottom: 8px;
+
+  /* Table responsive - hide on mobile if using mobile view */
+  ::ng-deep .table-container {
+    .table {
+      min-width: 600px !important;
     }
   }
+}
+
+@media (max-width: 600px) {
+  .inner-content {
+    padding: 6px;
+    margin-top: 12px;
+  }
+
+  ::ng-deep .inner-content form {
+    fieldset {
+      row-gap: 10px !important;
+    }
+
+    .mat-mdc-form-field {
+      margin-bottom: 10px;
+      
+      .mat-mdc-form-field-label {
+        font-size: 13px;
+      }
+      
+      .mat-mdc-input-element {
+        font-size: 13px;
+        padding: 8px 12px;
+        height: 42px;
+      }
+      
+      .mat-mdc-form-field-error {
+        font-size: 10px;
+      }
+    }
+  }
+
+  .dialog-title h4 {
+    font-size: 32px;
+  }
+}
+
+@media (max-width: 480px) {
+  .inner-content {
+    padding: 4px;
+    margin-top: 10px;
+  }
+
+  .add-role-btn {
+    height: 40px;
+    padding: 0 12px;
+    
+    mat-icon {
+      font-size: 16px;
+    }
+  }
+
+  ::ng-deep .inner-content form {
+    fieldset {
+      row-gap: 8px !important;
+    }
+
+    .mat-mdc-form-field {
+      margin-bottom: 8px;
+      
+      .mat-mdc-form-field-label {
+        font-size: 12px;
+      }
+      
+      .mat-mdc-input-element {
+        font-size: 12px;
+        padding: 6px 10px;
+        height: 40px;
+      }
+      
+      /* Compact form fields for small screens */
+      .mdc-text-field--outlined {
+        padding: 0 8px !important;
+      }
+    }
+  }
+
+  .dialog-title h4 {
+    font-size: 28px;
+    padding: 14px 16px 0 16px;
+  }
+}
+
+/* For touch devices - improve touch targets */
+@media (hover: none) and (pointer: coarse) {
+  ::ng-deep .inner-content form {
+    .mat-mdc-form-field {
+      .mat-mdc-input-element {
+        font-size: 16px !important; /* Minimum readable size for touch */
+        min-height: 44px; /* Minimum touch target size */
+      }
+      
+      /* Ensure form fields are touch-friendly */
+      .mdc-text-field {
+        min-height: 48px;
+      }
+      
+      /* Larger labels for touch */
+      .mat-mdc-form-field-label {
+        font-size: 15px !important;
+      }
+    }
+  }
+
+  .add-role-btn {
+    min-height: 44px;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 360px) {
+  .inner-content {
+    padding: 3px;
+    margin-top: 8px;
+  }
+
+  ::ng-deep .inner-content form {
+    fieldset {
+      row-gap: 6px !important;
+    }
+
+    .mat-mdc-form-field {
+      margin-bottom: 6px;
+      
+      .mat-mdc-form-field-label {
+        font-size: 11px;
+      }
+      
+      .mat-mdc-input-element {
+        font-size: 11px;
+        padding: 5px 8px;
+        height: 38px;
+      }
+      
+      .mat-mdc-form-field-error {
+        font-size: 9px;
+      }
+    }
+  }
+
+  .dialog-title h4 {
+    font-size: 24px;
+  }
+}
+
+/* Very small screens - adjust spacing */
+@media (max-width: 320px) {
+  ::ng-deep .inner-content form {
+    .mat-mdc-form-field {
+      .mat-mdc-input-element {
+        font-size: 14px !important; /* Minimum readable size */
+      }
+    }
+  }
+}
+
+/* Ensure proper display on all screen sizes */
+::ng-deep .mat-mdc-form-field {
+  display: block !important;
 }

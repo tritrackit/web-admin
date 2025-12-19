@@ -686,7 +686,7 @@ export class UnitTrackerComponent implements OnInit, OnDestroy {
       this.snackBar.open('No units selected', 'Close', { duration: 3000 });
       return;
     }
-
+  
     // Create bulk update form dialog
     const dialogRef = this.dialog.open(BulkUpdateDialogComponent, {
       width: '500px',
@@ -696,22 +696,153 @@ export class UnitTrackerComponent implements OnInit, OnDestroy {
         statuses: this.statuses
       }
     });
-
+  
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        if (result.locationId) {
-          const location = this.locations.find(l => l.locationId === result.locationId);
-          if (location) {
-            this.performBulkLocationUpdate(selectedRows, result.locationId, location.name);
-          }
-        }
-        if (result.statusId) {
-          const status = this.statuses.find(s => s.statusId === result.statusId);
-          if (status) {
-            this.performBulkStatusUpdate(selectedRows, result.statusId, status.name);
-          }
+        // Combine both updates into one confirmation
+        if (result.locationId || result.statusId) {
+          this.performBulkUpdate(selectedRows, result.locationId, result.statusId);
         }
       }
+    });
+  }
+  
+  performBulkUpdate(selectedRows: UnitTableRow[], locationId?: string, statusId?: string): void {
+    let locationName = '';
+    let statusName = '';
+    
+    // Get names for confirmation message
+    if (locationId) {
+      const location = this.locations.find(l => l.locationId === locationId);
+      locationName = location ? location.name : '';
+    }
+    
+    if (statusId) {
+      const status = this.statuses.find(s => s.statusId === statusId);
+      statusName = status ? status.name : '';
+    }
+    
+    // Build confirmation message
+    let confirmationMessage = `Are you sure you want to update ${selectedRows.length} unit(s)?\n\n`;
+    
+    if (locationId && statusId) {
+      confirmationMessage += `• Location: ${locationName}\n`;
+      confirmationMessage += `• Status: ${statusName}`;
+    } else if (locationId) {
+      confirmationMessage += `• Location: ${locationName}`;
+    } else if (statusId) {
+      confirmationMessage += `• Status: ${statusName}`;
+    }
+    
+    // Show single confirmation dialog
+    const dialogData = new AlertDialogModel();
+    dialogData.title = 'Bulk Update Confirmation';
+    dialogData.message = confirmationMessage;
+    dialogData.confirmButton = {
+      visible: true,
+      text: 'Yes, Confirm',
+      color: 'accent',
+    };
+    dialogData.dismissButton = {
+      visible: true,
+      text: 'No, Cancel',
+      color: 'primary',
+    };
+  
+    const dialogRef = this.dialog.open(AlertDialogComponent, {
+      maxWidth: '400px',
+      closeOnNavigation: true,
+    });
+    dialogRef.componentInstance.alertDialogConfig = dialogData;
+  
+    dialogRef.componentInstance.conFirm.subscribe(() => {
+      dialogRef.close();
+      this.executeBulkUpdate(selectedRows, locationId, statusId, locationName, statusName);
+    });
+  }
+  
+  executeBulkUpdate(selectedRows: UnitTableRow[], locationId?: string, statusId?: string, locationName?: string, statusName?: string): void {
+    this.bulkUpdating = true;
+    let completed = 0;
+    let failed = 0;
+    const total = selectedRows.length;
+  
+    selectedRows.forEach((row) => {
+      const updateData: any = {
+        modelId: row.modelId,
+        color: row.color,
+        chassisNo: row.chassisNo,
+        rfid: row.rfid,
+        description: row.description || ''
+      };
+  
+      // Add location if provided
+      if (locationId) {
+        updateData.locationId = locationId;
+      }
+      
+      // Add status if provided
+      if (statusId) {
+        updateData.statusId = statusId;
+      }
+  
+      this.unitService.update(row.unitCode, updateData).subscribe({
+        next: (response) => {
+          completed++;
+          if (response.success) {
+            // Update local data
+            const dataRow = this.dataSource.data.find(r => r.unitId === row.unitId);
+            if (dataRow) {
+              if (locationId && locationName) {
+                dataRow.locationId = locationId;
+                dataRow.location = locationName;
+              }
+              if (statusId && statusName) {
+                dataRow.statusId = statusId;
+                dataRow.status = statusName;
+              }
+            }
+          } else {
+            failed++;
+          }
+  
+          // Check if all updates are complete
+          if (completed + failed === total) {
+            this.bulkUpdating = false;
+            if (failed === 0) {
+              this.snackBar.open(`Successfully updated ${completed} unit(s)`, 'Close', {
+                duration: 3000,
+                horizontalPosition: 'end',
+                verticalPosition: 'top',
+                panelClass: ['success-toast']
+              });
+              this.clearSelection();
+            } else {
+              this.snackBar.open(`Updated ${completed - failed} unit(s), ${failed} failed`, 'Close', {
+                duration: 5000,
+                panelClass: ['style-error']
+              });
+            }
+            // Reload to ensure data consistency
+            this.loadUnits();
+          }
+        },
+        error: (error) => {
+          failed++;
+          completed++;
+  
+          // Check if all updates are complete
+          if (completed + failed === total) {
+            this.bulkUpdating = false;
+            this.snackBar.open(`Updated ${completed - failed} unit(s), ${failed} failed`, 'Close', {
+              duration: 5000,
+              panelClass: ['style-error']
+            });
+            // Reload to ensure data consistency
+            this.loadUnits();
+          }
+        }
+      });
     });
   }
 

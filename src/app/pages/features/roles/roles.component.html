@@ -1,6 +1,5 @@
 <div class="content">
   <div class="inner-content">
-
     <!-- Add button container -->
     <div class="button-container">
       <button mat-raised-button class="add-role-btn" (click)="showAddDialog()">
@@ -10,16 +9,66 @@
     </div>
 
     <mat-card [ngClass]="{ 'hidden': isLoading }">
-      <mat-card-content fxLayout="column">
-        <app-data-table
-        [isLoading]="isLoading"
-        [dataSource]="dataSource"
-        [columnDefs]="appConfig.config.tableColumns.roles"
-        [total]="total"
-        (pageChange)="pageChange($event)"
-        (sortChange)="sortChange($event)"
-        (filterChange)="filterChange($event)"
-        ></app-data-table>
+      <mat-card-content>
+        <!-- Mobile View -->
+        <div class="mobile-view" fxHide.gt-xs="true">
+          <div class="mobile-role-card" *ngFor="let role of dataSource?.data">
+            <div class="mobile-card-header">
+              <div class="role-name">
+                <span class="value">{{ role.name }}</span>
+              </div>
+            </div>
+            
+            <div class="mobile-card-content">
+              <div class="mobile-row">
+                <span class="label">Code:</span>
+                <span class="value">{{ role.roleCode }}</span>
+              </div>
+            </div>
+            
+            <div class="mobile-card-actions">
+              <button mat-icon-button [routerLink]="'/roles/' + role.roleCode">
+                <mat-icon>visibility</mat-icon>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Mobile Pagination -->
+          <div class="mobile-pagination" *ngIf="dataSource?.data?.length">
+            <button mat-icon-button [disabled]="pageIndex === 0" (click)="pageChange({pageIndex: pageIndex - 1, pageSize: pageSize})">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            <span class="page-info">Page {{ pageIndex + 1 }} of {{ totalPages }}</span>
+            <button mat-icon-button [disabled]="pageIndex >= totalPages - 1" (click)="pageChange({pageIndex: pageIndex + 1, pageSize: pageSize})">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+          
+          <!-- No Data State -->
+          <div class="no-data-mobile" *ngIf="!dataSource?.data?.length && !isLoading">
+            <mat-icon>search_off</mat-icon>
+            <span>No roles found</span>
+          </div>
+          
+          <!-- Loading State -->
+          <div class="loading-mobile" *ngIf="isLoading">
+            <mat-spinner diameter="40"></mat-spinner>
+            <span>Loading roles...</span>
+          </div>
+        </div>
+
+        <!-- Desktop View -->
+        <div class="desktop-view" fxHide.xs="true">
+          <app-data-table
+            [isLoading]="isLoading"
+            [dataSource]="dataSource"
+            [columnDefs]="appConfig.config.tableColumns.roles"
+            [total]="total"
+            (pageChange)="pageChange($event)"
+            (sortChange)="sortChange($event)"
+            (filterChange)="filterChange($event)">
+          </app-data-table>
+        </div>
       </mat-card-content>
     </mat-card>
   </div>
