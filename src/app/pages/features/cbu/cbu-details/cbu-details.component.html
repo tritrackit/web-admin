@@ -10,7 +10,7 @@
   </button>
   <span id="title">
     <span [ngStyle.md]="{ 'display': 'none'}" [ngStyle.sm]="{ 'display': 'none'}" [ngStyle.xs]="{ 'display': 'none'}">
-      {{ isNew ? 'New CBU' : '#' + unitCode + ' ' + ( !isLoading ? unit?.model?.modelName : '')}}
+      {{ isNew ? 'New CBU' : ( !isLoading ? unit?.model?.modelName : '')}}
     </span>
   </span>
   <span class="toolbar-item-spacer"></span>

@@ -42,17 +42,21 @@
     .filter-section {
       align-items: center;
       flex-wrap: wrap;
+      width: 100%;
 
       .filter-label {
         font-weight: 600;
         font-size: 14px;
         color: #333;
         margin-right: 8px;
+        display: none; // Hidden by default
+        width: 100%;
       }
 
       .filter-dropdown {
         width: 140px;
         margin-left: 0;
+        display: block;
 
         ::ng-deep {
           .mat-mdc-form-field-subscript-wrapper {
@@ -417,7 +421,10 @@
   }
 }
 
-// Responsive adjustments
+// =========== CRITICAL MOBILE FIXES ===========
+// Fix for 530px and all mobile sizes
+
+// Medium screens (960px and below)
 @media (max-width: 960px) {
   .unit-tracker-container {
     padding: 16px;
@@ -432,12 +439,23 @@
 
       .filter-section {
         .filter-label {
+          display: block !important;
           margin-bottom: 8px;
           width: 100%;
+          text-align: left;
+          font-size: 15px;
         }
 
         .filter-dropdown {
           width: 100%;
+          min-width: 100%;
+          max-width: 100%;
+          
+          ::ng-deep {
+            .mat-mdc-form-field-wrapper {
+              width: 100% !important;
+            }
+          }
         }
       }
     }
@@ -506,8 +524,48 @@
   }
 }
 
+// Tablets and small screens (768px and below)
 @media (max-width: 768px) {
   .unit-tracker-container {
+    .top-section {
+      .filter-section {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        margin-top: 16px;
+        
+        .filter-label {
+          display: block !important;
+          visibility: visible !important;
+          width: 100%;
+          text-align: left;
+          margin-bottom: 12px;
+          font-size: 15px;
+          color: #333;
+          font-weight: 600;
+        }
+        
+        .filter-dropdown {
+          width: 100% !important;
+          max-width: 100% !important;
+          min-width: 100% !important;
+          margin-bottom: 12px;
+          display: block !important;
+          visibility: visible !important;
+          
+          ::ng-deep {
+            .mat-mdc-form-field-flex {
+              height: 48px;
+            }
+            
+            .mat-mdc-form-field-infix {
+              width: 100% !important;
+            }
+          }
+        }
+      }
+    }
+
     .table-section.desktop-table {
       display: none;
     }
@@ -518,6 +576,37 @@
   }
 }
 
+// Specific fix for 530px range (600px - 400px)
+@media (max-width: 600px) and (min-width: 400px) {
+  .unit-tracker-container {
+    .top-section {
+      .filter-section {
+        // Force column layout and visibility
+        flex-direction: column !important;
+        display: flex !important;
+        
+        .filter-label {
+          font-size: 14px;
+          margin-bottom: 10px;
+          order: -1;
+        }
+        
+        .filter-dropdown {
+          margin-bottom: 10px;
+          order: 1;
+          
+          ::ng-deep {
+            .mat-mdc-form-field-flex {
+              height: 46px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Small mobile screens (600px and below)
 @media (max-width: 600px) {
   :host {
     overflow-y: auto !important;
@@ -525,53 +614,32 @@
   }
   
   .unit-tracker-container {
-    padding: 8px;
-    gap: 6px;
+    padding: 12px;
+    gap: 8px;
 
     .top-section {
-      margin-bottom: 4px;
-      gap: 8px;
-      
-      .search-section {
-        margin-bottom: 4px;
-        
-        .search-field {
-          ::ng-deep {
-            .mat-mdc-form-field-wrapper {
-              padding: 0;
-            }
-          }
-        }
-      }
-
       .filter-section {
+        margin-top: 12px;
         gap: 6px;
         
         .filter-label {
-          font-size: 12px;
-          margin-bottom: 4px;
+          font-size: 13px;
+          margin-bottom: 6px;
         }
-
+        
         .filter-dropdown {
+          margin-bottom: 6px;
+          
           ::ng-deep {
-            .mat-mdc-form-field-wrapper {
-              padding: 0;
+            .mat-mdc-form-field-flex {
+              height: 44px;
             }
           }
         }
       }
     }
-
-    .section-divider {
-      margin: 8px 0;
-    }
-
-    .table-section {
-      display: none;
-    }
     
     .mobile-cards-section {
-      display: flex;
       gap: 6px;
       
       .mobile-select-all-header {
@@ -709,6 +777,7 @@
   }
 }
 
+// Extra small screens (400px and below)
 @media (max-width: 400px) {
   :host {
     overflow-y: auto !important;
@@ -716,45 +785,34 @@
   }
   
   .unit-tracker-container {
-    padding: 6px;
-    gap: 4px;
+    padding: 8px;
+    gap: 6px;
 
     .top-section {
-      margin-bottom: 2px;
-      gap: 6px;
-      
-      .search-section {
-        margin-bottom: 2px;
-        
-        .search-field {
-          ::ng-deep {
-            .mat-mdc-form-field-label {
-              font-size: 11px;
-            }
-          }
-        }
-      }
-
       .filter-section {
+        margin-top: 8px;
         gap: 4px;
         
         .filter-label {
-          font-size: 11px;
-          margin-bottom: 2px;
+          font-size: 12px;
+          margin-bottom: 4px;
         }
-
+        
         .filter-dropdown {
+          margin-bottom: 4px;
+          
           ::ng-deep {
-            .mat-mdc-select-placeholder {
+            .mat-mdc-form-field-flex {
+              height: 40px;
+            }
+            
+            .mat-mdc-select-placeholder,
+            .mat-mdc-select-value {
               font-size: 11px;
             }
           }
         }
       }
-    }
-
-    .table-section {
-      display: none;
     }
     
     .mobile-cards-section {
@@ -873,6 +931,32 @@
       .pagination-info {
         font-size: 11px;
         color: #000;
+      }
+    }
+  }
+}
+
+// EMERGENCY OVERRIDE - Force show filters on all mobile sizes
+@media (max-width: 959px) {
+  .unit-tracker-container {
+    .top-section {
+      .filter-section {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        height: auto !important;
+        overflow: visible !important;
+        
+        .filter-dropdown {
+          // Critical override for Angular Material
+          ::ng-deep {
+            .mat-mdc-form-field {
+              opacity: 1 !important;
+              visibility: visible !important;
+              display: block !important;
+            }
+          }
+        }
       }
     }
   }

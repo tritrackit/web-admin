@@ -16,7 +16,8 @@
         <!-- Add New Model button on the right -->
         <button mat-raised-button class="add-user-btn" routerLink="/model/add">
           <mat-icon>add</mat-icon>
-          Add New Model
+          <span class="btn-text">Add New Model</span>
+          <span class="btn-icon-only" fxHide.gt-xs="true">+</span>
         </button>
       </div>
 
@@ -25,8 +26,8 @@
         <ng-container *ngIf="dataSource.data?.length > 0; else emptyState">
           <div fxLayout="row wrap" class="enhanced-card-view">
 
-            <div class="card-holder" fxFlex="50%" fxFlex.gt-xs="33.33%" fxFlex.gt-sm="25%" 
-                 fxFlex.gt-md="20%" fxFlex.gt-lg="16.66%" *ngFor="let item of dataSource.data">
+            <div class="card-holder" fxFlex="100%" fxFlex.gt-xs="50%" fxFlex.gt-sm="33.33%" 
+                 fxFlex.gt-md="25%" fxFlex.gt-lg="20%" *ngFor="let item of dataSource.data">
               
               <mat-card class="enhanced-card">
                 
@@ -90,8 +91,8 @@
       <!-- Loading State -->
       <ng-template #loadingState>
         <div fxLayout="row wrap" class="enhanced-card-view">
-          <div class="card-holder" fxFlex="50%" fxFlex.gt-xs="33.33%" fxFlex.gt-sm="25%" 
-               fxFlex.gt-md="20%" fxFlex.gt-lg="16.66%" *ngFor="let item of [1,2,3,4,5,6]">
+          <div class="card-holder" fxFlex="100%" fxFlex.gt-xs="50%" fxFlex.gt-sm="33.33%" 
+               fxFlex.gt-md="25%" fxFlex.gt-lg="20%" *ngFor="let item of [1,2,3,4,5,6]">
             <mat-card class="skeleton-card">
               <div class="skeleton-image"></div>
               <div class="skeleton-title"></div>

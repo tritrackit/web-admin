@@ -21,7 +21,7 @@
       {{
         isNew
           ? "New Scanner"
-          : "#" + scannerCode + " " + (!isLoading ? scanner?.name : "")
+          : (!isLoading ? scanner?.name : "")
       }}
     </span>
   </span>
@@ -149,9 +149,26 @@
                 </div>
 
                 <!-- Add Scanner Type Field -->
-                <div class="form-field">
-                  <mat-label>Scanner Type</mat-label>
-                  <mat-select formControlName="scannerType">
+                <div
+                  class="form-field"
+                  style="
+                    border: 2px solid #e0e0e0;
+                    border-radius: 4px;
+                    padding: 16px;
+                    margin-bottom: 16px;
+                    background-color: #fafafa;
+                  "
+                >
+                  <mat-label
+                    style="
+                      display: block;
+                      margin-bottom: 8px;
+                      font-weight: 500;
+                      color: rgba(0, 0, 0, 0.87);
+                    "
+                    >Scanner Type</mat-label
+                  >
+                  <mat-select formControlName="scannerType" style="width: 100%">
                     <mat-option
                       *ngFor="let type of scannerTypeOptions"
                       [value]="type.value"

@@ -134,6 +134,7 @@ export class EmployeeUserDetailsComponent implements OnInit {
                 Validators.minLength(6),
                 Validators.maxLength(16),
                 Validators.required,
+                Validators.pattern('^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{6,16}$')
               ]),
             confirmPassword: new FormControl(),
             roleCode: new FormControl(),

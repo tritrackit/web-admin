@@ -13,54 +13,75 @@
     <!-- Info Card -->
     <mat-card class="info-card">
       <mat-card-content>
-        <div fxLayout="row" 
-             fxLayout.xs="row"
+        <div class="info-content" 
+             fxLayout="row" 
+             fxLayout.xs="column"
              fxLayout.sm="row"
              fxLayoutAlign="start center"
              fxLayoutAlign.xs="start start"
              fxLayoutAlign.sm="start center"
              fxLayoutGap="8px"
-             fxLayoutGap.xs="6px">
-          <mat-icon color="primary" class="info-icon">info</mat-icon>
-          <span class="info-text">Locations are fixed: <strong>Open Area, Warehouse 4, Warehouse 5, Delivered</strong>. They cannot be created, updated, or deleted.</span>
+             fxLayoutGap.xs="8px"
+             fxLayoutGap.sm="8px">
+          <mat-icon color="primary" class="info-icon" fxHide.xs="false" fxHide.sm="false">info</mat-icon>
+          <span class="info-text">
+            <span fxHide.xs="true" fxHide.sm="true">Locations are fixed: </span>
+            <span fxHide.gt-xs="true">Fixed locations: </span>
+            <strong>Open Area, Warehouse 4, Warehouse 5, Delivered</strong>. 
+            <span fxHide.xs="true" fxHide.sm="true">They cannot be created, updated, or deleted.</span>
+            <span fxHide.gt-xs="true">Cannot be modified.</span>
+          </span>
         </div>
       </mat-card-content>
     </mat-card>
 
-    <mat-card [ngClass]="{ 'hidden': isLoading }">
-      <mat-card-content fxLayout="column">
-        <app-data-table
-          [isLoading]="isLoading"
-          [dataSource]="dataSource"
-          [columnDefs]="appConfig.config.tableColumns.locations"
-          [total]="total"
-          [pageIndex]="pageIndex"
-          [pageSize]="pageSize"
-          (pageChange)="pageChange($event)"
-          (sortChange)="sortChange($event)"
-          (filterChange)="filterChange($event)">
-        </app-data-table>
+    <mat-card [ngClass]="{ 'hidden': isLoading }" class="table-card">
+      <mat-card-content>
+        <div class="mobile-table" fxHide.gt-xs="true">
+          <!-- Mobile View -->
+          <div class="mobile-item" *ngFor="let location of dataSource?.data">
+            <div class="mobile-row">
+              <span class="mobile-label">Code:</span>
+              <span class="mobile-value">{{ location.locationCode }}</span>
+            </div>
+            <div class="mobile-row">
+              <span class="mobile-label">Name:</span>
+              <span class="mobile-value">{{ location.name }}</span>
+            </div>
+            <mat-divider></mat-divider>
+          </div>
+          
+          <div class="mobile-pagination" *ngIf="dataSource?.data?.length">
+            <button mat-icon-button [disabled]="pageIndex === 0" (click)="pageChange({pageIndex: pageIndex - 1, pageSize: pageSize})">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            <span class="page-info">Page {{ pageIndex + 1 }} of {{ totalPages }}</span>
+            <button mat-icon-button [disabled]="pageIndex >= totalPages - 1" (click)="pageChange({pageIndex: pageIndex + 1, pageSize: pageSize})">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+          
+          <div class="no-data" *ngIf="!dataSource?.data?.length && !isLoading">
+            <mat-icon>search_off</mat-icon>
+            <span>No locations found</span>
+          </div>
+        </div>
+
+        <!-- Desktop View -->
+        <div class="desktop-table" fxHide.xs="true">
+          <app-data-table
+            [isLoading]="isLoading"
+            [dataSource]="dataSource"
+            [columnDefs]="appConfig.config.tableColumns.locations"
+            [total]="total"
+            [pageIndex]="pageIndex"
+            [pageSize]="pageSize"
+            (pageChange)="pageChange($event)"
+            (sortChange)="sortChange($event)"
+            (filterChange)="filterChange($event)">
+          </app-data-table>
+        </div>
       </mat-card-content>
     </mat-card>
   </div>
 </div>
-
-<!-- Remove or comment out the dialog template -->
-<!--
-<ng-template #locationFormDialog>
-  <h4 mat-dialog-title>New location</h4>
-  <div mat-dialog-content>
-    <app-location-form #locationForm></app-location-form>
-  </div>
-  <div mat-dialog-actions>
-    <div>
-      <button mat-flat-button cdkFocusInitial (click)="closeNewLocationsDialog()">
-        Cancel
-      </button>
-      <button mat-flat-button [disabled]="!locationForm.valid || !locationForm.ready" color="primary" type="submit" (click)="saveNewLocations(locationForm.getFormData)">
-        Save
-      </button>
-    </div>
-  </div>
-</ng-template>
--->

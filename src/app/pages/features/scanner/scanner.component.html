@@ -7,9 +7,9 @@
     </span>
   </td>
 </ng-container>
+
 <div class="content">
   <div class="inner-content">
-
     <div class="search-container">
       <mat-form-field appearance="outline" class="search-field">
         <button mat-icon-button matPrefix (click)="onSearch()">
@@ -21,25 +21,94 @@
       <!-- Add New Scanner button on the right -->
       <button mat-raised-button class="add-user-btn" routerLink="/scanner/add">
         <mat-icon>add</mat-icon>
-        Add New Scanner
+        <span class="btn-text">Add New Scanner</span>
+        <span class="btn-icon-only" fxHide.gt-xs="true">+</span>
       </button>
     </div>
 
     <mat-card>
       <mat-card-content>
-        <app-data-table
-          [isLoading]="isLoading"
-          [dataSource]="dataSource"
-          [columnDefs]="appConfig.config.tableColumns.scanner"
-          [total]="total"
-          [pageIndex]="pageIndex"
-          [pageSize]="pageSize"
-          (pageChange)="pageChange($event)"
-          (sortChange)="sortChange($event)"
-          (filterChange)="filterChange($event)">
-        </app-data-table>
+        <!-- Mobile View -->
+        <div class="mobile-view" fxHide.gt-xs="true">
+          <div class="mobile-scanner-card" *ngFor="let scanner of dataSource?.data">
+            <div class="mobile-card-header">
+              <div class="scanner-code">
+                <span class="label">Code:</span>
+                <span class="value">{{ scanner.scannerCode }}</span>
+              </div>
+              <span class="scanner-type-badge" [class]="scanner.scannerType?.toLowerCase()">
+                {{ scanner.scannerType === 'LOCATION' ? 'Location' : 'Registration' }}
+              </span>
+            </div>
+            
+            <div class="mobile-card-content">
+              <div class="mobile-row">
+                <span class="label">Name:</span>
+                <span class="value">{{ scanner.name }}</span>
+              </div>
+              <div class="mobile-row">
+                <span class="label">Location:</span>
+                <span class="value">{{ scanner.location?.name || 'N/A' }}</span>
+              </div>
+              <div class="mobile-row">
+                <span class="label">Assigned To:</span>
+                <span class="value">{{ scanner.assignedEmployeeUser?.firstName || 'Unassigned' }}</span>
+              </div>
+              <div class="mobile-row">
+                <span class="label">Created:</span>
+                <span class="value">{{ scanner.dateCreated | date: 'MM/dd/yyyy' }}</span>
+              </div>
+            </div>
+            
+            <div class="mobile-card-actions">
+              <button mat-icon-button class="view-btn" [routerLink]="'/scanner/' + scanner.scannerCode">
+                <mat-icon>visibility</mat-icon>
+              </button>
+              <button mat-icon-button class="edit-btn" [routerLink]="'/scanner/' + scanner.scannerCode + '/edit'">
+                <mat-icon>edit</mat-icon>
+              </button>
+            </div>
+          </div>
+          
+          <!-- Mobile Pagination -->
+          <div class="mobile-pagination" *ngIf="dataSource?.data?.length">
+            <button mat-icon-button [disabled]="pageIndex === 0" (click)="pageChange({pageIndex: pageIndex - 1, pageSize: pageSize})">
+              <mat-icon>chevron_left</mat-icon>
+            </button>
+            <span class="page-info">Page {{ pageIndex + 1 }} of {{ totalPages }}</span>
+            <button mat-icon-button [disabled]="pageIndex >= totalPages - 1" (click)="pageChange({pageIndex: pageIndex + 1, pageSize: pageSize})">
+              <mat-icon>chevron_right</mat-icon>
+            </button>
+          </div>
+          
+          <!-- No Data State -->
+          <div class="no-data-mobile" *ngIf="!dataSource?.data?.length && !isLoading">
+            <mat-icon>search_off</mat-icon>
+            <span>No scanners found</span>
+          </div>
+          
+          <!-- Loading State -->
+          <div class="loading-mobile" *ngIf="isLoading">
+            <mat-spinner diameter="40"></mat-spinner>
+            <span>Loading scanners...</span>
+          </div>
+        </div>
+
+        <!-- Desktop View -->
+        <div class="desktop-view" fxHide.xs="true">
+          <app-data-table
+            [isLoading]="isLoading"
+            [dataSource]="dataSource"
+            [columnDefs]="appConfig.config.tableColumns.scanner"
+            [total]="total"
+            [pageIndex]="pageIndex"
+            [pageSize]="pageSize"
+            (pageChange)="pageChange($event)"
+            (sortChange)="sortChange($event)"
+            (filterChange)="filterChange($event)">
+          </app-data-table>
+        </div>
       </mat-card-content>
     </mat-card>
-    
   </div>
 </div>
