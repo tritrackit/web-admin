@@ -54,6 +54,9 @@ export class RegisterCbuComponent implements OnInit, OnDestroy {
   @ViewChild('modelSearchInput', { static: true }) modelSearchInput: ElementRef<HTMLInputElement>;
   @ViewChild('modelTrig', { read: MatAutocompleteTrigger }) modelTrig!: MatAutocompleteTrigger;
 
+  // Available colors for dropdown
+  availableColors: string[] = ['RED', 'GREEN', 'WHITE', 'BLUE', 'ORANGE'];
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -99,8 +102,7 @@ export class RegisterCbuComponent implements OnInit, OnDestroy {
     // 🔥 Handle query params if RFID was scanned
     if (queryParams['rfid']) {
       const paramStart = Date.now();
-      console.log('🚨 Register CBU: Query params detected', queryParams);
-      
+
       // ⚡ ALWAYS SET required values with defaults to ensure form displays (SYNCHRONOUS)
       this.scannerCode = queryParams['scannerCode'] || '';
       
@@ -117,8 +119,7 @@ export class RegisterCbuComponent implements OnInit, OnDestroy {
       } as Locations;
       
       const paramTime = Date.now() - paramStart;
-      console.log(`⚡ Query params processed in ${paramTime}ms - Form ready!`);
-      
+
       // ⚡ FORCE form to be valid for display
       if (this.unitForm.value.rfid) {
         this.unitForm.get('rfid').setValidators([Validators.required]);
@@ -154,23 +155,21 @@ export class RegisterCbuComponent implements OnInit, OnDestroy {
       
       // 🔥 Load model options in BACKGROUND (non-blocking)
       this.initModelOptions().catch(err => {
-        console.error('Error loading model options:', err);
+
       });
     } else {
       // 🔥 If no query params, form is still ready (user can manually enter RFID)
-      console.log('📝 Register CBU: Empty form ready for manual entry');
-      
+
       // Load model options in background
       this.initModelOptions().catch(err => {
-        console.error('Error loading model options:', err);
+
       });
     }
     
     // 🔥 STEP 2: Listen to query params changes (for dynamic updates when navigating)
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe(params => {
       if (params['rfid'] && (!this.unitForm.value.rfid || this.unitForm.value.rfid !== params['rfid'])) {
-        console.log('🚨 Register CBU: Query params changed/updated', params);
-        
+
         // ⚡ UPDATE form values
         this.scannerCode = params['scannerCode'] || this.scannerCode || '';
         
@@ -203,65 +202,35 @@ export class RegisterCbuComponent implements OnInit, OnDestroy {
     
     // 🔥 STEP 3: Listen to UnitService for direct events (when already on page)
     // Use distinctUntilChanged to prevent duplicate processing
-    console.log(`🔍 Register CBU: Setting up data$ subscription`);
-    
+
     this.unitService.data$
       .pipe(
         filter((d: any) => {
           const shouldProcess = !!d && d._instant && !d._handled;
-          console.log(`🔍 Register CBU: Filter check`, {
-            hasData: !!d,
-            isInstant: d?._instant,
-            isHandled: d?._handled,
-            shouldProcess: shouldProcess,
-            rfid: d?.rfid
-          });
+
           return shouldProcess;
         }), // ⚡ Only instant, unhandled events
         distinctUntilChanged((prev, curr) => {
           const isSame = prev?.rfid === curr?.rfid;
-          console.log(`🔍 Register CBU: distinctUntilChanged check`, {
-            prevRfid: prev?.rfid,
-            currRfid: curr?.rfid,
-            isSame: isSame,
-            willEmit: !isSame
-          });
+
           return isSame;
         }), // ⚡ Prevent duplicate RFIDs
         takeUntil(this.destroy$)
       )
       .subscribe(data => {
         const receiveTime = Date.now();
-        console.log('🔍 Register CBU: Event received in data$ subscription', {
-          rfid: data.rfid,
-          latency: data._latency || 0,
-          _handled: data._handled,
-          currentFormRfid: this.unitForm.value.rfid,
-          willProcess: !this.unitForm.value.rfid || this.unitForm.value.rfid !== data.rfid
-        });
-        
+
         // 🔍 DEBUG: Check if already processed
         if (data._handled) {
-          console.log(`⏭️ Register CBU: Event already handled, skipping`, {
-            rfid: data.rfid,
-            _handled: data._handled
-          });
+
           return;
         }
         
         // Mark as handled to prevent other components from processing
         data._handled = true;
-        console.log(`🔍 Register CBU: Marked as handled`, {
-          rfid: data.rfid,
-          _handled: data._handled
-        });
-        
+
         if (!this.unitForm.value.rfid || this.unitForm.value.rfid !== data.rfid) {
-          console.log('🔍 Register CBU: Form will be updated', {
-            currentRfid: this.unitForm.value.rfid,
-            newRfid: data.rfid,
-            reason: !this.unitForm.value.rfid ? 'FORM_EMPTY' : 'DIFFERENT_RFID'
-          });
+
           // ⚡ UPDATE FORM INSTANTLY (0ms delay - synchronous)
           const populateStart = Date.now();
           this.scannerCode = data.scannerCode || this.scannerCode || '';
@@ -278,8 +247,7 @@ export class RegisterCbuComponent implements OnInit, OnDestroy {
           } as Locations;
           
           const populateTime = Date.now() - populateStart;
-          console.log(`⚡ Form populated in ${populateTime}ms`);
-          
+
           // ⚡ OPEN MODEL DROPDOWN (immediate, no delay)
           // Use requestAnimationFrame for better performance
           requestAnimationFrame(() => {
@@ -299,26 +267,17 @@ export class RegisterCbuComponent implements OnInit, OnDestroy {
           this.cdr.detectChanges();
           
           // 🔍 DEBUG: Clear data after processing to allow new scans
-          console.log(`🔍 Register CBU: Clearing scanned data after form population`, {
-            rfid: data.rfid,
-            formRfid: this.unitForm.value.rfid
-          });
-          
+
           // ⚡ Clear data after a short delay to allow form to update
           setTimeout(() => {
             this.unitService.clearScannedData();
-            console.log(`🔍 Register CBU: Scanned data cleared`);
+
           }, 500);
         } else {
-          console.log(`🔍 Register CBU: Form already has this RFID, skipping update`, {
-            formRfid: this.unitForm.value.rfid,
-            eventRfid: data.rfid
-          });
-          
+
           // ⚡ Still clear data even if form already has it
           setTimeout(() => {
             this.unitService.clearScannedData();
-            console.log(`🔍 Register CBU: Scanned data cleared (form already had RFID)`);
           }, 200);
         }
       });
@@ -358,7 +317,7 @@ export class RegisterCbuComponent implements OnInit, OnDestroy {
       }));
       this.mapSearchModel();
     } catch (error) {
-      console.error('Error loading model options:', error);
+
     } finally {
       this.isOptionsModelLoading = false;
     }
@@ -444,11 +403,7 @@ export class RegisterCbuComponent implements OnInit, OnDestroy {
         dialogRef.componentInstance.isProcessing = this.isProcessing;
 
         if (res.success) {
-          console.log(`🔍 Register CBU: Registration successful, clearing data`, {
-            unitCode: res.data?.unitCode,
-            rfid: res.data?.rfid
-          });
-          
+
           // ⚡ Clear scanned data immediately after successful registration
           this.unitService.clearScannedData();
           
@@ -465,7 +420,7 @@ export class RegisterCbuComponent implements OnInit, OnDestroy {
             this.router.navigate([`/cbu/${res.data.unitCode}`], {
               replaceUrl: false
             }).catch((err) => {
-              console.error('Navigation error:', err);
+
               // Fallback to CBU list if navigation fails
               this.router.navigate(['/cbu']);
             });

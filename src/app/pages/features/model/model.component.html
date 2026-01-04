@@ -12,6 +12,9 @@
                  (keyup.enter)="onSearch()"
                  placeholder="Search Model">
         </mat-form-field>
+        <button mat-raised-button class="search-btn" (click)="onSearch()" type="button">
+          Search
+        </button>
   
         <!-- Add New Model button on the right -->
         <button mat-raised-button class="add-user-btn" routerLink="/model/add">

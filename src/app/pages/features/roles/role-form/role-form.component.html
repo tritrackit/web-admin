@@ -1,4 +1,3 @@
-
 <div class="inner-content">
   <form
   [formGroup]="form"
@@ -6,10 +5,20 @@
   id="form"
   [ngClass]="{'readonly' : isReadOnly}">
   <fieldset fxFlex="100" fxLayout="row wrap" style="row-gap: 16px">
+    <!-- Display mode (readonly) -->
+    <div fxFlex="100" *ngIf="isReadOnly" fxLayout="column" class="readonly-field-container">
+      <div class="readonly-field">
+        <span class="field-label">Role name</span>
+        <span class="field-value">{{ form.get('name')?.value || '-' }}</span>
+      </div>
+    </div>
+
+    <!-- Edit mode (input field) -->
     <mat-form-field
       fxFlex="100"
       fxLayout="column"
       appearance="outline"
+      *ngIf="!isReadOnly"
     >
       <mat-label>Role name</mat-label>
       <input

@@ -56,6 +56,27 @@
     font-size: 18px;
   }
 
+  .search-btn {
+    background: #ff7b29 !important;
+    color: #fff !important;
+    border-radius: 8px;
+    font-weight: 500;
+    text-transform: none;
+    height: 45px;
+    padding: 0 24px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    white-space: nowrap;
+    font-family: "Chakra Petch", sans-serif;
+    font-size: 16px;
+    margin: 0 !important;
+    flex-shrink: 0;
+
+    &:hover {
+      background: #e56f20 !important;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    }
+  }
+
   .add-user-btn {
     background: #ff7b29 !important;
     color: #fff !important;

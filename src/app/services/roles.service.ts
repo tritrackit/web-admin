@@ -68,6 +68,5 @@ export class RoleService implements IServices {
     };
   }
   log(message: string) {
-    console.log(message);
   }
 }

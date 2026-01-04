@@ -92,6 +92,5 @@ export class EmployeeUsersService implements IServices {
   }
 
   log(message: string) {
-    console.log(message);
   }
 }

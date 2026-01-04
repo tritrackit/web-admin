@@ -128,7 +128,6 @@ export class ScannerDetailsComponent implements OnInit {
     await this.initLocationOptions();
     await this.initAssignedEmployeeUserOptions();
     this.scannerForm.valueChanges.subscribe(res=> {
-      console.log("Form data", res);
     })
     this.isLoading = false;
   }

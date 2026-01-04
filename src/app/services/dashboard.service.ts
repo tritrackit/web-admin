@@ -32,6 +32,5 @@ export class DashboardService implements IServices {
     };
   }
   log(message: string) {
-    console.log(message);
   }
 }

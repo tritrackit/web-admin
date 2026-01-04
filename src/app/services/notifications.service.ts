@@ -52,6 +52,5 @@ export class NotificationsService implements IServices {
   }
 
   log(message: string) {
-    console.log(message);
   }
 }

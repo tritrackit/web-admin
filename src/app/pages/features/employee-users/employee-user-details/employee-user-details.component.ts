@@ -284,7 +284,6 @@ export class EmployeeUserDetailsComponent implements OnInit {
         this.mapSearchRole();
       }
     } catch (error) {
-      console.error('Error loading role options:', error);
     }
   }
 

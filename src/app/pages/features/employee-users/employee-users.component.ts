@@ -56,7 +56,6 @@ export class EmployeeUsersComponent implements OnInit {
     private storageService: StorageService,
     private route: ActivatedRoute,
     public router: Router) {
-    console.log(appConfig.config.tableColumns.employeeUsers);
     this.dataSource = new MatTableDataSource([]);
     if (this.route.snapshot.data) {
       // this.pageAccess = {

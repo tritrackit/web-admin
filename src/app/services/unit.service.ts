@@ -57,17 +57,6 @@ export class UnitService implements IServices {
       const data = event.data;
       const priority = event._priority;
       
-      console.log(`🔍 UnitService: Event received`, {
-        type: event.type,
-        priority: priority,
-        action: data?.action,
-        rfid: data?.rfid,
-        hasInstant: data?._instantPopup,
-        currentDataValue: this.data.value?.rfid,
-        lastProcessedRfid: this.lastProcessedRfid.rfid,
-        timeSinceLastProcessed: this.lastProcessedRfid.rfid ? Date.now() - this.lastProcessedRfid.time : 'N/A'
-      });
-     
       if (priority === 'highest' || data?._instantPopup || data?.action === 'RFID_DETECTED_URGENT' || data?.action === 'RFID_DETECTED') {
         const now = Date.now();
         const sentAt = data._sentAt || data.timestamp;
@@ -76,16 +65,7 @@ export class UnitService implements IServices {
         const timeSinceLast = this.lastProcessedRfid.rfid ? now - this.lastProcessedRfid.time : Infinity;
         const isDuplicate = data.rfid && this.lastProcessedRfid.rfid === data.rfid && timeSinceLast < 1000;
         
-        console.log(`🔍 UnitService: Duplicate check`, {
-          currentRfid: data.rfid,
-          lastProcessedRfid: this.lastProcessedRfid.rfid,
-          timeSinceLast: timeSinceLast,
-          isDuplicate: isDuplicate,
-          willProcess: !isDuplicate
-        });
-        
         if (isDuplicate) {
-          console.log(`⏭️ UnitService: Skipping duplicate RFID: ${data.rfid} (${timeSinceLast}ms ago)`);
           return;
         }
         
@@ -95,14 +75,6 @@ export class UnitService implements IServices {
         }
         
         this.lastProcessedRfid = {rfid: data.rfid, time: now};
-        
-        console.log(`🎯 INSTANT CBU TRIGGER: ${latency}ms - ${data.rfid}`, {
-          scannerCode: data.scannerCode,
-          locationId: data.locationId,
-          location: data.location,
-          currentDataState: this.data.value ? 'HAS_DATA' : 'EMPTY',
-          willEmit: true
-        });
         
         this.zone.run(() => {
           const eventData = {
@@ -120,18 +92,7 @@ export class UnitService implements IServices {
             _handled: false 
           };
           
-          console.log(`🔍 UnitService: Emitting to data$`, {
-            rfid: eventData.rfid,
-            _handled: eventData._handled,
-            subscribers: 'unknown'
-          });
-          
           this.data.next(eventData);
-          console.log(`🔍 UnitService: Data$ after emit`, {
-            hasValue: !!this.data.value,
-            rfid: this.data.value?.rfid,
-            _handled: this.data.value?._handled
-          });
         });
         
         return;
@@ -145,8 +106,6 @@ export class UnitService implements IServices {
   }
   
   public openCbuInstantly(rfidData: any): void {
-    console.log('🚀 Opening CBU instantly for:', rfidData.rfid);
-    
     this.zone.run(() => {
       this.data.next({
         rfid: rfidData.rfid,
@@ -173,32 +132,13 @@ export class UnitService implements IServices {
   }
 
   clearScannedData() {
-    console.log(`🔍 UnitService.clearScannedData() called`, {
-      beforeClear: {
-        hasValue: !!this.data.value,
-        rfid: this.data.value?.rfid,
-        _handled: this.data.value?._handled
-      },
-      lastProcessedRfid: this.lastProcessedRfid.rfid,
-      eventHistory: this.eventHistory.length
-    });
-    
     // ⚡ Clear the data stream
     this.data.next(null);
     
     // ⚡ Reset duplicate prevention after 3 seconds (allow new scans)
     setTimeout(() => {
-      const oldRfid = this.lastProcessedRfid.rfid;
       this.lastProcessedRfid = {rfid: '', time: 0};
-      console.log(`🔍 UnitService: Reset lastProcessedRfid (was: ${oldRfid})`);
     }, 3000);
-    
-    console.log(`🔍 UnitService.clearScannedData() completed`, {
-      afterClear: {
-        hasValue: !!this.data.value,
-        rfid: this.data.value?.rfid
-      }
-    });
   }
   
   getByAdvanceSearch(params: {
@@ -323,7 +263,7 @@ export class UnitService implements IServices {
   }
   
   log(message: string) {
-    console.log(message);
+    // Logging removed for production
   }
   
   getDebugState() {
@@ -336,16 +276,8 @@ export class UnitService implements IServices {
   }
   
   forceReset() {
-    console.log(`🔍 UnitService: FORCE RESET called`, {
-      beforeReset: this.getDebugState()
-    });
-    
     this.data.next(null);
     this.lastProcessedRfid = {rfid: '', time: 0};
     this.eventHistory = [];
-    
-    console.log(`🔍 UnitService: FORCE RESET completed`, {
-      afterReset: this.getDebugState()
-    });
   }
 }
