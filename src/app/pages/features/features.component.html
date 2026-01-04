@@ -42,7 +42,7 @@
                 <mat-icon>bar_chart</mat-icon><span>Reports and Statistics</span>
             </mat-list-item>
             <mat-list-item *ngIf="showMenu('CBU')" routerLink="cbu" (mouseup)="!drawerDefaultOpened ? sidenav.close() : false" routerLinkActive="active-link">
-                <mat-icon>airport_shuttle</mat-icon><span>CBU Registration</span>
+                <mat-icon>airport_shuttle</mat-icon><span>Registered CBU</span>
             </mat-list-item>
             <mat-expansion-panel *ngIf="showGroupMenu(['Model', 'Locations', 'RFID Scanner'])" [@.disabled]="disableGroupAnimation" (afterExpand)="disableGroupAnimation = false" [expanded]="expand('Configuration')" [ngClass]="{'mat-expansion-active':expand('Configuration') }" [class.mat-elevation-z0]="true" >
               <mat-expansion-panel-header>
@@ -74,6 +74,13 @@
               </mat-nav-list>
             </mat-expansion-panel>
         </mat-nav-list>
+        <mat-divider></mat-divider>
+        <div class="sidenav-add-cbu-button">
+            <button mat-raised-button color="primary" class="add-cbu-btn" routerLink="/cbu/register" (click)="!drawerDefaultOpened ? sidenav.close() : false">
+                <mat-icon>add</mat-icon>
+                <span>Add CBU</span>
+            </button>
+        </div>
     </mat-sidenav>
     <mat-sidenav-content>
         <div class="page-wrapper">

@@ -29,19 +29,15 @@ export class PusherService {
     
     // Monitor Pusher connection state
     this.pusher.connection.bind('connected', () => {
-      console.log('✅ Pusher: Connected (ready to receive events)');
     });
     
     this.pusher.connection.bind('disconnected', () => {
-      console.warn('⚠️ Pusher: Disconnected - attempting to reconnect...');
     });
     
     this.pusher.connection.bind('error', (error: any) => {
-      console.error('❌ Pusher: Connection error', error);
     });
     
     this.pusher.connection.bind('state_change', (states: any) => {
-      console.log('🔄 Pusher: State changed', states.previous, '->', states.current);
     });
     
     // ⚡ Initialize Socket.io (PRIMARY - ultra-fast)
@@ -57,10 +53,6 @@ export class PusherService {
   private initializeSocketIo(): void {
     try {
       const socketUrl = environment.socketIo?.url || environment.apiBaseUrl.replace('/api/v1', '');
-      
-      console.log('🔧 Socket.io: Initializing connection to', socketUrl);
-      console.log('🔧 Socket.io: Production mode:', environment.production);
-      console.log('🔧 Socket.io: API Base URL:', environment.apiBaseUrl);
       
       const socketOptions: any = {
         transports: environment.socketIo?.options?.transports || ['websocket', 'polling'],
@@ -86,15 +78,10 @@ export class PusherService {
       // Connection events
       this.socket.on('connect', () => {
         this.socketConnected = true;
-        console.log('⚡ Socket.io: Connected! (ID:', this.socket?.id, ')');
-        console.log('⚡ Socket.io: Connection URL:', socketUrl);
-        console.log('⚡ Socket.io: Transport:', this.socket?.io?.engine?.transport?.name || 'unknown');
       });
       
       this.socket.on('disconnect', (reason) => {
         this.socketConnected = false;
-        console.log('⚠️ Socket.io: Disconnected - Reason:', reason, '- Falling back to Pusher');
-        console.log('⚠️ Socket.io: Pusher fallback is ALWAYS ACTIVE and will handle events');
       });
       
       this.socket.on('connect_error', (error: any) => {
@@ -110,34 +97,18 @@ export class PusherService {
           context: error.context || 'unknown'
         };
         
-        console.error('⚠️ Socket.io: Connection error - Using Pusher fallback', errorDetails);
-        
-        // Log detailed error for debugging in production
-        if (environment.production) {
-          console.error('🔍 Production Socket.io Debug:', {
-            url: socketUrl,
-            error: errorDetails,
-            willUsePusher: true,
-            pusherStatus: this.pusher?.connection?.state || 'unknown',
-            note: 'Pusher is ALWAYS ACTIVE as fallback - events will still be received'
-          });
-        }
       });
       
       // Add reconnection attempt logging
       this.socket.on('reconnect_attempt', (attemptNumber) => {
-        console.log(`🔄 Socket.io: Reconnection attempt ${attemptNumber}`);
       });
       
       this.socket.on('reconnect', (attemptNumber) => {
         this.socketConnected = true;
-        console.log(`✅ Socket.io: Reconnected after ${attemptNumber} attempts`);
       });
       
       this.socket.on('reconnect_failed', () => {
-        console.error('❌ Socket.io: Reconnection failed - Will use Pusher fallback');
         this.socketConnected = false;
-        console.log('⚠️ Socket.io: Pusher fallback is ALWAYS ACTIVE and will handle all events');
       });
       
       // ⚡ PRIMARY: Listen for RFID events from Socket.io (ultra-fast)
@@ -149,13 +120,10 @@ export class PusherService {
         // 🔥 PREVENT DUPLICATES within 2 seconds (same RFID from any source)
         if (data.rfid && this.lastRfidEvent.rfid === data.rfid && 
             (now - this.lastRfidEvent.time) < 2000) {
-          console.log(`⏭️ Socket.io: Skipping duplicate RFID: ${data.rfid} (${now - this.lastRfidEvent.time}ms ago)`);
           return;
         }
         
         this.lastRfidEvent = {rfid: data.rfid, time: now, channel: 'socket.io', source: 'socket.io'};
-        
-        console.log(`⚡ Socket.io RFID: ${latency}ms - ${data.rfid}`);
         
         // 🔥 EMIT IMMEDIATELY for CBU pop-up
         this.onUpdate.next({
@@ -178,7 +146,6 @@ export class PusherService {
       });
       
     } catch (error) {
-      console.error('❌ Socket.io initialization failed:', error);
       this.socketConnected = false;
     }
   }
@@ -194,17 +161,13 @@ export class PusherService {
    * 🔄 Setup Pusher listeners (FALLBACK - used if Socket.io fails, ALWAYS ACTIVE)
    */
   private setupEmergencyListener() {
-    console.log('🔧 Pusher: Setting up listeners (ALWAYS ACTIVE as fallback)...');
-    
     // ⚡ ALWAYS LISTEN: RFID Emergency Channel (Pusher always works, Socket.io is optional)
     const emergencyChannel = this.pusher.subscribe('rfid-emergency-bypass');
     
     emergencyChannel.bind('pusher:subscription_succeeded', () => {
-      console.log('✅ Pusher: Subscribed to rfid-emergency-bypass channel');
     });
     
     emergencyChannel.bind('pusher:subscription_error', (error: any) => {
-      console.error('❌ Pusher: Subscription error for rfid-emergency-bypass', error);
     });
     
     emergencyChannel.bind('rfid-urgent', (data: any) => {
@@ -220,7 +183,6 @@ export class PusherService {
                              (now - this.lastRfidEvent.time) < 200; // Reduced from 500ms to 200ms
       
       if (socketReceived) {
-        console.log('⏭️ Pusher: Skipping (Socket.io already processed this RFID', (now - this.lastRfidEvent.time), 'ms ago)');
         return;
       }
       
@@ -228,23 +190,10 @@ export class PusherService {
       if (data.rfid && this.lastRfidEvent.rfid === data.rfid && 
           this.lastRfidEvent.source === 'pusher' &&
           (now - this.lastRfidEvent.time) < 2000) {
-        console.log(`⏭️ Pusher: Skipping duplicate RFID: ${data.rfid} (${now - this.lastRfidEvent.time}ms ago)`);
         return;
       }
       
-      console.log('🔍 Pusher: Processing RFID event', {
-        socketConnected: this.isSocketConnected(),
-        lastSource: this.lastRfidEvent.source,
-        lastRfid: this.lastRfidEvent.rfid,
-        currentRfid: data.rfid,
-        timeSinceLast: this.lastRfidEvent.rfid ? (now - this.lastRfidEvent.time) : 'N/A',
-        latency: latency,
-        production: environment.production
-      });
-      
       this.lastRfidEvent = {rfid: data.rfid, time: now, channel: 'rfid-emergency-bypass', source: 'pusher'};
-      
-      console.log(`⚡ Pusher RFID (${environment.production ? 'PRODUCTION' : 'DEV'}): ${latency}ms - ${data.rfid}`);
       
       this.onUpdate.next({
         type: 'rfid-emergency',
@@ -279,8 +228,6 @@ export class PusherService {
       
       this.lastRfidEvent = {rfid: data.rfid, time: now};
       
-      console.log(`⚡ REGISTRATION URGENT: ${latency}ms - ${data.rfid}`);
-      
       this.onUpdate.next({
         type: 'rfid',
         data: {
@@ -304,13 +251,10 @@ export class PusherService {
       // 🔥 PREVENT DUPLICATES within 2 seconds
       if (data.rfid && this.lastRfidEvent.rfid === data.rfid && 
           (now - this.lastRfidEvent.time) < 2000) {
-        console.log(`⏭️ Skipping duplicate RFID from registration-channel: ${data.rfid}`);
         return;
       }
       
       this.lastRfidEvent = {rfid: data.rfid, time: now, channel: 'registration-channel'};
-      
-      console.log(`⚡ NEW REGISTRATION: ${latency}ms - ${data.rfid}`);
       
       this.onUpdate.next({
         type: 'rfid',
@@ -368,7 +312,6 @@ export class PusherService {
       this.socket.disconnect();
       this.socket = null;
       this.socketConnected = false;
-      console.log('🔌 Socket.io: Disconnected');
     }
   }
   

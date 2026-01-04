@@ -67,6 +67,5 @@ export class LocationsService implements IServices {
     };
   }
   log(message: string) {
-    console.log(message);
   }
 }

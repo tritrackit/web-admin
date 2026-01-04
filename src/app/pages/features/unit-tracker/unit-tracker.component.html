@@ -15,49 +15,29 @@
        fxLayoutGap.lt-md="16px">
     
     <!-- Search Bar -->
-    <div class="search-section" fxFlex="1 1 auto" fxFlex.xs="100" fxFlex.sm="100" fxFlex.lt-md="100">
-      <mat-form-field appearance="outline" class="search-field">
+    <div class="search-section" fxFlex="1 1 auto" fxFlex.xs="100" fxFlex.sm="100" fxFlex.lt-md="100" fxLayout="row" fxLayoutGap="12px" fxLayoutAlign="start center">
+      <mat-form-field appearance="outline" class="search-field" fxFlex="1 1 auto">
         <mat-label>Search by Chassis No</mat-label>
-        <input matInput [formControl]="searchControl" placeholder="Search by Chassis No">
+        <input matInput [formControl]="searchControl" placeholder="Search by Chassis No" (keyup.enter)="onSearch()">
         <mat-icon matPrefix>search</mat-icon>
       </mat-form-field>
+      <button mat-raised-button class="search-btn" (click)="onSearch()" type="button">
+        Search
+      </button>
     </div>
 
-    <!-- Filter Buttons - FIXED FOR ALL MOBILE SIZES -->
-    <div class="filter-section" 
+    <!-- Desktop Filters -->
+    <div class="filter-section desktop-filters" 
          fxLayout="row wrap" 
-         fxLayout.xs="column" 
-         fxLayout.sm="row wrap"
-         fxLayout.lt-md="column"
          fxLayoutGap="12px" 
-         fxLayoutGap.xs="8px"
-         fxLayoutGap.sm="8px"
-         fxLayoutGap.lt-md="8px"
          fxLayoutAlign="end center"
-         fxLayoutAlign.xs="stretch"
-         fxLayoutAlign.sm="start stretch"
-         fxLayoutAlign.lt-md="stretch"
-         fxFlex="nogrow">
-      
-      <!-- Filter Label - Always show on mobile -->
-      <span class="filter-label" 
-            fxHide="false"
-            fxShow.xs="true"
-            fxShow.sm="true"
-            fxShow.lt-md="true"
-            fxFlex="100"
-            fxFlex.xs="100"
-            fxFlex.sm="100"
-            fxFlex.lt-md="100">
-        FILTER BY:
-      </span>
+         fxFlex="nogrow"
+         fxHide.xs="true"
+         fxHide.sm="true"
+         fxHide.lt-md="true">
       
       <!-- Color Filter -->
-      <mat-form-field appearance="outline" class="filter-dropdown" 
-                      fxFlex="0 1 140px"
-                      fxFlex.xs="100"
-                      fxFlex.sm="1 1 calc(50% - 8px)"
-                      fxFlex.lt-md="100">
+      <mat-form-field appearance="outline" class="filter-dropdown" fxFlex="0 1 140px">
         <mat-select [value]="selectedColorFilter" (selectionChange)="onColorFilterChange($event.value)" placeholder="Color">
           <mat-option [value]="null">All Colors</mat-option>
           <mat-option *ngFor="let color of colors" [value]="color">{{ color }}</mat-option>
@@ -65,11 +45,7 @@
       </mat-form-field>
 
       <!-- Model Filter -->
-      <mat-form-field appearance="outline" class="filter-dropdown" 
-                      fxFlex="0 1 140px"
-                      fxFlex.xs="100"
-                      fxFlex.sm="1 1 calc(50% - 8px)"
-                      fxFlex.lt-md="100">
+      <mat-form-field appearance="outline" class="filter-dropdown" fxFlex="0 1 140px">
         <mat-select [value]="selectedModelFilter" (selectionChange)="onModelFilterChange($event.value)" placeholder="Model">
           <mat-option [value]="null">All Models</mat-option>
           <mat-option *ngFor="let model of models" [value]="model.modelId">{{ model.modelName }}</mat-option>
@@ -77,11 +53,7 @@
       </mat-form-field>
 
       <!-- Warehouse Filter -->
-      <mat-form-field appearance="outline" class="filter-dropdown" 
-                      fxFlex="0 1 140px"
-                      fxFlex.xs="100"
-                      fxFlex.sm="1 1 calc(50% - 8px)"
-                      fxFlex.lt-md="100">
+      <mat-form-field appearance="outline" class="filter-dropdown" fxFlex="0 1 140px">
         <mat-select [value]="selectedWarehouseFilter" (selectionChange)="onWarehouseFilterChange($event.value)" placeholder="Warehouse">
           <mat-option [value]="null">All Locations</mat-option>
           <mat-option *ngFor="let location of locations" [value]="location.locationId">{{ location.name }}</mat-option>
@@ -89,16 +61,70 @@
       </mat-form-field>
 
       <!-- Status Filter -->
-      <mat-form-field appearance="outline" class="filter-dropdown" 
-                      fxFlex="0 1 140px"
-                      fxFlex.xs="100"
-                      fxFlex.sm="1 1 calc(50% - 8px)"
-                      fxFlex.lt-md="100">
+      <mat-form-field appearance="outline" class="filter-dropdown" fxFlex="0 1 140px">
         <mat-select [value]="selectedStatusFilter" (selectionChange)="onStatusFilterChange($event.value)" placeholder="Status">
           <mat-option [value]="null">All Statuses</mat-option>
           <mat-option *ngFor="let status of statuses" [value]="status.statusId">{{ status.name }}</mat-option>
         </mat-select>
       </mat-form-field>
+    </div>
+
+    <!-- Mobile Filters - Expansion Panel -->
+    <div class="mobile-filters" 
+         fxHide="true"
+         fxShow.xs="true"
+         fxShow.sm="true"
+         fxShow.lt-md="true"
+         fxFlex="100"
+         fxFlex.xs="100"
+         fxFlex.sm="100"
+         fxFlex.lt-md="100">
+      <mat-expansion-panel class="filter-panel">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>filter_list</mat-icon>
+            <span>Filters</span>
+          </mat-panel-title>
+        </mat-expansion-panel-header>
+        
+        <div class="mobile-filter-content" fxLayout="column" fxLayoutGap="16px">
+          <!-- Color Filter -->
+          <mat-form-field appearance="outline" class="mobile-filter-field">
+            <mat-label>Color</mat-label>
+            <mat-select [value]="selectedColorFilter" (selectionChange)="onColorFilterChange($event.value)">
+              <mat-option [value]="null">All Colors</mat-option>
+              <mat-option *ngFor="let color of colors" [value]="color">{{ color }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Model Filter -->
+          <mat-form-field appearance="outline" class="mobile-filter-field">
+            <mat-label>Model</mat-label>
+            <mat-select [value]="selectedModelFilter" (selectionChange)="onModelFilterChange($event.value)">
+              <mat-option [value]="null">All Models</mat-option>
+              <mat-option *ngFor="let model of models" [value]="model.modelId">{{ model.modelName }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Warehouse Filter -->
+          <mat-form-field appearance="outline" class="mobile-filter-field">
+            <mat-label>Warehouse</mat-label>
+            <mat-select [value]="selectedWarehouseFilter" (selectionChange)="onWarehouseFilterChange($event.value)">
+              <mat-option [value]="null">All Locations</mat-option>
+              <mat-option *ngFor="let location of locations" [value]="location.locationId">{{ location.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Status Filter -->
+          <mat-form-field appearance="outline" class="mobile-filter-field">
+            <mat-label>Status</mat-label>
+            <mat-select [value]="selectedStatusFilter" (selectionChange)="onStatusFilterChange($event.value)">
+              <mat-option [value]="null">All Statuses</mat-option>
+              <mat-option *ngFor="let status of statuses" [value]="status.statusId">{{ status.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </mat-expansion-panel>
     </div>
   </div>
 

@@ -80,7 +80,6 @@ export class UnitDetailsComponent implements OnInit, OnDestroy {
           this.loading = false;
           this.error = 'Error loading unit details';
           this.snackBar.open('Error loading unit details', 'Close', { duration: 3000 });
-          console.error('Error loading unit details:', error);
         }
       });
   }
@@ -107,7 +106,6 @@ export class UnitDetailsComponent implements OnInit, OnDestroy {
         error: (error) => {
           this.loadingActivity = false;
           this.snackBar.open('Error loading activity history', 'Close', { duration: 3000 });
-          console.error('Error loading activity history:', error);
         }
       });
   }

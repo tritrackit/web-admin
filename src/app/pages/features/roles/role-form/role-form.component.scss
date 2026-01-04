@@ -130,6 +130,41 @@
       }
     }
   }
+
+  /* Readonly field styling */
+  .readonly-field-container {
+    margin-bottom: 16px;
+    
+    .readonly-field {
+      background-color: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 4px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-height: 56px;
+      justify-content: center;
+
+      .field-label {
+        font-family: "Chakra Petch", sans-serif;
+        color: #666;
+        font-size: 12px;
+        line-height: 1;
+        font-weight: 500;
+        text-transform: none;
+      }
+
+      .field-value {
+        font-family: "Chakra Petch", sans-serif;
+        font-size: 15px;
+        color: #333;
+        line-height: 1.5;
+        font-weight: 400;
+        word-break: break-word;
+      }
+    }
+  }
 }
 
 /* Table Styles */

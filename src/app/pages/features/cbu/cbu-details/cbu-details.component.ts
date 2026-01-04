@@ -204,7 +204,6 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
           
           if (isNotFound && retryCount < maxRetries) {
             const delay = Math.min(300 * Math.pow(2, retryCount), 2000); // Exponential backoff: 300ms, 600ms, 1200ms, max 2000ms
-            console.log(`🔄 Unit not found, retrying in ${delay}ms (attempt ${retryCount + 1}/${maxRetries})`);
             
             setTimeout(() => {
               this.initDetails(retryCount + 1, maxRetries);
@@ -224,7 +223,6 @@ export class CBUDetailsComponent implements OnInit, OnDestroy {
       // Handle network/connection errors with retry
       if (retryCount < maxRetries) {
         const delay = Math.min(300 * Math.pow(2, retryCount), 2000);
-        console.log(`🔄 Error loading unit, retrying in ${delay}ms (attempt ${retryCount + 1}/${maxRetries})`);
         
         setTimeout(() => {
           this.initDetails(retryCount + 1, maxRetries);

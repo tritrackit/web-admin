@@ -59,7 +59,6 @@ export class FeaturesComponent {
     if (this.profile && this.profile.userName) {
     }
 
-    console.log(this.route.snapshot.data);
     this.onResize();
     this.routeService.data$.subscribe((res: { title: string; admin: boolean; details: boolean; access: AccessPages; group: string }) => {
       this.title = res.title;
@@ -69,7 +68,6 @@ export class FeaturesComponent {
     const logsChannel = this.pusher.init(`room`);
 
     logsChannel.bind('maintenance', data => {
-      console.log('maintenance:', data);
       this.getMaintenanceBadgeCount();
     });
   }
@@ -143,7 +141,6 @@ export class FeaturesComponent {
 
   async getMaintenanceBadgeCount() {
     const rights = this.profile.role.accessPages.some(x=>x.page.trim().toUpperCase() === "MAINTENANCE") ? this.profile.role.accessPages.find(x=>x.page.trim().toUpperCase() === "MAINTENANCE").rights : [];
-    console.log(rights);
     if(rights.includes("Assign")) {
       const dashboard = await this.dashboardService.getDashboardSummary().toPromise();
       this.maintenanceBadgeCount = dashboard.data?.totalMaintenance || 0;

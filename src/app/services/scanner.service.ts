@@ -68,6 +68,5 @@ export class ScannerService implements IServices {
     };
   }
   log(message: string) {
-    console.log(message);
   }
 }

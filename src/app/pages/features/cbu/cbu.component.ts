@@ -56,29 +56,17 @@ export class CBUComponent {
 
       // 🔥 Listen for RFID events ONLY when on CBU list page
       // If user is already on /cbu/register, RegisterCbuComponent will handle it
-      console.log(`🔍 CBU List: Setting up data$ subscription`);
-      
+
       this.unitService.data$
         .pipe(
           filter((d: any) => {
             const shouldProcess = !!d && d._instant && !d._handled;
-            console.log(`🔍 CBU List: Filter check`, {
-              hasData: !!d,
-              isInstant: d?._instant,
-              isHandled: d?._handled,
-              shouldProcess: shouldProcess,
-              rfid: d?.rfid
-            });
+
             return shouldProcess;
           }), // ⚡ Only instant, unhandled events
           distinctUntilChanged((prev, curr) => {
             const isSame = prev?.rfid === curr?.rfid;
-            console.log(`🔍 CBU List: distinctUntilChanged check`, {
-              prevRfid: prev?.rfid,
-              currRfid: curr?.rfid,
-              isSame: isSame,
-              willEmit: !isSame
-            });
+
             return isSame;
           }), // ⚡ Prevent duplicate RFIDs
           takeUntil(this.destroy$)
@@ -87,12 +75,9 @@ export class CBUComponent {
           // 🔥 Check if already on register page - if so, don't navigate (RegisterCbuComponent handles it)
           const currentUrl = this.router.url;
           if (currentUrl.includes('/cbu/register')) {
-            console.log('⏭️ CBU List: Already on register page, skipping navigation');
+
             return; // RegisterCbuComponent will handle form population
           }
-          
-          const navStart = Date.now();
-          console.log('🚀 CBU List: Instant navigation triggered', `(latency: ${data._latency || 0}ms)`);
           
           // ⚡ INSTANT navigation - no delay, no toast
           // Mark as handled to prevent duplicate processing
@@ -109,22 +94,16 @@ export class CBUComponent {
             },
             skipLocationChange: false
           }).then(() => {
-            const navTime = Date.now() - navStart;
-            console.log(`⚡ Navigation completed in ${navTime}ms`);
-            
+
             // 🔍 DEBUG: Clear data after navigation
-            console.log(`🔍 CBU List: Clearing scanned data after navigation`, {
-              rfid: data.rfid,
-              navigationTime: navTime
-            });
-            
+
             // ⚡ Clear immediately after navigation
             setTimeout(() => {
               this.unitService.clearScannedData();
-              console.log(`🔍 CBU List: Scanned data cleared`);
+
             }, 300);
           }).catch((error) => {
-            console.error(`🔍 CBU List: Navigation failed`, error);
+
             // Still clear data even if navigation fails
             this.unitService.clearScannedData();
           });
