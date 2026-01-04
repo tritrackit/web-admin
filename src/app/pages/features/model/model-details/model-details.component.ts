@@ -316,11 +316,6 @@ onShowChangeThumbnail() {
       data: dataUri // Make sure it's a proper data URI
     };
 
-    console.log('Thumbnail data prepared:', {
-      fileName: this.modelThumbnail.fileName,
-      hasData: !!this.modelThumbnail.data,
-      isDataUri: this.modelThumbnail.data?.startsWith('data:image/')
-    });
   })
 }
 
@@ -343,7 +338,6 @@ onShowChangeThumbnail() {
         fileName: `${moment().format("YYYY-MM-DD-hh-mm-ss")}.${imageType}`,
         data: res.base64.toString()
       };
-      console.log(this.modelThumbnail);
     })
   }
 

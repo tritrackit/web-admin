@@ -76,6 +76,5 @@ export class ModelService implements IServices {
     };
   }
   log(message: string) {
-    console.log(message);
   }
 }

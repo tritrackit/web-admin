@@ -31,8 +31,8 @@
 
   // Filter Section
   .filter-section {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
     gap: 12px;
     margin-bottom: 24px;
     padding-bottom: 16px;
@@ -44,11 +44,11 @@
       color: #000;
       text-transform: uppercase;
       white-space: nowrap;
-    }
+}
 
-    .filter-select {
-      width: 200px;
-
+.filter-select {
+  width: 200px;
+  
       ::ng-deep {
         .mat-mdc-form-field-subscript-wrapper {
           display: none;
@@ -59,7 +59,7 @@
         }
 
         .mat-mdc-form-field-flex {
-          align-items: center;
+    align-items: center;
         }
       }
     }
@@ -75,25 +75,25 @@
   // Loading and Error States
   .loading-container,
   .error-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
     padding: 48px;
     text-align: center;
-
-    p {
-      margin-top: 16px;
-      color: #666;
-    }
-
-    mat-icon {
-      font-size: 48px;
-      width: 48px;
-      height: 48px;
-      margin-bottom: 16px;
-    }
+  
+  p {
+    margin-top: 16px;
+    color: #666;
   }
+  
+  mat-icon {
+    font-size: 48px;
+      width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+  }
+}
 
   // Report Content Wrapper
   .report-content-wrapper {
@@ -134,7 +134,7 @@
           th {
             background-color: transparent;
             color: #000;
-            font-weight: 600;
+      font-weight: 600;
             font-size: 12px;
             padding: 12px;
             text-align: left;
@@ -155,14 +155,14 @@
 
           &:hover {
             background-color: rgba(0, 0, 0, 0.05);
-          }
-
-          td {
-            padding: 12px;
+  }
+  
+  td {
+    padding: 12px;
             color: #000;
-            font-size: 14px;
+    font-size: 14px;
             background-color: transparent;
-          }
+}
 
           .no-data {
             text-align: center;
@@ -176,7 +176,7 @@
 
   // Chart and Export Section (Right Side)
   .chart-export-section {
-    display: flex;
+  display: flex;
     flex-direction: column;
     gap: 24px;
     min-width: 0; // Prevents flex item overflow
@@ -221,13 +221,13 @@
       mat-icon {
         margin-right: 8px;
       }
-
+      
       &:hover {
         background-color: #1976D2;
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-      }
     }
   }
+}
 }
 
 // Responsive adjustments for tablets and below
@@ -237,40 +237,40 @@
 
     .report-panel {
       padding: 16px;
-    }
+}
 
     .filter-section {
-      flex-direction: column;
+  flex-direction: column;
       align-items: flex-start;
       gap: 8px;
-
+  
       .filter-label {
-        font-size: 12px;
+    font-size: 12px;
       }
 
       .filter-select {
         width: 100%;
-      }
+}
 
       .selected-month-display {
         margin-left: 0;
         margin-top: 8px;
         font-size: 12px;
       }
-    }
+}
 
     .report-content-wrapper {
-      flex-direction: column;
+  flex-direction: column;
       gap: 16px !important;
     }
 
     .tables-section {
       width: 100%;
-    }
+}
 
     .chart-export-section {
       width: 100%;
-    }
+}
 
     .chart-container {
       min-height: 300px;
@@ -299,10 +299,10 @@
 
       .filter-label {
         font-size: 11px;
-      }
-
+  }
+  
       .selected-month-display {
-        font-size: 11px;
+    font-size: 11px;
       }
     }
 
@@ -322,8 +322,8 @@
           font-size: 12px;
           padding: 8px;
         }
-      }
-    }
+  }
+}
 
     .chart-container {
       min-height: 250px;
@@ -370,12 +370,12 @@
           padding: 6px;
         }
       }
-    }
-
+  }
+  
     .chart-container {
       min-height: 200px;
       padding: 8px;
-
+    
       .chart-wrapper {
         height: 200px;
       }
@@ -392,12 +392,12 @@
     .filter-section,
     .export-section {
       display: none;
-    }
-
+  }
+  
     .report-panel {
       border: none;
-      box-shadow: none;
-      padding: 0;
-    }
+    box-shadow: none;
+    padding: 0;
+  }
   }
 }

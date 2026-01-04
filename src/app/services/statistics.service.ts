@@ -188,7 +188,6 @@ export class StatisticsService {
 
   private handleError<T>(operation = 'operation') {
     return (error: any): Observable<ApiResponse<T>> => {
-      console.error(`${operation} failed:`, error);
       
       const errorMessage = this.getErrorMessage(error);
       

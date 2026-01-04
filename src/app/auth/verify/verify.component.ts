@@ -22,8 +22,6 @@ export class VerifyComponent {
     this.route.queryParamMap.subscribe(params => {
       this.email = params.get('email') || '';
       this.code = params.get('code') || '';
-      console.log('Email:', this.email);
-      console.log('Code:', this.code);
 
 
       // TODO: Call your API to verify using email & code

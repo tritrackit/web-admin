@@ -175,7 +175,6 @@ export class ReportsComponent implements OnInit, OnDestroy {
       error: (error) => {
         this.loading = false;
         this.error = 'Error loading report data. Please try again.';
-        console.error('Report error:', error);
         this.snackBar.open('Error loading report data', 'Close', { duration: 3000 });
       }
     });
@@ -278,7 +277,7 @@ export class ReportsComponent implements OnInit, OnDestroy {
           lowerLabel.includes('built') || 
           lowerLabel.includes('total units')) {
         colors.push(orangeColor);
-      } 
+  }
       // Check if label is for "Units Delivered" or "Delivered"
       else if (lowerLabel.includes('units delivered') || 
                lowerLabel.includes('delivered')) {
@@ -555,7 +554,6 @@ export class ReportsComponent implements OnInit, OnDestroy {
       this.loading = false;
       this.snackBar.open('Report exported to PDF successfully', 'Close', { duration: 3000 });
     } catch (error) {
-      console.error('PDF export error:', error);
       this.loading = false;
       this.snackBar.open('Error exporting to PDF', 'Close', { duration: 3000 });
     }

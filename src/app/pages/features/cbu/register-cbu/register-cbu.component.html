@@ -98,12 +98,15 @@
                   <mat-form-field appearance="outline" fxFlex.gt-sm="100%" fxFlex="100" class="cell"
                     [ngClass.gt-sm]="{ isLargeScreen: true }">
                     <mat-label>Color</mat-label>
-                    <input matInput placeholder="Enter color" formControlName="color" 
-                      (input)="unitForm.controls['color'].setValue(unitForm.controls['color'].value.toUpperCase())"/>
+                    <mat-select formControlName="color" placeholder="Select color">
+                      <mat-option *ngFor="let color of availableColors" [value]="color">
+                        {{ color }}
+                      </mat-option>
+                    </mat-select>
                     <mat-error *ngIf="getError('color')">{{
                       (getError("color") &&
                       getError("color")["required"]
-                      ? "Please enter color"
+                      ? "Please select color"
                       : "")
                       }}</mat-error>
                   </mat-form-field>

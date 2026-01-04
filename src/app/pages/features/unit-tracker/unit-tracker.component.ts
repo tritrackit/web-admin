@@ -148,7 +148,6 @@ export class UnitTrackerComponent implements OnInit, OnDestroy {
         debounceTime(300) // Small debounce to avoid rapid refreshes
       )
       .subscribe(() => {
-        console.log('🔄 UnitTracker: Pusher update received, reloading units...');
         // 🔥 Auto-reload silently for location updates and other changes
         this.loadUnits();
       });
@@ -196,6 +195,11 @@ export class UnitTrackerComponent implements OnInit, OnDestroy {
         // Error handled silently
       }
     });
+  }
+
+  onSearch(): void {
+    this.pageIndex = 0;
+    this.loadUnits();
   }
 
   loadUnits(): void {

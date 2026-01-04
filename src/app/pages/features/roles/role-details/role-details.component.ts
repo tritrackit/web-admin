@@ -36,7 +36,7 @@ export class RoleDetailsComponent {
 
   error;
   isLoading = false;
-
+  role: Roles;
   mediaWatcher: Subscription;
   matcher = new MyErrorStateMatcher();
   isProcessing = false;
@@ -100,14 +100,20 @@ export class RoleDetailsComponent {
     this.roleService.getByCode(this.code).subscribe(res=> {
       this.loaderService.hide();
       if (res.success) {
+        this.role = res.data; // Store the role data
+        
+        // You can still call setFormValue or rely on the @Input binding
         this.roleForm.setFormValue(res.data);
+        
         if(res.data.accessPages) {
           this.accessPagesTable.setDataSource(res.data.accessPages);
         }
-
-        if (this.isReadOnly) {
-          this.roleForm.form.disable();
-        }
+  
+        // Remove this line since the form component now handles disabling
+        // if (this.isReadOnly) {
+        //   this.roleForm.form.disable();
+        // }
+        
         if(!this.pageAccess.modify) {
           this.router.navigate(['/roles/' + this.code]);
         }
