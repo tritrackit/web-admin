@@ -57,20 +57,21 @@ export class UnitService implements IServices {
       const data = event.data;
       const priority = event._priority;
       
+      // Check if this is a location update FIRST (before any other processing)
+      const isLocationUpdate = data?.action === 'LOCATION_UPDATED' || 
+                              data?.action === 'ENTERED_WAREHOUSE_5' || 
+                              data?.action === 'EXITED_WAREHOUSE_5' ||
+                              data?._autoRefresh === true;
+      
+      // Location updates should ALWAYS trigger table refresh, never popup
+      if (isLocationUpdate) {
+        this.zone.run(() => {
+          this.refreshSubject.next();
+        });
+        return; // Exit early - don't process as registration event
+      }
+      
       if (priority === 'highest' || data?._instantPopup || data?.action === 'RFID_DETECTED_URGENT' || data?.action === 'RFID_DETECTED') {
-        // Check if this is a location update (should trigger refresh, not popup)
-        const isLocationUpdate = data?.action === 'LOCATION_UPDATED' || 
-                                data?.action === 'ENTERED_WAREHOUSE_5' || 
-                                data?.action === 'EXITED_WAREHOUSE_5' ||
-                                data?._autoRefresh === true;
-        
-        // If it's a location update, trigger refresh instead of showing popup
-        if (isLocationUpdate) {
-          this.zone.run(() => {
-            this.refreshSubject.next();
-          });
-          return;
-        }
         
         const now = Date.now();
         const sentAt = data._sentAt || (data.timestamp instanceof Date ? data.timestamp.getTime() : new Date(data.timestamp || Date.now()).getTime());
@@ -130,14 +131,8 @@ export class UnitService implements IServices {
         
         return;
       }
-      // Trigger refresh for unit updates
-      // Allow location updates even if they have RFID (they should trigger refresh)
-      const isLocationUpdate = data?.action === 'LOCATION_UPDATED' || 
-                              data?.action === 'ENTERED_WAREHOUSE_5' || 
-                              data?.action === 'EXITED_WAREHOUSE_5' ||
-                              data?._autoRefresh === true;
-      
-      if (event.type === 'units' && (!data?.rfid || isLocationUpdate)) {
+      // Trigger refresh for unit updates (non-RFID events or already processed location updates)
+      if (event.type === 'units') {
         this.zone.run(() => {
           this.refreshSubject.next();
         });
