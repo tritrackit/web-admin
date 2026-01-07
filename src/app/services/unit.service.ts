@@ -70,14 +70,14 @@ export class UnitService implements IServices {
         const locationId = data.locationId || data.location?.locationId || '';
         const rfid = data.rfid || '';
         
-        // 🔥 PREVENT DUPLICATES: Same RFID + same location + same _sentAt within 5 seconds
+        // 🔥 PREVENT DUPLICATES: Same RFID + same location + same _sentAt within 2 seconds
         // This prevents the same location update from triggering refresh twice
         // (e.g., when it comes through both Socket.io and Pusher fallback)
         if (rfid && locationId) {
           const isSameSentAt = this.lastLocationUpdate._sentAt && sentAt && this.lastLocationUpdate._sentAt === sentAt;
           const isSameUpdate = this.lastLocationUpdate.rfid === rfid && 
                               this.lastLocationUpdate.locationId === locationId &&
-                              (isSameSentAt || (now - this.lastLocationUpdate.time) < 5000);
+                              (isSameSentAt || (now - this.lastLocationUpdate.time) < 2000);
           
           if (isSameUpdate) {
             // Duplicate location update - ignore (already processed)

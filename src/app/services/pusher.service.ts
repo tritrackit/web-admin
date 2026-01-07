@@ -155,7 +155,7 @@ export class PusherService {
             const isSameSentAt = this.lastLocationUpdate._sentAt && sentAt && this.lastLocationUpdate._sentAt === sentAt;
             const isSameUpdate = this.lastLocationUpdate.rfid === rfid && 
                                 this.lastLocationUpdate.locationId === locationId &&
-                                (isSameSentAt || (now - this.lastLocationUpdate.time) < 5000);
+                                (isSameSentAt || (now - this.lastLocationUpdate.time) < 2000);
             
             if (isSameUpdate) {
               // Duplicate location update - ignore
@@ -281,7 +281,7 @@ export class PusherService {
           const isSameSentAt = this.lastLocationUpdate._sentAt && sentAt && this.lastLocationUpdate._sentAt === sentAt;
           const isSameUpdate = this.lastLocationUpdate.rfid === rfid && 
                               this.lastLocationUpdate.locationId === locationId &&
-                              (isSameSentAt || (now - this.lastLocationUpdate.time) < 5000);
+                              (isSameSentAt || (now - this.lastLocationUpdate.time) < 2000);
           
           if (isSameUpdate) {
             // Duplicate location update - ignore
