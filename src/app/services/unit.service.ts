@@ -39,7 +39,7 @@ export class UnitService implements IServices {
   data$ = this.data.asObservable();
 
   private lastProcessedRfid: {rfid: string, time: number, action?: string, _sentAt?: number} = {rfid: '', time: 0};
-  
+  private lastLocationUpdate: {rfid: string, locationId: string, time: number, _sentAt?: number} = {rfid: '', locationId: '', time: 0};
   private eventHistory: Array<{rfid: string, time: number, action: string}> = [];
   
   constructor(
@@ -65,6 +65,35 @@ export class UnitService implements IServices {
       
       // Location updates should ALWAYS trigger table refresh, never popup
       if (isLocationUpdate) {
+        const now = Date.now();
+        const sentAt = data._sentAt || (data.timestamp instanceof Date ? data.timestamp.getTime() : new Date(data.timestamp || Date.now()).getTime());
+        const locationId = data.locationId || data.location?.locationId || '';
+        const rfid = data.rfid || '';
+        
+        // 🔥 PREVENT DUPLICATES: Same RFID + same location + same _sentAt within 5 seconds
+        // This prevents the same location update from triggering refresh twice
+        // (e.g., when it comes through both Socket.io and Pusher fallback)
+        if (rfid && locationId) {
+          const isSameSentAt = this.lastLocationUpdate._sentAt && sentAt && this.lastLocationUpdate._sentAt === sentAt;
+          const isSameUpdate = this.lastLocationUpdate.rfid === rfid && 
+                              this.lastLocationUpdate.locationId === locationId &&
+                              (isSameSentAt || (now - this.lastLocationUpdate.time) < 5000);
+          
+          if (isSameUpdate) {
+            // Duplicate location update - ignore (already processed)
+            return;
+          }
+          
+          // Track this location update to prevent duplicates
+          this.lastLocationUpdate = {
+            rfid: rfid,
+            locationId: locationId,
+            time: now,
+            _sentAt: sentAt
+          };
+        }
+        
+        // Trigger refresh ONCE per unique location update
         this.zone.run(() => {
           this.refreshSubject.next();
         });
