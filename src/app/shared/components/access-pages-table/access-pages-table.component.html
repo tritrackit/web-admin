@@ -24,7 +24,7 @@
           [disabled]="isReadOnly"
           [matTooltip]="(element.view ? 'Disable' : 'Enable') + ' view access for ' + element.page"
           (click)="$event.stopPropagation()"
-          (change)="$event ? (element.view = !element.view) : null;element.view ? element.modify = false:false;!element.view ? element.rights = [] : false;accessGridChange.emit(accessPagesData)"
+          (change)="$event ? onViewChange(element) : null"
           [checked]="element.view">
         </mat-checkbox>
       </td>

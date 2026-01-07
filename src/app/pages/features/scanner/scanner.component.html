@@ -17,9 +17,6 @@
         </button>
         <input matInput placeholder="Search Scanner" [(ngModel)]="searchTerm" (keyup.enter)="onSearch()">
       </mat-form-field>
-      <button mat-raised-button class="search-btn" (click)="onSearch()" type="button">
-        Search
-      </button>
   
       <!-- Add New Scanner button on the right -->
       <button mat-raised-button class="add-user-btn" routerLink="/scanner/add">
