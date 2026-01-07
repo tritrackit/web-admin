@@ -38,7 +38,7 @@ export class UnitService implements IServices {
   }>(null);
   data$ = this.data.asObservable();
 
-  private lastProcessedRfid: {rfid: string, time: number} = {rfid: '', time: 0};
+  private lastProcessedRfid: {rfid: string, time: number, action?: string, _sentAt?: number} = {rfid: '', time: 0};
   
   private eventHistory: Array<{rfid: string, time: number, action: string}> = [];
   
@@ -58,23 +58,56 @@ export class UnitService implements IServices {
       const priority = event._priority;
       
       if (priority === 'highest' || data?._instantPopup || data?.action === 'RFID_DETECTED_URGENT' || data?.action === 'RFID_DETECTED') {
-        const now = Date.now();
-        const sentAt = data._sentAt || data.timestamp;
-        const latency = sentAt ? now - sentAt : data._latency || 0;
+        // Check if this is a location update (should trigger refresh, not popup)
+        const isLocationUpdate = data?.action === 'LOCATION_UPDATED' || 
+                                data?.action === 'ENTERED_WAREHOUSE_5' || 
+                                data?.action === 'EXITED_WAREHOUSE_5' ||
+                                data?._autoRefresh === true;
         
-        const timeSinceLast = this.lastProcessedRfid.rfid ? now - this.lastProcessedRfid.time : Infinity;
-        const isDuplicate = data.rfid && this.lastProcessedRfid.rfid === data.rfid && timeSinceLast < 1000;
-        
-        if (isDuplicate) {
+        // If it's a location update, trigger refresh instead of showing popup
+        if (isLocationUpdate) {
+          this.zone.run(() => {
+            this.refreshSubject.next();
+          });
           return;
         }
         
-        this.eventHistory.push({rfid: data.rfid, time: now, action: 'PROCESSING'});
+        const now = Date.now();
+        const sentAt = data._sentAt || (data.timestamp instanceof Date ? data.timestamp.getTime() : new Date(data.timestamp || Date.now()).getTime());
+        const latency = sentAt ? now - sentAt : data._latency || 0;
+        
+        const action = data.action || 'RFID_DETECTED';
+        
+        // Only apply strict duplicate prevention for REGISTRATION events
+        // Location updates (LOCATION_UPDATED, etc.) should work normally
+        const isRegistrationEvent = action === 'RFID_DETECTED' || 
+                                   action === 'RFID_DETECTED_URGENT' ||
+                                   action === 'UNIT_REGISTERING_PREDICTIVE' ||
+                                   action === 'UNIT_REGISTERED_CONFIRMED';
+        
+        if (isRegistrationEvent) {
+          const timeSinceLast = this.lastProcessedRfid.rfid ? now - this.lastProcessedRfid.time : Infinity;
+          const isSameAction = this.lastProcessedRfid.action === action;
+          const isSameSentAt = this.lastProcessedRfid._sentAt && sentAt && this.lastProcessedRfid._sentAt === sentAt;
+          
+          // Prevent duplicates for registration: same RFID + (same action OR same _sentAt) within 10 seconds
+          // This catches: same scan event, predictive + confirmed notifications from backend
+          const isDuplicate = data.rfid && 
+                             this.lastProcessedRfid.rfid === data.rfid && 
+                             (isSameAction || isSameSentAt) &&
+                             timeSinceLast < 10000;
+          
+          if (isDuplicate) {
+            return;
+          }
+          
+          this.lastProcessedRfid = {rfid: data.rfid, time: now, action: action, _sentAt: sentAt};
+        }
+        
+        this.eventHistory.push({rfid: data.rfid, time: now, action: action});
         if (this.eventHistory.length > 10) {
           this.eventHistory.shift(); 
         }
-        
-        this.lastProcessedRfid = {rfid: data.rfid, time: now};
         
         this.zone.run(() => {
           const eventData = {
@@ -97,7 +130,14 @@ export class UnitService implements IServices {
         
         return;
       }
-      if (event.type === 'units' && !data?.rfid) {
+      // Trigger refresh for unit updates
+      // Allow location updates even if they have RFID (they should trigger refresh)
+      const isLocationUpdate = data?.action === 'LOCATION_UPDATED' || 
+                              data?.action === 'ENTERED_WAREHOUSE_5' || 
+                              data?.action === 'EXITED_WAREHOUSE_5' ||
+                              data?._autoRefresh === true;
+      
+      if (event.type === 'units' && (!data?.rfid || isLocationUpdate)) {
         this.zone.run(() => {
           this.refreshSubject.next();
         });
@@ -135,10 +175,11 @@ export class UnitService implements IServices {
     // ⚡ Clear the data stream
     this.data.next(null);
     
-    // ⚡ Reset duplicate prevention after 3 seconds (allow new scans)
+    // ⚡ Reset duplicate prevention after 10 seconds (allow new scans)
+    // Keep the window long enough to prevent duplicates from same scan event
     setTimeout(() => {
       this.lastProcessedRfid = {rfid: '', time: 0};
-    }, 3000);
+    }, 10000);
   }
   
   getByAdvanceSearch(params: {

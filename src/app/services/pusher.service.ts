@@ -13,7 +13,7 @@ export class PusherService {
   private socketConnected = false;
   
   public onUpdate = new Subject<any>();
-  private lastRfidEvent: {rfid: string, time: number, channel?: string, source?: string} = {rfid: '', time: 0};
+  private lastRfidEvent: {rfid: string, time: number, channel?: string, source?: string, _sentAt?: number} = {rfid: '', time: 0};
   
   constructor() {
     // Initialize Pusher (fallback)
@@ -114,35 +114,68 @@ export class PusherService {
       // ⚡ PRIMARY: Listen for RFID events from Socket.io (ultra-fast)
       this.socket.on('rfid-urgent', (data: any) => {
         const now = Date.now();
-        const sentAt = data._socketSentAt || data._sentAt || data.timestamp;
+        const sentAt = data._socketSentAt || data._sentAt || (data.timestamp instanceof Date ? data.timestamp.getTime() : new Date(data.timestamp || Date.now()).getTime());
         const latency = sentAt ? now - sentAt : 0;
         
-        // 🔥 PREVENT DUPLICATES within 2 seconds (same RFID from any source)
-        if (data.rfid && this.lastRfidEvent.rfid === data.rfid && 
-            (now - this.lastRfidEvent.time) < 2000) {
-          return;
+        const action = data.action || 'RFID_DETECTED';
+        // Only apply strict duplicate prevention for REGISTRATION events
+        const isRegistrationEvent = action === 'RFID_DETECTED' || 
+                                   action === 'RFID_DETECTED_URGENT' ||
+                                   action === 'UNIT_REGISTERING_PREDICTIVE' ||
+                                   action === 'UNIT_REGISTERED_CONFIRMED';
+        
+        if (isRegistrationEvent) {
+          // 🔥 PREVENT DUPLICATES for registration events only
+          // Check both time and _sentAt to catch duplicate events from backend
+          const isSameSentAt = this.lastRfidEvent._sentAt && sentAt && this.lastRfidEvent._sentAt === sentAt;
+          const isDuplicate = data.rfid && 
+                             this.lastRfidEvent.rfid === data.rfid && 
+                             (isSameSentAt || (now - this.lastRfidEvent.time) < 10000);
+          
+          if (isDuplicate) {
+            return;
+          }
         }
         
-        this.lastRfidEvent = {rfid: data.rfid, time: now, channel: 'socket.io', source: 'socket.io'};
+        this.lastRfidEvent = {rfid: data.rfid, time: now, channel: 'socket.io', source: 'socket.io', _sentAt: sentAt};
         
-        // 🔥 EMIT IMMEDIATELY for CBU pop-up
-        this.onUpdate.next({
-          type: 'rfid-emergency',
-          data: {
-            rfid: data.rfid,
-            scannerCode: data.scannerCode,
-            location: data.location,
-            locationId: data.locationId,
-            employeeUserCode: data.employeeUserCode,
-            action: 'RFID_DETECTED_URGENT',
-            timestamp: new Date(),
-            _latency: latency,
-            _instantPopup: true, // ⚡ FLAG for CBU instant pop-up
-            _sentAt: sentAt,
-            _source: 'socket.io' // Track source for debugging
-          },
-          _priority: 'highest'
-        });
+        // Check if this is a location update (should trigger refresh, not popup)
+        const isLocationUpdate = action === 'LOCATION_UPDATED' || 
+                                action === 'ENTERED_WAREHOUSE_5' || 
+                                action === 'EXITED_WAREHOUSE_5' ||
+                                data._autoRefresh === true;
+        
+        if (isLocationUpdate) {
+          // Location updates should trigger refresh, not popup
+          this.onUpdate.next({
+            type: 'units',
+            data: {
+              ...data,
+              action: action,
+              _autoRefresh: true
+            },
+            _priority: 'normal'
+          });
+        } else {
+          // 🔥 EMIT IMMEDIATELY for CBU pop-up (registration events)
+          this.onUpdate.next({
+            type: 'rfid-emergency',
+            data: {
+              rfid: data.rfid,
+              scannerCode: data.scannerCode,
+              location: data.location,
+              locationId: data.locationId,
+              employeeUserCode: data.employeeUserCode,
+              action: 'RFID_DETECTED_URGENT',
+              timestamp: new Date(),
+              _latency: latency,
+              _instantPopup: true, // ⚡ FLAG for CBU instant pop-up
+              _sentAt: sentAt,
+              _source: 'socket.io' // Track source for debugging
+            },
+            _priority: 'highest'
+          });
+        }
       });
       
     } catch (error) {
@@ -172,61 +205,100 @@ export class PusherService {
     
     emergencyChannel.bind('rfid-urgent', (data: any) => {
       const now = Date.now();
-      const sentAt = data._sentAt || data.timestamp;
+      const sentAt = data._sentAt || (data.timestamp instanceof Date ? data.timestamp.getTime() : new Date(data.timestamp || Date.now()).getTime());
       const latency = sentAt ? now - sentAt : 0;
+      
+      const action = data.action || 'RFID_DETECTED';
+      // Only apply strict duplicate prevention for REGISTRATION events
+      const isRegistrationEvent = action === 'RFID_DETECTED' || 
+                                 action === 'RFID_DETECTED_URGENT' ||
+                                 action === 'UNIT_REGISTERING_PREDICTIVE' ||
+                                 action === 'UNIT_REGISTERED_CONFIRMED';
       
       // 🔥 IMPORTANT: In production, if Socket.io isn't working, Pusher MUST handle events
       // Only skip if Socket.io is ACTUALLY connected AND we received the same RFID from Socket.io VERY recently (< 200ms)
       const socketReceived = this.isSocketConnected() && 
                              this.lastRfidEvent.source === 'socket.io' &&
                              this.lastRfidEvent.rfid === data.rfid &&
-                             (now - this.lastRfidEvent.time) < 200; // Reduced from 500ms to 200ms
+                             (now - this.lastRfidEvent.time) < 200;
       
       if (socketReceived) {
         return;
       }
       
-      // 🔥 PREVENT DUPLICATES: Same RFID from Pusher within 2 seconds
-      if (data.rfid && this.lastRfidEvent.rfid === data.rfid && 
-          this.lastRfidEvent.source === 'pusher' &&
-          (now - this.lastRfidEvent.time) < 2000) {
-        return;
+      if (isRegistrationEvent) {
+        // 🔥 PREVENT DUPLICATES for registration events only
+        // Check both time and _sentAt to catch duplicate events from backend
+        const isSameSentAt = this.lastRfidEvent._sentAt && sentAt && this.lastRfidEvent._sentAt === sentAt;
+        const isDuplicate = data.rfid && 
+                           this.lastRfidEvent.rfid === data.rfid && 
+                           (isSameSentAt || (now - this.lastRfidEvent.time) < 10000);
+        
+        if (isDuplicate) {
+          return;
+        }
       }
       
-      this.lastRfidEvent = {rfid: data.rfid, time: now, channel: 'rfid-emergency-bypass', source: 'pusher'};
+      this.lastRfidEvent = {rfid: data.rfid, time: now, channel: 'rfid-emergency-bypass', source: 'pusher', _sentAt: sentAt};
       
-      this.onUpdate.next({
-        type: 'rfid-emergency',
-        data: {
-          rfid: data.rfid,
-          scannerCode: data.scannerCode,
-          location: data.location,
-          locationId: data.locationId,
-          employeeUserCode: data.employeeUserCode,
-          action: 'RFID_DETECTED_URGENT',
-          timestamp: new Date(),
-          _latency: latency,
-          _instantPopup: true, 
-          _sentAt: sentAt,
-          _source: 'pusher' // Track source for debugging
-        },
-        _priority: 'highest'
-      });
+      // Check if this is a location update (should trigger refresh, not popup)
+      const isLocationUpdate = action === 'LOCATION_UPDATED' || 
+                              action === 'ENTERED_WAREHOUSE_5' || 
+                              action === 'EXITED_WAREHOUSE_5' ||
+                              data._autoRefresh === true;
+      
+      if (isLocationUpdate) {
+        // Location updates should trigger refresh, not popup
+        this.onUpdate.next({
+          type: 'units',
+          data: {
+            ...data,
+            action: action,
+            _autoRefresh: true
+          },
+          _priority: 'normal'
+        });
+      } else {
+        // Registration events trigger popup
+        this.onUpdate.next({
+          type: 'rfid-emergency',
+          data: {
+            rfid: data.rfid,
+            scannerCode: data.scannerCode,
+            location: data.location,
+            locationId: data.locationId,
+            employeeUserCode: data.employeeUserCode,
+            action: 'RFID_DETECTED_URGENT',
+            timestamp: new Date(),
+            _latency: latency,
+            _instantPopup: true, 
+            _sentAt: sentAt,
+            _source: 'pusher' // Track source for debugging
+          },
+          _priority: 'highest'
+        });
+      }
     });
     
     const registrationChannel = this.pusher.subscribe('registration-urgent');
     registrationChannel.bind('rfid-detected', (data: any) => {
       const now = Date.now();
-      const sentAt = data._sentAt || data._pusherSentAt || data.timestamp;
+      const sentAt = data._sentAt || data._pusherSentAt || (data.timestamp instanceof Date ? data.timestamp.getTime() : new Date(data.timestamp || Date.now()).getTime());
       const latency = sentAt ? now - sentAt : 0;
       
-      // 🔥 PREVENT DUPLICATES
-      if (data.rfid && this.lastRfidEvent.rfid === data.rfid && 
-          (now - this.lastRfidEvent.time) < 500) {
+      // This channel is specifically for registration events, so always apply duplicate prevention
+      // 🔥 PREVENT DUPLICATES within 10 seconds
+      // Check _sentAt to catch duplicate events from backend (predictive + confirmed)
+      const isSameSentAt = this.lastRfidEvent._sentAt && sentAt && this.lastRfidEvent._sentAt === sentAt;
+      const isDuplicate = data.rfid && 
+                         this.lastRfidEvent.rfid === data.rfid && 
+                         (isSameSentAt || (now - this.lastRfidEvent.time) < 10000);
+      
+      if (isDuplicate) {
         return;
       }
       
-      this.lastRfidEvent = {rfid: data.rfid, time: now};
+      this.lastRfidEvent = {rfid: data.rfid, time: now, _sentAt: sentAt};
       
       this.onUpdate.next({
         type: 'rfid',
@@ -245,16 +317,22 @@ export class PusherService {
     const registrationChannel2 = this.pusher.subscribe('registration-channel');
     registrationChannel2.bind('new-registration', (data: any) => {
       const now = Date.now();
-      const sentAt = data._pusherSentAt || data._sentAt || data.timestamp;
+      const sentAt = data._pusherSentAt || data._sentAt || (data.timestamp instanceof Date ? data.timestamp.getTime() : new Date(data.timestamp || Date.now()).getTime());
       const latency = sentAt ? now - sentAt : 0;
       
-      // 🔥 PREVENT DUPLICATES within 2 seconds
-      if (data.rfid && this.lastRfidEvent.rfid === data.rfid && 
-          (now - this.lastRfidEvent.time) < 2000) {
+      // This channel is specifically for registration events, so always apply duplicate prevention
+      // 🔥 PREVENT DUPLICATES within 10 seconds
+      // Check _sentAt to catch duplicate events from backend
+      const isSameSentAt = this.lastRfidEvent._sentAt && sentAt && this.lastRfidEvent._sentAt === sentAt;
+      const isDuplicate = data.rfid && 
+                         this.lastRfidEvent.rfid === data.rfid && 
+                         (isSameSentAt || (now - this.lastRfidEvent.time) < 10000);
+      
+      if (isDuplicate) {
         return;
       }
       
-      this.lastRfidEvent = {rfid: data.rfid, time: now, channel: 'registration-channel'};
+      this.lastRfidEvent = {rfid: data.rfid, time: now, channel: 'registration-channel', _sentAt: sentAt};
       
       this.onUpdate.next({
         type: 'rfid',
@@ -278,7 +356,15 @@ export class PusherService {
     globalChannel.bind('reSync', (payload: any) => {
       const data = payload?.data || {};
       
-      if (data.rfid || data.action?.includes('RFID') || data.action?.includes('REGISTER')) {
+      // Allow location updates through (they have RFID but should trigger refresh)
+      const isLocationUpdate = data.action === 'LOCATION_UPDATED' || 
+                              data.action === 'ENTERED_WAREHOUSE_5' || 
+                              data.action === 'EXITED_WAREHOUSE_5' ||
+                              data._autoRefresh === true;
+      
+      // Skip only registration/RFID detection events (use emergency channel instead)
+      // But allow location updates even if they have RFID
+      if (!isLocationUpdate && (data.rfid || data.action?.includes('RFID') || data.action?.includes('REGISTER'))) {
         return; // Skip - use emergency channel instead
       }
       

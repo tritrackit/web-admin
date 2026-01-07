@@ -220,13 +220,23 @@ export class RegisterCbuComponent implements OnInit, OnDestroy {
       .subscribe(data => {
         const receiveTime = Date.now();
 
-        // 🔍 DEBUG: Check if already processed
+        // 🔍 Check if already processed
         if (data._handled) {
-
           return;
         }
         
-        // Mark as handled to prevent other components from processing
+        // Check if this RFID is already in the form (prevent duplicate processing)
+        // This prevents re-processing when the form is already populated
+        if (this.unitForm.value.rfid === data.rfid) {
+          data._handled = true;
+          // Still clear data to allow new scans after a delay
+          setTimeout(() => {
+            this.unitService.clearScannedData();
+          }, 500);
+          return;
+        }
+        
+        // Mark as handled IMMEDIATELY to prevent other components from processing
         data._handled = true;
 
         if (!this.unitForm.value.rfid || this.unitForm.value.rfid !== data.rfid) {
