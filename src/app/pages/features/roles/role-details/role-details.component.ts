@@ -196,9 +196,16 @@ export class RoleDetailsComponent {
   }
 
   onUpdate(formData) {
+    const accessPages = this.accessPagesTable.accessPagesData.map(page => ({
+      page: page.page,
+      view: Boolean(page.view),
+      modify: Boolean(page.modify),
+      rights: page.rights || []
+    }));
+    
     formData = {
       ...formData,
-      ...this.accessPagesTable.accessPagesData
+      accessPages: accessPages
     }
     const dialogData = new AlertDialogModel();
     dialogData.title = 'Confirm';
