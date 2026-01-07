@@ -83,9 +83,13 @@ export class AccessPagesTableComponent {
     for(var item of this.accessPagesDataSource.data) {
       if(accessPages.some(x=>x.page.toUpperCase() === item.page.toUpperCase())) {
         const pageAccess = accessPages.find(x=>x.page.toUpperCase() === item.page.toUpperCase());
-        item.modify = pageAccess.modify;
-        item.view = pageAccess.view;
-        item.rights = pageAccess.rights;
+        item.modify = typeof pageAccess.modify === 'string' 
+          ? pageAccess.modify === 'true' || pageAccess.modify === '1'
+          : Boolean(pageAccess.modify);
+        item.view = typeof pageAccess.view === 'string'
+          ? pageAccess.view === 'true' || pageAccess.view === '1'
+          : Boolean(pageAccess.view);
+        item.rights = pageAccess.rights || [];
       }
     }
   }
@@ -95,5 +99,14 @@ export class AccessPagesTableComponent {
       (x) => x.page.toUpperCase() === page.toUpperCase()
     );
     return accessPages && accessPages.rights ? accessPages.rights : [];
+  }
+
+  onViewChange(element: AccessPages) {
+    element.view = !element.view;
+    if (!element.view) {
+      element.modify = false;
+      element.rights = [];
+    }
+    this.accessGridChange.emit(this.accessPagesData);
   }
 }
