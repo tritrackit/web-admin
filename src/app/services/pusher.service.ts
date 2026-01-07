@@ -14,6 +14,7 @@ export class PusherService {
   
   public onUpdate = new Subject<any>();
   private lastRfidEvent: {rfid: string, time: number, channel?: string, source?: string, _sentAt?: number} = {rfid: '', time: 0};
+  private lastLocationUpdate: {rfid: string, locationId: string, time: number, _sentAt?: number} = {rfid: '', locationId: '', time: 0};
   
   constructor() {
     // Initialize Pusher (fallback)
@@ -146,6 +147,30 @@ export class PusherService {
                                 data._autoRefresh === true;
         
         if (isLocationUpdate) {
+          // 🔥 PREVENT DUPLICATES for location updates too
+          const locationId = data.locationId || data.location?.locationId || '';
+          const rfid = data.rfid || '';
+          
+          if (rfid && locationId) {
+            const isSameSentAt = this.lastLocationUpdate._sentAt && sentAt && this.lastLocationUpdate._sentAt === sentAt;
+            const isSameUpdate = this.lastLocationUpdate.rfid === rfid && 
+                                this.lastLocationUpdate.locationId === locationId &&
+                                (isSameSentAt || (now - this.lastLocationUpdate.time) < 2000);
+            
+            if (isSameUpdate) {
+              // Duplicate location update - ignore
+              return;
+            }
+            
+            // Track this location update
+            this.lastLocationUpdate = {
+              rfid: rfid,
+              locationId: locationId,
+              time: now,
+              _sentAt: sentAt
+            };
+          }
+          
           // Location updates should trigger refresh, not popup
           this.onUpdate.next({
             type: 'units',
@@ -248,6 +273,30 @@ export class PusherService {
                               data._autoRefresh === true;
       
       if (isLocationUpdate) {
+        // 🔥 PREVENT DUPLICATES for location updates too
+        const locationId = data.locationId || data.location?.locationId || '';
+        const rfid = data.rfid || '';
+        
+        if (rfid && locationId) {
+          const isSameSentAt = this.lastLocationUpdate._sentAt && sentAt && this.lastLocationUpdate._sentAt === sentAt;
+          const isSameUpdate = this.lastLocationUpdate.rfid === rfid && 
+                              this.lastLocationUpdate.locationId === locationId &&
+                              (isSameSentAt || (now - this.lastLocationUpdate.time) < 2000);
+          
+          if (isSameUpdate) {
+            // Duplicate location update - ignore
+            return;
+          }
+          
+          // Track this location update
+          this.lastLocationUpdate = {
+            rfid: rfid,
+            locationId: locationId,
+            time: now,
+            _sentAt: sentAt
+          };
+        }
+        
         // Location updates should trigger refresh, not popup
         this.onUpdate.next({
           type: 'units',
